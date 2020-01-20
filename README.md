@@ -12,6 +12,6 @@ Technological stack:
 Installation
 ============
 
-'git clone https://github.com/KonstantAnxiety/python_project_192.git'
-'cd python_project_192'
-'pip install -r requirements.txt'
+  git clone https://github.com/KonstantAnxiety/python_project_192.git
+  cd python_project_192
+  pip install -r requirements.txt
