@@ -1,6 +1,8 @@
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
+import pandas as pd
+import pickle as pk
 
 #import main_support
 
@@ -29,11 +31,35 @@ def destroy_MainWindow():
     w.destroy()
     w = None
 
+def refreshFromExcel():
+    xls = pd.ExcelFile('../Data/db.xlsx')
+    p = pd.read_excel(xls, list(range(5)))
+    db = open("../Data/db.pickle", "wb")
+    pk.dump(p, db)
+    db.close()
+
 class MainWindow:
+    def addRecord(self):
+        table = self.Data.index(self.Data.select())
+        t = pd.DataFrame(columns = self.db[table].columns)
+        for c in t.columns:
+            t.at[0, c] = input(c+': ')
+        self.db[table] = self.db[table].append(t, ignore_index=True)
+        print(self.db[table])
+        items = []
+        for title in self.db[table].columns:
+            items.append(self.db[table][title][len(self.db[table].index)-1])
+        self.tables[table].insert("", "end", values=items)
+
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
-
+        '''load db from pickle'''
+        #refreshFromExcel()
+        dbf = open("../Data/db.pickle", "rb")
+        self.db = pk.load(dbf)
+        dbf.close()
+        
         top.geometry("1000x600+150+30")
         top.resizable(0, 0)
         top.title("База Данных")
@@ -44,7 +70,7 @@ class MainWindow:
         self.Table_Frame.configure(text='''Таблица''')
         self.Table_Frame.configure(cursor="arrow")
 
-        self.Add_Button = tk.Button(self.Table_Frame)
+        self.Add_Button = tk.Button(self.Table_Frame, command=self.addRecord)
         self.Add_Button.place(relx=0.048, rely=0.625, height=32, width=88,
                               bordermode='ignore')
         self.Add_Button.configure(cursor="hand2")
@@ -173,6 +199,26 @@ class MainWindow:
         self.Data_t4 = tk.Frame(self.Data)
         self.Data.add(self.Data_t4, padding=3)
         self.Data.tab(3, text="Полный список")
+        
+        tabs = [self.Data_t1, self.Data_t2, self.Data_t3, self.Data_t4]
+        self.tables = [1, 2, 3, 4]
+        for i in range(len(tabs)):
+            self.tables[i] = ttk.Treeview(tabs[i])
+            self.tables[i].place(relwidth=1.0, relheight=1.0)
+            self.tables[i]["columns"] = list(self.db[i].columns)
+            self.tables[i]['show'] = 'headings'
+            cols = list(self.db[i].columns)
+            self.tables[i].column("#0", width=0, minwidth=0)
+            self.tables[i].heading("#0", text="")
+            for j in range(0, len(cols)):
+                self.tables[i].heading(cols[j], text=cols[j])
+                self.tables[i].column(cols[j], width=5)
+            for j in self.db[i].index:
+                items = []
+                for title in self.db[i].columns:
+                    items.append(self.db[i][title][j])
+                self.tables[i].insert("", "end", values=items)
+                
 
 if __name__ == '__main__':
     start_gui()
