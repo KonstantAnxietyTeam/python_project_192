@@ -42,18 +42,6 @@ def saveToPickle(filename, obj):
     db.close()
 
 class MainWindow:
-    def addRecord(self):
-        table = self.Data.index(self.Data.select())
-        t = pd.DataFrame(columns = self.db[table].columns)
-        for c in t.columns:
-            t.at[0, c] = input(c+': ')
-        self.db[table] = self.db[table].append(t, ignore_index=True)
-        print(self.db[table])
-        items = []
-        for title in self.db[table].columns:
-            items.append(self.db[table][title][len(self.db[table].index)-1])
-        self.tables[table].insert("", "end", values=items)
-
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
@@ -72,7 +60,7 @@ class MainWindow:
         self.Table_Frame.configure(text='''Таблица''')
         self.Table_Frame.configure(cursor="arrow")
 
-        self.Add_Button = tk.Button(self.Table_Frame, command=self.addRecord)
+        self.Add_Button = tk.Button(self.Table_Frame)
         self.Add_Button.place(relx=0.048, rely=0.625, height=32, width=88,
                               bordermode='ignore')
         self.Add_Button.configure(cursor="hand2")
