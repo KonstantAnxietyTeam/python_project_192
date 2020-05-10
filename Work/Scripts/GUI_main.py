@@ -216,13 +216,13 @@ class MainWindow:
                     items.append(self.db[i][title][j])
                 self.tables[i].insert("", "end", values=items)
         
-        #   configure scrolls
+        # configure scrolls
         self.scrolls = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
             self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="vertical", command=self.tables[i].yview)
-            self.scrolls[i].place(relx=.98, rely=0, relheight=1)
+            self.scrolls[i].pack(fill="y", side='right')
             self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="horizontal", command=self.tables[i].xview)
-            self.scrolls[i].place(relx=0, rely=.94, relwidth=1)
+            self.scrolls[i].pack(fill="x", side='bottom')
  
 
 if __name__ == '__main__':
