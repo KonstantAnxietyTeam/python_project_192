@@ -233,7 +233,7 @@ class MainWindow:
         filemenu.add_command(label="Open binary", command=self.menuFunc)
         filemenu.add_command(label="Save binary", command=self.menuFunc)
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=top.quit)
+        filemenu.add_command(label="Exit", command=top.destroy)
         menubar.add_cascade(label="File", menu=filemenu)
         
         helpmenu = tk.Menu(menubar, tearoff=0)
