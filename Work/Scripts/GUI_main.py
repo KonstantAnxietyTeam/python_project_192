@@ -246,8 +246,31 @@ class MainWindow:
         
         # status bar
         statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1, relief=tk.SUNKEN, anchor=tk.W)
-        statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+        statusbar.pack(side=tk.BOTTOM, fill=tk.X)      
         
+        # popup
+        self.tables[0].popup_menu = tk.Menu(self.tables[0], tearoff=0)
+        self.tables[0].popup_menu.add_command(label="Delete",
+                                    command=self.delete_selected)
+        self.tables[0].popup_menu.add_command(label="Modify",
+                                    command=self.delete_selected)
+
+        self.tables[0].bind("<Button-3>", self.tablePopup) # right click
+        self.tables[0].bind("<Delete>", self.asdf) # delete key pressed
+        self.tables[0].bind("<Control-a>", self.asdf) # Ctrl-a pressed
+
+    def asdf(self, event):
+        print('adfasdfsadfsadf')
+        
+    def tablePopup(self, event):
+        try:
+            self.tables[0].popup_menu.tk_popup(event.x_root, event.y_root, 0)
+        finally:
+            self.tables[0].popup_menu.grab_release()
+
+    def delete_selected(self):
+        print('del')
+
     def menuFunc(self):
         pass
 
