@@ -171,7 +171,7 @@ class MainWindow:
         self.Filter_Button.configure(text='''Фильтровать''')
 
         self.Data = ttk.Notebook(top)
-        self.Data.place(relx=0.03, rely=0.417, relheight=0.558, relwidth=0.952)
+        self.Data.place(relx=0.023, rely=0.417, relheight=0.528, relwidth=0.96)
         #self.Data.configure(takefocus="")
 
         self.Data_t1 = tk.Frame(self.Data)
@@ -195,7 +195,8 @@ class MainWindow:
         self.Data.tab(4, text="Отдел")
         
         # configure tables
-        tabs = [self.Data_t1, self.Data_t2, self.Data_t3, self.Data_t4, self.Data_t5]
+        tabs = [self.Data_t1, self.Data_t2, self.Data_t3, 
+                self.Data_t4, self.Data_t5]
         self.tables = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
             self.tables[i] = ttk.Treeview(tabs[i])
@@ -223,7 +224,32 @@ class MainWindow:
             self.scrolls[i].pack(fill="y", side='right')
             self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="horizontal", command=self.tables[i].xview)
             self.scrolls[i].pack(fill="x", side='bottom')
- 
+        
+        # menu
+        menubar = tk.Menu(top)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="New", command=self.menuFunc)
+        filemenu.add_command(label="Open xlsx", command=self.menuFunc)
+        filemenu.add_command(label="Open binary", command=self.menuFunc)
+        filemenu.add_command(label="Save binary", command=self.menuFunc)
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=top.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+        
+        helpmenu = tk.Menu(menubar, tearoff=0)
+        helpmenu.add_command(label="Add record", command=self.menuFunc)
+        helpmenu.add_command(label="Delete record", command=self.menuFunc)
+        helpmenu.add_command(label="Modify record", command=self.menuFunc)
+        menubar.add_cascade(label="Edit", menu=helpmenu)
+
+        top.config(menu=menubar)
+        
+        # status bar
+        statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+    def menuFunc(self):
+        pass
 
 if __name__ == '__main__':
     start_gui()
