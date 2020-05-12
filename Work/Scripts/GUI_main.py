@@ -64,7 +64,7 @@ class MainWindow:
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../db.pickle", "rb")
+        dbf = open("../Data./db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
 
