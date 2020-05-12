@@ -3,60 +3,78 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
+from tkinter import ttk
 
-#import main_support
+#  import main_support
+
 
 def start_gui():
     """Starting point when module is the main routine."""
     global val, w, root
     root = tk.Tk()
-    top = MainWindow (root)
-    #main_support.init(root, top)
+    top = MainWindow(root)
+    #  main_support.init(root, top)
     root.mainloop()
 
+
 w = None
+
+
 def create_MainWindow(rt, *args, **kwargs):
     """Starting point when module is imported by another module.
        Correct form of call: 'create_MainWindow(root, *args, **kwargs)' ."""
     global w, w_win, root
-    #rt = root
+    #  rt = root
     root = rt
-    w = tk.Toplevel (root)
-    top = MainWindow (w)
-    #main_support.init(w, top, *args, **kwargs)
+    w = tk.Toplevel(root)
+    top = MainWindow(w)
+    #  main_support.init(w, top, *args, **kwargs)
     return (w, top)
+
 
 def destroy_MainWindow():
     global w
     w.destroy()
     w = None
 
+
 def refreshFromExcel():
-    xls = pd.ExcelFile('../Data/db.xlsx')
+    xls = pd.ExcelFile('../db.xlsx')  #  your repository
     p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("../Data/db.pickle", p)
-    
+    saveToPickle("../db.pickle", p)
+
+
 def saveToPickle(filename, obj):
     db = open(filename, "wb")
     pk.dump(obj, db)
     db.close()
 
+
+def dataSort():
+    refreshFromExcel()
+    db = open("../db.pickle","rb")
+    p = pk.load(db)
+    db.close()
+    db = open("../db.pickle", "wb")
+    p.sort_values("Код работника")
+
+
 class MainWindow:
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
-        #refreshFromExcel()
-        dbf = open("../Data/db.pickle", "rb")
+        #  refreshFromExcel()  #  use once for db.pickle
+        dbf = open("../db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
-        
+
         top.geometry("1000x600+150+30")
         top.resizable(0, 0)
         top.title("База Данных")
 
         self.Table_Frame = tk.LabelFrame(top)
-        self.Table_Frame.place(relx=0.023, rely=0.017, relheight=0.373
-                , relwidth=0.207)
+        self.Table_Frame.place(relx=0.023, rely=0.017, relheight=0.373,
+                               relwidth=0.207)
         self.Table_Frame.configure(text='''Таблица''')
         self.Table_Frame.configure(cursor="arrow")
 
@@ -90,8 +108,8 @@ class MainWindow:
         self.Choice_Label.configure(text='''Выбор''')
 
         self.Analysis_Frame = tk.LabelFrame(top)
-        self.Analysis_Frame.place(relx=0.24, rely=0.017, relheight=0.373
-                , relwidth=0.201)
+        self.Analysis_Frame.place(relx=0.24, rely=0.017, relheight=0.373,
+                                  relwidth=0.201)
         self.Analysis_Frame.configure(text='''Анализ''')
 
         self.Method_Label = tk.Label(self.Analysis_Frame)
@@ -133,8 +151,8 @@ class MainWindow:
                                 relwidth=0.301, bordermode='ignore')
 
         self.Change_Button = tk.Button(self.Filter_Frame)
-        self.Change_Button.place(relx=0.357, rely=0.804, height=32, width=148
-                , bordermode='ignore')
+        self.Change_Button.place(relx=0.357, rely=0.804, height=32, width=148,
+                                 bordermode='ignore')
         self.Change_Button.configure(cursor="hand2")
         self.Change_Button.configure(text='''Изменить значения''')
 
@@ -172,7 +190,7 @@ class MainWindow:
 
         self.Data = ttk.Notebook(top)
         self.Data.place(relx=0.023, rely=0.417, relheight=0.528, relwidth=0.96)
-        #self.Data.configure(takefocus="")
+        #  self.Data.configure(takefocus="")
 
         self.Data_t1 = tk.Frame(self.Data)
         self.Data.add(self.Data_t1, padding=3)
@@ -189,13 +207,13 @@ class MainWindow:
         self.Data_t4 = tk.Frame(self.Data)
         self.Data.add(self.Data_t4, padding=3)
         self.Data.tab(3, text="Информация")
-        
+
         self.Data_t5 = tk.Frame(self.Data)
         self.Data.add(self.Data_t5, padding=3)
         self.Data.tab(4, text="Отдел")
-        
+
         # configure tables
-        tabs = [self.Data_t1, self.Data_t2, self.Data_t3, 
+        tabs = [self.Data_t1, self.Data_t2, self.Data_t3,
                 self.Data_t4, self.Data_t5]
         self.tables = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
@@ -216,15 +234,19 @@ class MainWindow:
                 for title in self.db[i].columns:
                     items.append(self.db[i][title][j])
                 self.tables[i].insert("", "end", values=items)
-        
+
         # configure scrolls
         self.scrolls = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
-            self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="vertical", command=self.tables[i].yview)
+            self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="vertical",
+                                            command=self.tables[i].yview)
+            self.tables[i].config(yscrollcommand=self.scrolls[i].set)
             self.scrolls[i].pack(fill="y", side='right')
-            self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="horizontal", command=self.tables[i].xview)
+            self.scrolls[i] = ttk.Scrollbar(self.tables[i], orient="horizontal",
+                                            command=self.tables[i].xview)
+            self.tables[i].config(xscrollcommand=self.scrolls[i].set)
             self.scrolls[i].pack(fill="x", side='bottom')
-        
+
         # menu
         menubar = tk.Menu(top)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -235,7 +257,7 @@ class MainWindow:
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=top.destroy)
         menubar.add_cascade(label="File", menu=filemenu)
-        
+
         helpmenu = tk.Menu(menubar, tearoff=0)
         helpmenu.add_command(label="Add record", command=self.menuFunc)
         helpmenu.add_command(label="Delete record", command=self.menuFunc)
@@ -243,13 +265,15 @@ class MainWindow:
         menubar.add_cascade(label="Edit", menu=helpmenu)
 
         top.config(menu=menubar)
-        
+
         # status bar
-        statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1,
+                             relief=tk.SUNKEN, anchor=tk.W)
         statusbar.pack(side=tk.BOTTOM, fill=tk.X)
-        
+
     def menuFunc(self):
         pass
+
 
 if __name__ == '__main__':
     start_gui()
