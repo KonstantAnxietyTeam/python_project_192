@@ -41,6 +41,8 @@ Common git commands:
 
 `git merge <branch>` – merge another branch to the current branch
 
+`git fetch --all` – get remote branches
+
 
 `git log` – view the history of the current repo
 
