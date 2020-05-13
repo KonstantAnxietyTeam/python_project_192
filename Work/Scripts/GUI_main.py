@@ -39,9 +39,9 @@ def destroy_MainWindow():
 
 
 def refreshFromExcel():
-    xls = pd.ExcelFile('../db.xlsx')  #  your repository
+    xls = pd.ExcelFile('../Data/db.xlsx')  #  your repository
     p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("../db.pickle", p)
+    saveToPickle("../Data/db.pickle", p)
 
 
 def saveToPickle(filename, obj):
@@ -52,10 +52,10 @@ def saveToPickle(filename, obj):
 
 def dataSort():
     refreshFromExcel()
-    db = open("../db.pickle","rb")
+    db = open("../Data/db.pickle","rb")
     p = pk.load(db)
     db.close()
-    db = open("../db.pickle", "wb")
+    db = open("../Data/db.pickle", "wb")
     p.sort_values("Код работника")
 
 
@@ -64,7 +64,7 @@ class MainWindow:
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../Data./db.pickle", "rb")
+        dbf = open("../Data/db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
 
