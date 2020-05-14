@@ -215,25 +215,37 @@ class MainWindow:
         # configure tables
         tabs = [self.Data_t1, self.Data_t2, self.Data_t3,
                 self.Data_t4, self.Data_t5]
+
         self.tables = [0, 1, 2, 3, 4]
+
         for i in range(len(tabs)):
             self.tables[i] = ttk.Treeview(tabs[i])
+            
             self.tables[i].place(relwidth=1.0, relheight=1.0)
             self.tables[i]["columns"] = list(self.db[i].columns)
             self.tables[i]['show'] = 'headings'
-            cols = list(self.db[i].columns)
+            
+            columns = list(self.db[i].columns)
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
             self.tables[i].heading("#0", text="")
-            for j in range(0, len(cols)):
-                self.tables[i].heading(cols[j], text=cols[j])
+            for col in columns:
+                self.tables[i].heading(col, text=col, command=lambda: self.tree_sort(self.tables[0], columns[0], False)) #Надо првить тутя(
                 self.Data.update()
-                self.tables[i].column(cols[j], width=int((self.Data.winfo_width()-30)/(len(cols)-1)), stretch=tk.NO)
-            self.tables[i].column(cols[0], width=30, stretch=tk.NO)
+                width = int((self.Data.winfo_width()-30)/(len(columns)-1))
+                self.tables[i].column(col, width=width, stretch=tk.NO)
+
+            self.tables[i].column(columns[0], width=30, stretch=tk.NO)
+            
             for j in self.db[i].index:
                 items = []
                 for title in self.db[i].columns:
                     items.append(self.db[i][title][j])
                 self.tables[i].insert("", "end", values=items)
+            
+            t = self.tables[i]
+            l = [(int(t.set(k, columns[0])), k) for k in t.get_children('')]
+            print(l)
+                 
 
         # configure scrolls
         self.scrolls = [0, 1, 2, 3, 4]
@@ -270,7 +282,16 @@ class MainWindow:
         statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1,
                              relief=tk.SUNKEN, anchor=tk.W)
         statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+    def tree_sort(self, treeview, col, reverse):
+        l = [(int(treeview.set(k, col)), k) for k in treeview.get_children('')] 
+        l.sort(reverse=reverse)
 
+        for index, (val, k) in enumerate(l):
+            treeview.move(k, '', index)
+
+        treeview.heading(col, command=lambda: self.tree_sort(treeview, col, not reverse))
+    
+    
     def menuFunc(self):
         pass
 
