@@ -228,25 +228,27 @@ class MainWindow:
             columns = list(self.db[i].columns)
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
             self.tables[i].heading("#0", text="")
+            com=[]
+            com.append(lambda: self.tree_sort(self.tables[0], "Код", False))
+            com.append(lambda: self.tree_sort(self.tables[1], "Код", False))
+            com.append(lambda: self.tree_sort(self.tables[2], "Код", False))
+            com.append(lambda: self.tree_sort(self.tables[3], "Код", False))
+            com.append(lambda: self.tree_sort(self.tables[4], "Код", False))
             for col in columns:
-                self.tables[i].heading(col, text=col, command=lambda: self.tree_sort(self.tables[0], columns[0], False)) #Надо првить тутя(
+                self.tables[i].heading(col, text=col) #Надо првить тутя
                 self.Data.update()
                 width = int((self.Data.winfo_width()-30)/(len(columns)-1))
                 self.tables[i].column(col, width=width, stretch=tk.NO)
 
             self.tables[i].column(columns[0], width=30, stretch=tk.NO)
+            self.tables[i].heading("Код", text="Код", command=com[i])
             
             for j in self.db[i].index:
                 items = []
                 for title in self.db[i].columns:
                     items.append(self.db[i][title][j])
-                self.tables[i].insert("", "end", values=items)
+                self.tables[i].insert("", "end", values=items) 
             
-            t = self.tables[i]
-            l = [(int(t.set(k, columns[0])), k) for k in t.get_children('')]
-            print(l)
-                 
-
         # configure scrolls
         self.scrolls = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
