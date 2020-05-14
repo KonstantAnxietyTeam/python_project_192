@@ -63,7 +63,7 @@ class MainWindow:
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
-        #  refreshFromExcel()  #  use once for db.pickle
+        refreshFromExcel()  #  use once for db.pickle
         dbf = open("../Data/db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
@@ -231,7 +231,7 @@ class MainWindow:
             self.tables[i].heading("#0", text="")
             
             for j in range(len(columns)):
-                self.tables[i].heading(columns[j], text=columns[j], command= lambda _treeview = self.tables[i], _col=columns[j]:self.tree_sort(_treeview, _col, False)) #Надо првить тутя
+                self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲', command= lambda _treeview = self.tables[i], _col=columns[j]:self.tree_sort(_treeview, _col, False)) #Надо првить тутя
                 self.Data.update()
                 width = int((self.Data.winfo_width()-30)/(len(columns)-1))
                 self.tables[i].column(columns[j], width=width, stretch=tk.NO)
@@ -287,8 +287,11 @@ class MainWindow:
 
             for index, (val, k) in enumerate(l):
                 treeview.move(k, '', index)
-
-            treeview.heading(col, command=lambda: self.tree_sort(treeview, col, not reverse))
+            if reverse:
+                char = '        ▼'
+            else:
+                char = '        ▲'
+            treeview.heading(col,text = col+char, command=lambda: self.tree_sort(treeview, col, not reverse))
         except:
             print('Написать исключение')
     
