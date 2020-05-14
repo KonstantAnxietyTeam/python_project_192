@@ -220,13 +220,14 @@ class MainWindow:
 
         for i in range(len(tabs)):
             self.tables[i] = ttk.Treeview(tabs[i])
+            columns = list(self.db[i].columns) 
             
             self.tables[i].place(relwidth=1.0, relheight=1.0)
-            self.tables[i]["columns"] = list(self.db[i].columns)
+            self.tables[i]["columns"] = columns
             self.tables[i]['show'] = 'headings'
             
-            columns = list(self.db[i].columns)
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
+            
             self.tables[i].heading("#0", text="")
             com=[]
             com.append(lambda: self.tree_sort(self.tables[0], "Код", False))
@@ -234,14 +235,15 @@ class MainWindow:
             com.append(lambda: self.tree_sort(self.tables[2], "Код", False))
             com.append(lambda: self.tree_sort(self.tables[3], "Код", False))
             com.append(lambda: self.tree_sort(self.tables[4], "Код", False))
-            for col in columns:
-                self.tables[i].heading(col, text=col) #Надо првить тутя
+            
+            for j in range(len(columns)):
+                self.tables[i].heading(columns[j], text=columns[j], command= lambda _col=columns[j]:self.tree_sort(self.tables[i], _col, False)) #Надо првить тутя
                 self.Data.update()
                 width = int((self.Data.winfo_width()-30)/(len(columns)-1))
-                self.tables[i].column(col, width=width, stretch=tk.NO)
+                self.tables[i].column(columns[j], width=width, stretch=tk.NO)
 
             self.tables[i].column(columns[0], width=30, stretch=tk.NO)
-            self.tables[i].heading("Код", text="Код", command=com[i])
+            #self.tables[i].heading("Код", text="Код", command=com[i])
             
             for j in self.db[i].index:
                 items = []
