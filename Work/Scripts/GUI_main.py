@@ -229,15 +229,9 @@ class MainWindow:
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
             
             self.tables[i].heading("#0", text="")
-            com=[]
-            com.append(lambda: self.tree_sort(self.tables[0], "Код", False))
-            com.append(lambda: self.tree_sort(self.tables[1], "Код", False))
-            com.append(lambda: self.tree_sort(self.tables[2], "Код", False))
-            com.append(lambda: self.tree_sort(self.tables[3], "Код", False))
-            com.append(lambda: self.tree_sort(self.tables[4], "Код", False))
             
             for j in range(len(columns)):
-                self.tables[i].heading(columns[j], text=columns[j], command= lambda _col=columns[j]:self.tree_sort(self.tables[i], _col, False)) #Надо првить тутя
+                self.tables[i].heading(columns[j], text=columns[j], command= lambda _treeview = self.tables[i], _col=columns[j]:self.tree_sort(_treeview, _col, False)) #Надо првить тутя
                 self.Data.update()
                 width = int((self.Data.winfo_width()-30)/(len(columns)-1))
                 self.tables[i].column(columns[j], width=width, stretch=tk.NO)
@@ -287,14 +281,16 @@ class MainWindow:
                              relief=tk.SUNKEN, anchor=tk.W)
         statusbar.pack(side=tk.BOTTOM, fill=tk.X)
     def tree_sort(self, treeview, col, reverse):
-        l = [(int(treeview.set(k, col)), k) for k in treeview.get_children('')] 
-        l.sort(reverse=reverse)
+        try:
+            l = [(int(treeview.set(k, col)), k) for k in treeview.get_children('')] 
+            l.sort(reverse=reverse)
 
-        for index, (val, k) in enumerate(l):
-            treeview.move(k, '', index)
+            for index, (val, k) in enumerate(l):
+                treeview.move(k, '', index)
 
-        treeview.heading(col, command=lambda: self.tree_sort(treeview, col, not reverse))
-    
+            treeview.heading(col, command=lambda: self.tree_sort(treeview, col, not reverse))
+        except:
+            print('Написать исключение')
     
     def menuFunc(self):
         pass
