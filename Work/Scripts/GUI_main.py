@@ -20,16 +20,16 @@ def start_gui():
 w = None
 
 
-def create_MainWindow(rt, *args, **kwargs):
-    """Starting point when module is imported by another module.
-       Correct form of call: 'create_MainWindow(root, *args, **kwargs)' ."""
-    global w, w_win, root
-    #  rt = root
-    root = rt
-    w = tk.Toplevel(root)
-    top = MainWindow(w)
-    #  main_support.init(w, top, *args, **kwargs)
-    return (w, top)
+#def create_MainWindow(rt, *args, **kwargs):
+#    """Starting point when module is imported by another module.
+#       Correct form of call: 'create_MainWindow(root, *args, **kwargs)' ."""
+#    w, w_win, root
+#    #  rt = root
+#    root = rt
+#    w = tk.Toplevel(root)
+#    top = MainWindow(w)
+#    #  main_support.init(w, top, *args, **kwargs)
+#    return (w, top)
 
 
 def destroy_MainWindow():
@@ -39,9 +39,9 @@ def destroy_MainWindow():
 
 
 def refreshFromExcel():
-    xls = pd.ExcelFile('../Data/db.xlsx')  #  your repository
+    xls = pd.ExcelFile('../db.xlsx')  #  your repository
     p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("../Data/db.pickle", p)
+    saveToPickle("../db.pickle", p)
 
 
 def saveToPickle(filename, obj):
@@ -52,20 +52,21 @@ def saveToPickle(filename, obj):
 
 def dataSort():
     refreshFromExcel()
-    db = open("../Data/db.pickle","rb")
+    db = open("../db.pickle","rb")
     p = pk.load(db)
     db.close()
-    db = open("../Data/db.pickle", "wb")
+    db = open("../db.pickle", "wb")
     p.sort_values("Код работника")
 
 
 class MainWindow:
+    db = None
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../Data/db.pickle", "rb")
-        self.db = pk.load(dbf)
+        dbf = open("../Data./db.pickle", "rb")
+        MainWindow.db = pk.load(dbf)
         dbf.close()
 
         top.geometry("1000x600+150+30")
@@ -217,11 +218,11 @@ class MainWindow:
                 self.Data_t4, self.Data_t5]
         self.tables = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
-            self.tables[i] = ttk.Treeview(tabs[i])
+            self.tables[i] = TreeViewWithPopup(tabs[i])
             self.tables[i].place(relwidth=1.0, relheight=1.0)
-            self.tables[i]["columns"] = list(self.db[i].columns)
+            self.tables[i]["columns"] = list(MainWindow.db[i].columns)
             self.tables[i]['show'] = 'headings'
-            cols = list(self.db[i].columns)
+            cols = list(MainWindow.db[i].columns)
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
             self.tables[i].heading("#0", text="")
             for j in range(0, len(cols)):
@@ -229,10 +230,10 @@ class MainWindow:
                 self.Data.update()
                 self.tables[i].column(cols[j], width=int((self.Data.winfo_width()-30)/(len(cols)-1)), stretch=tk.NO)
             self.tables[i].column(cols[0], width=30, stretch=tk.NO)
-            for j in self.db[i].index:
+            for j in MainWindow.db[i].index:
                 items = []
-                for title in self.db[i].columns:
-                    items.append(self.db[i][title][j])
+                for title in MainWindow.db[i].columns:
+                    items.append(MainWindow.db[i][title][j])
                 self.tables[i].insert("", "end", values=items)
 
         # configure scrolls
@@ -274,6 +275,34 @@ class MainWindow:
     def menuFunc(self):
         pass
 
+class TreeViewWithPopup(ttk.Treeview):
+    def __init__(self, parent, *args, **kwargs):
+        ttk.Treeview.__init__(self, parent, *args, **kwargs)
+        self.popup_menu = tk.Menu(self, tearoff=0)
+        self.popup_menu.add_command(label="Delete",
+                                    command=self.deleteRecords)
+        self.bind("<Delete>", self.deleteRecords)
+        self.bind("<Control-a>", self.selectAll)
+        self.popup_menu.add_command(label="Select All",
+                                    command=self.selectAll)
+        self.bind("<Button-3>", self.popup)
+        
+    def popup(self, event):
+        try:
+            self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
+        finally:
+            self.popup_menu.grab_release()
+            
+    def selectAll(self, event=None):
+        self.selection_set(tuple(self.get_children()))  
+            
+    def deleteRecords(self, event=None):
+        nb = self.master.master
+        nb = nb.index(nb.select())
+        selected = [int(i[1::], 16)-1 for i in self.selection()]
+        MainWindow.db[nb] = MainWindow.db[nb].drop(selected)
+        for item in self.selection():
+            self.delete(item)
 
 if __name__ == '__main__':
     start_gui()
