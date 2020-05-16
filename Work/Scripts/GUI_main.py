@@ -4,6 +4,7 @@ import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
 from tkinter import filedialog
+from tkinter import messagebox as mb
 
 #  import main_support
 
@@ -57,6 +58,19 @@ def dataSort():
     db.close()
     db = open("../db.pickle", "wb")
     p.sort_values("Код работника")
+    
+def openFromFile(filename):
+    if (filename[-6::] == "pickle"):
+        dbf = open(filename, "rb")
+        MainWindow.currentFile = filename
+        MainWindow.db = pk.load(dbf)
+        dbf.close()
+        MainWindow.modified = False
+    else:
+        xls = pd.ExcelFile(filename)  #  your repository
+        MainWindow.db = pd.read_excel(xls, list(range(5)))
+        MainWindow.currentFile = ''
+        MainWindow.modified = True
 
 
 class MainWindow:
@@ -254,20 +268,20 @@ class MainWindow:
         # menu
         menubar = tk.Menu(top)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="New", command=self.menuFunc)
-        filemenu.add_command(label="Open", command=self.open)
-        filemenu.add_command(label="Save", command=self.save)
-        filemenu.add_command(label="Save as...", command=self.saveas)
+        filemenu.add_command(label="Новый", command=self.menuFunc)
+        filemenu.add_command(label="Открыть", command=self.open)
+        filemenu.add_command(label="Сохранить", command=self.save)
+        filemenu.add_command(label="Сохранить как...", command=self.saveas)
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=self.exit)
-        menubar.add_cascade(label="File", menu=filemenu)
-        filemenu.entryconfig("New", state="disabled")
+        filemenu.add_command(label="Выход", command=self.exit)
+        menubar.add_cascade(label="Файл", menu=filemenu)
+        filemenu.entryconfig("0", state="disabled")
         
         helpmenu = tk.Menu(menubar, tearoff=0)
-        helpmenu.add_command(label="Add record", command=self.menuFunc)
-        helpmenu.add_command(label="Delete record", command=self.menuFunc)
-        helpmenu.add_command(label="Modify record", command=self.menuFunc)
-        menubar.add_cascade(label="Edit", menu=helpmenu)
+        helpmenu.add_command(label="Добавить", command=self.menuFunc)
+        helpmenu.add_command(label="Удалить", command=self.menuFunc)
+        helpmenu.add_command(label="Изменить", command=self.menuFunc)
+        menubar.add_cascade(label="Правка", menu=helpmenu)
 
         top.config(menu=menubar)
 
@@ -277,23 +291,48 @@ class MainWindow:
         self.statusbar.pack(side=tk.BOTTOM, fill=tk.X)
         self.statusUpdate()
         
+    def loadTables(self):
+        for tree in self.tables:
+            for item in tree.get_children():
+                tree.delete(item)
+        for i in range(len(self.tables)):
+            for j in MainWindow.db[i].index:
+                items = []
+                for title in MainWindow.db[i].columns:
+                    items.append(MainWindow.db[i][title][j])
+                self.tables[i].insert("", "end", values=items)
+        
     def exit(self):
-        print(CustomDialog(root, "Enter something:").show())
+        if MainWindow.modified:
+            ans = tk.messagebox.askyesnocancel("Несохраненные измененя", "Хотите сохранить изменения перед закрытием?")
+            if ans:
+                self.save()
+            elif ans == None:
+                return
+        root.destroy()     
         
     def open(self):
-        filename = filedialog.askopenfilename(filetypes = (("pickle files","*.pickle"),("Excel files", "*.xls *.xlsx")))
-        print(filename)
-        # TODO do you want to close? save? cancel?
+        if MainWindow.modified:
+            ans = tk.messagebox.askyesnocancel("Несохраненные измененя", "Хотите сохранить изменения перед закрытием?")
+            if ans:
+                self.save()
+            elif ans == None:
+                return
+        file = filedialog.askopenfilename(filetypes = (("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")))
+        openFromFile(file)
+        self.loadTables()
         
     def save(self):
-        pass
-        # save to MainWindow.currentFile
-        # TODO
+        if (MainWindow.currentFile != ''):
+            saveToPickle(MainWindow.currentFile, MainWindow.db)
+        else:
+            self.saveas()
         
     def saveas(self):
-        filename = filedialog.askopenfilename(filetypes = (("pickle files","*.pickle"),("Excel files", "*.xls *.xlsx")))
-        print(filename)
-        # TODO
+        filename = filedialog.asksaveasfilename(filetypes = [], defaultextension=".pickle")
+        MainWindow.currentFile = filename
+        MainWindow.modified = False
+        saveToPickle(filename, self.db)
    
     def statusUpdate(self, event=None):
         curTable = self.tables[self.Data.index(self.Data.select())]
@@ -308,10 +347,11 @@ class MainWindow:
         root.after(1, self.statusUpdate)
 
     def menuFunc(self):
-        pass
+        print("Hi!")
     
     
 class CustomDialog(tk.Toplevel):
+    #print(CustomDialog(root, "Enter something:").show()) to show
     def __init__(self, parent, prompt):
         tk.Toplevel.__init__(self, parent)
 
@@ -341,13 +381,15 @@ class TreeViewWithPopup(ttk.Treeview):
     def __init__(self, parent, *args, **kwargs):
         ttk.Treeview.__init__(self, parent, *args, **kwargs)
         self.popup_menu = tk.Menu(self, tearoff=0)
-        self.popup_menu.add_command(label="Delete",
+        self.popup_menu.add_command(label="Удалить",
                                     command=self.deleteRecords)
-        self.bind("<Delete>", self.deleteRecords)
-        self.bind("<Control-a>", self.selectAll)
-        self.popup_menu.add_command(label="Select All",
+        self.popup_menu.add_command(label="Выбрать все",
                                     command=self.selectAll)
+        self.popup_menu.add_command(label="Изменить",
+                                    command=self.selectAll)
+        self.bind("<Delete>", self.deleteRecords)
         self.bind("<Button-3>", self.popup)
+        self.bind("<Control-a>", self.selectAll)
         
     def popup(self, event):
         try:
@@ -362,9 +404,12 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = self.master.master
         nb = nb.index(nb.select())
         selected = [int(i[1::], 16)-1 for i in self.selection()]
+        if len(selected):
+            MainWindow.modified = True
         MainWindow.db[nb] = MainWindow.db[nb].drop(selected)
         for item in self.selection():
             self.delete(item)
+            
 
 if __name__ == '__main__':
     start_gui()
