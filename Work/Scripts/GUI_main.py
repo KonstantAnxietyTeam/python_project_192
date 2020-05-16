@@ -291,6 +291,11 @@ class MainWindow:
         self.statusbar.pack(side=tk.BOTTOM, fill=tk.X)
         self.statusUpdate()
         
+        root.bind("<Control-a>", self.selectAll)
+        
+    def selectAll(self, event=None):
+        self.tables[self.Data.index("current")].selectAll()
+        
     def loadTables(self):
         for tree in self.tables:
             for item in tree.get_children():
@@ -389,7 +394,7 @@ class TreeViewWithPopup(ttk.Treeview):
                                     command=self.selectAll)
         self.bind("<Delete>", self.deleteRecords)
         self.bind("<Button-3>", self.popup)
-        self.bind("<Control-a>", self.selectAll)
+        #self.bind("<Control-a>", self.selectAll)
         
     def popup(self, event):
         try:
