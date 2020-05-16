@@ -3,6 +3,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
+from tkinter import filedialog
 
 #  import main_support
 
@@ -60,11 +61,14 @@ def dataSort():
 
 class MainWindow:
     db = None
+    currentFile = ''
+    modified = False
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../Data./db.pickle", "rb")
+        dbf = open("../Data/db.pickle", "rb")
+        MainWindow.currentFile = "../Data/db.pickle"
         MainWindow.db = pk.load(dbf)
         dbf.close()
 
@@ -251,11 +255,11 @@ class MainWindow:
         menubar = tk.Menu(top)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.menuFunc)
-        filemenu.add_command(label="Open", command=self.menuFunc)
-        filemenu.add_command(label="Save", command=self.menuFunc)
-        filemenu.add_command(label="Save as...", command=self.menuFunc)
+        filemenu.add_command(label="Open", command=self.open)
+        filemenu.add_command(label="Save", command=self.save)
+        filemenu.add_command(label="Save as...", command=self.saveas)
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=top.destroy)
+        filemenu.add_command(label="Exit", command=self.exit)
         menubar.add_cascade(label="File", menu=filemenu)
         filemenu.entryconfig("New", state="disabled")
         
@@ -272,6 +276,24 @@ class MainWindow:
                              relief=tk.SUNKEN, anchor=tk.W)
         self.statusbar.pack(side=tk.BOTTOM, fill=tk.X)
         self.statusUpdate()
+        
+    def exit(self):
+        print(CustomDialog(root, "Enter something:").show())
+        
+    def open(self):
+        filename = filedialog.askopenfilename(filetypes = (("pickle files","*.pickle"),("Excel files", "*.xls *.xlsx")))
+        print(filename)
+        # TODO do you want to close? save? cancel?
+        
+    def save(self):
+        pass
+        # save to MainWindow.currentFile
+        # TODO
+        
+    def saveas(self):
+        filename = filedialog.askopenfilename(filetypes = (("pickle files","*.pickle"),("Excel files", "*.xls *.xlsx")))
+        print(filename)
+        # TODO
    
     def statusUpdate(self, event=None):
         curTable = self.tables[self.Data.index(self.Data.select())]
@@ -287,6 +309,33 @@ class MainWindow:
 
     def menuFunc(self):
         pass
+    
+    
+class CustomDialog(tk.Toplevel):
+    def __init__(self, parent, prompt):
+        tk.Toplevel.__init__(self, parent)
+
+        self.var = tk.StringVar()
+
+        self.label = tk.Label(self, text=prompt)
+        self.entry = tk.Entry(self, textvariable=self.var)
+        self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
+
+        self.label.pack(side="top", fill="x")
+        self.entry.pack(side="top", fill="x")
+        self.ok_button.pack(side="right")
+
+        self.entry.bind("<Return>", self.on_ok)
+
+    def on_ok(self, event=None):
+        self.destroy()
+
+    def show(self):
+        self.wm_deiconify()
+        self.entry.focus_force()
+        self.wait_window()
+        return self.var.get()
+        
 
 class TreeViewWithPopup(ttk.Treeview):
     def __init__(self, parent, *args, **kwargs):
