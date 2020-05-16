@@ -3,7 +3,6 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
-from tkinter import ttk
 
 #  import main_support
 
@@ -252,13 +251,14 @@ class MainWindow:
         menubar = tk.Menu(top)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.menuFunc)
-        filemenu.add_command(label="Open xlsx", command=self.menuFunc)
-        filemenu.add_command(label="Open binary", command=self.menuFunc)
-        filemenu.add_command(label="Save binary", command=self.menuFunc)
+        filemenu.add_command(label="Open", command=self.menuFunc)
+        filemenu.add_command(label="Save", command=self.menuFunc)
+        filemenu.add_command(label="Save as...", command=self.menuFunc)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=top.destroy)
         menubar.add_cascade(label="File", menu=filemenu)
-
+        filemenu.entryconfig("New", state="disabled")
+        
         helpmenu = tk.Menu(menubar, tearoff=0)
         helpmenu.add_command(label="Add record", command=self.menuFunc)
         helpmenu.add_command(label="Delete record", command=self.menuFunc)
@@ -268,9 +268,22 @@ class MainWindow:
         top.config(menu=menubar)
 
         # status bar
-        statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1,
+        self.statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1,
                              relief=tk.SUNKEN, anchor=tk.W)
-        statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+        self.statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+        self.statusUpdate()
+   
+    def statusUpdate(self, event=None):
+        curTable = self.tables[self.Data.index(self.Data.select())]
+        status = "Elements: "
+        selected= len(curTable.selection())
+        if selected == 0:
+            status += str(len(curTable.get_children()))
+        else:
+            status += ("%d out of %d" % (selected, len(curTable.get_children())))
+        self.statusbar.config(text=status)
+        self.statusbar.update_idletasks()
+        root.after(1, self.statusUpdate)
 
     def menuFunc(self):
         pass
