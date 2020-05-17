@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -220,31 +222,33 @@ class MainWindow:
 
         for i in range(len(tabs)):
             self.tables[i] = ttk.Treeview(tabs[i])
-            columns = list(self.db[i].columns) 
-            
+            columns = list(self.db[i].columns)
             self.tables[i].place(relwidth=1.0, relheight=1.0)
             self.tables[i]["columns"] = columns
             self.tables[i]['show'] = 'headings'
-            
+
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
-            
+
             self.tables[i].heading("#0", text="")
-            
+
             for j in range(len(columns)):
-                self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲', command= lambda _treeview = self.tables[i], _col=columns[j]:self.tree_sort(_treeview, _col, False)) #Надо првить тутя
+                if self.checkForDigit(self.db[i], columns[j]):
+                    self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲', command= lambda _treeview = self.tables[i], _col=columns[j]:self.tree_sort(_treeview, _col, False)) #Надо првить тутя
+                else:
+                    self.tables[i].heading(columns[j], text=columns[j]) 
                 self.Data.update()
                 width = int((self.Data.winfo_width()-30)/(len(columns)-1))
                 self.tables[i].column(columns[j], width=width, stretch=tk.NO)
 
             self.tables[i].column(columns[0], width=30, stretch=tk.NO)
             #self.tables[i].heading("Код", text="Код", command=com[i])
-            
+
             for j in self.db[i].index:
                 items = []
                 for title in self.db[i].columns:
                     items.append(self.db[i][title][j])
-                self.tables[i].insert("", "end", values=items) 
-            
+                self.tables[i].insert("", "end", values=items)
+
         # configure scrolls
         self.scrolls = [0, 1, 2, 3, 4]
         for i in range(len(tabs)):
@@ -280,21 +284,28 @@ class MainWindow:
         statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1,
                              relief=tk.SUNKEN, anchor=tk.W)
         statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
     def tree_sort(self, treeview, col, reverse):
-        try:
-            l = [(int(treeview.set(k, col)), k) for k in treeview.get_children('')] 
-            l.sort(reverse=reverse)
+        l = [(float(treeview.set(k, col)), k) for k in treeview.get_children('')] 
+        l.sort(reverse=reverse)
+        
+        for index, (val, k) in enumerate(l):
+            treeview.move(k, '', index)
+        
+        if reverse:
+            char = '        ▼'
+        else:
+            char = '        ▲'
+        
+        treeview.heading(col,text = col+char, command=lambda: self.tree_sort(treeview, col, not reverse))
 
-            for index, (val, k) in enumerate(l):
-                treeview.move(k, '', index)
-            if reverse:
-                char = '        ▼'
-            else:
-                char = '        ▲'
-            treeview.heading(col,text = col+char, command=lambda: self.tree_sort(treeview, col, not reverse))
-        except:
-            print('Написать исключение')
-    
+    def checkForDigit(self, data, col):
+        str = data[col][0]
+        if type(str) == type(''):
+            return False
+        else:
+            return True
+
     def menuFunc(self):
         pass
 
