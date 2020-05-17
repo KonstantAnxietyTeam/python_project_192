@@ -278,7 +278,7 @@ class MainWindow:
         filemenu.entryconfig("0", state="disabled")
         
         helpmenu = tk.Menu(menubar, tearoff=0)
-        helpmenu.add_command(label="Добавить", command=self.menuFunc)
+        helpmenu.add_command(label="Добавить", command=self.addRecord)
         helpmenu.add_command(label="Удалить", command=self.menuFunc)
         helpmenu.add_command(label="Изменить", command=self.menuFunc)
         menubar.add_cascade(label="Правка", menu=helpmenu)
@@ -292,6 +292,7 @@ class MainWindow:
         self.statusUpdate()
         
         root.bind("<Control-a>", self.selectAll)
+        
         
     def selectAll(self, event=None):
         self.tables[self.Data.index("current")].selectAll()
@@ -350,9 +351,78 @@ class MainWindow:
         self.statusbar.config(text=status)
         self.statusbar.update_idletasks()
         root.after(1, self.statusUpdate)
+        
+    def addRecord(self):
+        print(addRecordDialog(root).show())
 
     def menuFunc(self):
         print("Hi!")
+        
+
+class message(tk.Toplevel):
+    def __init__(self, parent):
+        self.opacity = 3.0
+        tk.Toplevel.__init__(self, parent)
+        self.label = tk.Label(self, text="asdf", background='mistyrose')
+        self.label.pack(side="top", fill="x")
+        self.geometry("150x30+980+585")
+        self.resizable(0, 0)
+        self.configure(background='mistyrose')
+        self.overrideredirect(True)
+        self.title("Сообщение")
+        self.fade()
+
+    def fade(self):
+        self.opacity -= 0.01
+        if self.opacity <= 0.05:
+            self.destroy()
+            return
+        self.wm_attributes('-alpha', self.opacity)
+        self.after(10, self.fade)
+    
+ 
+class addRecordDialog(tk.Toplevel):
+    #print(CustomDialog(root, "Enter something:").show()) to show
+    def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.var = tk.StringVar()
+        self.geometry("300x400+500+300")
+        self.resizable(0, 0)
+        self.grab_set() # make modal
+        self.focus()
+        
+        self.ALabel = tk.Label(self, text="Asdfadasd: ", anchor='e')
+        self.ALabel.place(relx=.2, rely=.1, width=65)
+        
+        self.BLabel = tk.Label(self, text="Q: ", anchor='e')
+        self.BLabel.place(relx=.2, rely=.2, width=65)
+        
+        self.CLabel = tk.Label(self, text="Zxcv: ", anchor='e')
+        self.CLabel.place(relx=.2, rely=.3, width=65)
+        
+        self.AEntry = tk.Entry(self, textvariable=self.var)
+        self.AEntry.place(relx=.5, rely=.1, width=65)
+        
+        self.BEntry = tk.Entry(self, textvariable=self.var)
+        self.BEntry.place(relx=.5, rely=.2, width=65)
+        
+        self.CEntry = tk.Entry(self, textvariable=self.var)
+        self.CEntry.place(relx=.5, rely=.3, width=65)
+        
+        self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
+
+        self.ok_button.pack(side="right")
+
+        self.bind("<Return>", self.on_ok)
+
+    def on_ok(self, event=None):
+        self.destroy()
+
+    def show(self):
+        self.wm_deiconify()
+        #self.entry.focus_force()
+        self.wait_window()
+        return self.var.get()    
     
     
 class CustomDialog(tk.Toplevel):
