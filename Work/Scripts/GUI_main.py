@@ -5,43 +5,24 @@ import pandas as pd
 import pickle as pk
 from tkinter import ttk
 
-#  import main_support
-
 
 def start_gui():
     """Starting point when module is the main routine."""
     global val, w, root
     root = tk.Tk()
     top = MainWindow(root)
-    #  main_support.init(root, top)
     root.mainloop()
 
 
 w = None
-
-
-def create_MainWindow(rt, *args, **kwargs):
-    """Starting point when module is imported by another module.
-       Correct form of call: 'create_MainWindow(root, *args, **kwargs)' ."""
-    global w, w_win, root
-    #  rt = root
-    root = rt
-    w = tk.Toplevel(root)
-    top = MainWindow(w)
-    #  main_support.init(w, top, *args, **kwargs)
-    return (w, top)
-
-
-def destroy_MainWindow():
-    global w
-    w.destroy()
-    w = None
+newPar = ""
+select = []
 
 
 def refreshFromExcel():
-    xls = pd.ExcelFile('../Work/Data/db.xlsx')  #  your repository
+    xls = pd.ExcelFile('D:/db.xlsx')  #  your repository
     p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("../Work/Data/db.pickle", p)
+    saveToPickle("D:/db.pickle", p)
 
 
 def saveToPickle(filename, obj):
@@ -49,22 +30,46 @@ def saveToPickle(filename, obj):
     pk.dump(obj, db)
     db.close()
 
+class ChangeDialog(tk.Toplevel):
+    def __init__(self, parent, prompt):
+        tk.Toplevel.__init__(self, parent)
+        self.geometry("200x90+550+230")
+        self.resizable(0, 0)
+        self.title("")
 
-def dataSort():
-    refreshFromExcel()
-    db = open("../Work/Data/db.pickle","rb")
-    p = pk.load(db)
-    db.close()
-    db = open("../Work/Data/db.pickle", "wb")
-    p.sort_values("Код работника")
+        self.var = tk.StringVar()
 
+        self.label = tk.Label(self, text=prompt)
+        self.entry = tk.Entry(self, textvariable=self.var)
+        self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
+        self.ok_button.place(relx=0.338, rely=0.55, relheight=0.35,
+                                relwidth=0.3, bordermode='ignore')
+
+        self.label.pack(side="top", fill="x")
+        self.entry.pack(side="top", fill="x")
+
+        self.entry.bind("<Return>", self.on_ok)
+
+    def on_ok(self, event=None):
+        self.destroy()
+
+    # def addPar(self):
+    #     newPar = self.entry.get()
+        # select = list(top.Filter_List2.curselection())
+        # top.Filter_List2.insert(1, newPar)
+
+    def show(self):
+        self.wm_deiconify()
+        self.entry.focus_force()
+        self.wait_window()
+        return self.var.get()
 
 class MainWindow:
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../Work/Data/db.pickle", "rb")
+        dbf = open("D:/db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
 
@@ -142,17 +147,21 @@ class MainWindow:
                                 relwidth=0.532)
         self.Filter_Frame.configure(text='''Фильтры''')
 
-        self.Filter_List1 = tk.Listbox(self.Filter_Frame)
+        self.Filter_List1 = tk.Listbox(self.Filter_Frame, exportselection=0)
         self.Filter_List1.place(relx=0.019, rely=0.268, relheight=0.46,
                                 relwidth=0.301, bordermode='ignore')
+
+        self.Filter_List2 = tk.Listbox(self.Filter_Frame, exportselection=0)
+        self.Filter_List2.place(relx=0.338, rely=0.268, relheight=0.46,
+                                relwidth=0.301, bordermode='ignore')
+
         self.Filter_List1.insert('end', "Тип выплаты")
         self.Filter_List1.insert('end', "Дата выплаты")
         self.Filter_List1.insert('end', "Сумма")
         self.Filter_List1.insert('end', "Код работника")
+        for i in range(4):
+            self.Filter_List2.insert('end', "")
 
-        self.Filter_List2 = tk.Listbox(self.Filter_Frame)
-        self.Filter_List2.place(relx=0.338, rely=0.268, relheight=0.46,
-                                relwidth=0.301, bordermode='ignore')
 
         #  configure scrolling filter lists
         self.Filter_scroll = tk.Scrollbar(self.Filter_List1)
@@ -165,7 +174,9 @@ class MainWindow:
         self.Change_Button.place(relx=0.357, rely=0.804, height=32, width=148,
                                  bordermode='ignore')
         self.Change_Button.configure(cursor="hand2")
-        self.Change_Button.configure(text='''Изменить значения''')
+        self.Change_Button.configure(text='''Изменить значения''', command=self.open_dialog)
+        self.Filter_List1.bind("<<ListboxSelect>>", self.moveSelection2)
+        self.Filter_List2.bind("<<ListboxSelect>>", self.moveSelection1)
 
         self.Reset_Button = tk.Button(self.Filter_Frame)
         self.Reset_Button.place(relx=0.677, rely=0.800, height=32, width=148,
@@ -284,6 +295,20 @@ class MainWindow:
                              relief=tk.SUNKEN, anchor=tk.W)
         statusbar.pack(side=tk.BOTTOM, fill=tk.X)
 
+    def moveSelection1(self, event):
+        global select
+        select = list(self.Filter_List2.curselection())
+        self.Filter_List1.select_clear(0, 'end')
+        self.Filter_List1.selection_set(select[0])
+        self.Filter_List1.select_anchor(select[0])
+
+    def moveSelection2(self, event):
+        global select
+        select = list(self.Filter_List1.curselection())
+        self.Filter_List2.select_clear(0, 'end')
+        self.Filter_List2.selection_set(select[0])
+        self.Filter_List2.select_anchor(select[0])
+
     def scrollList1(self, event):
         self.Filter_List1.yview_scroll(int(-4*(event.delta/120)), "units")
 
@@ -301,14 +326,21 @@ class MainWindow:
         elif event.widget.index(selected_tab) == 3:
             self.parInsert(3)
         else:
-            self.parInsert0(4)
+            self.parInsert(4)
 
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')
         self.Filter_List2.delete(0, 'end')
         cols = list(self.db[tab].columns)
-        for i in range(len(cols)):
-            self.Filter_List1.insert('end', cols[i])
+        for i in range(len(cols)-1):
+            self.Filter_List1.insert('end', cols[i+1])
+            self.Filter_List2.insert('end', "")
+
+    def open_dialog(self):
+        global newPar, select
+        newPar = ChangeDialog(root, "Введите новое значение:").show()
+        self.Filter_List2.delete(select[0])
+        self.Filter_List2.insert(select[0], newPar)
 
     def menuFunc(self):
         pass
