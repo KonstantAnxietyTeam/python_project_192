@@ -33,16 +33,19 @@ w = None
 #    return (w, top)
 
 
-def destroy_MainWindow():
-    global w
-    w.destroy()
-    w = None
+#def destroy_MainWindow():
+#    global w
+#    w.destroy()
+#    w = None
 
 
-def refreshFromExcel():
-    xls = pd.ExcelFile('../db.xlsx')  #  your repository
-    p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("../db.pickle", p)
+def refreshFromExcel(filename):
+    xls = pd.ExcelFile(filename)  #  your repository
+    p = []
+    for sheet in xls.sheet_names:
+        p.append(pd.read_excel(xls, sheet))
+    print(p[0])
+    saveToPickle("../Data/db.pickle", p)
 
 
 def saveToPickle(filename, obj):
@@ -59,20 +62,40 @@ def dataSort():
     db = open("../db.pickle", "wb")
     p.sort_values("Код работника")
     
+    
 def openFromFile(filename):
     if (filename[-6::] == "pickle"):
-        dbf = open(filename, "rb")
-        MainWindow.currentFile = filename
-        MainWindow.db = pk.load(dbf)
-        dbf.close()
-        MainWindow.modified = False
+        try:
+            dbf = open(filename, "rb")
+        except FileNotFoundError:
+            mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
+            createEmptyDataBase()
+        else:
+            MainWindow.currentFile = filename
+            MainWindow.db = pk.load(dbf)
+            dbf.close()
+            MainWindow.modified = False
     else:
-        xls = pd.ExcelFile(filename)  #  your repository
-        MainWindow.db = pd.read_excel(xls, list(range(5)))
-        MainWindow.currentFile = ''
-        MainWindow.modified = True
+        try:
+            xls = pd.ExcelFile(filename)  #  your repository
+        except FileNotFoundError:
+            mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
+            createEmptyDataBase()
+        else:
+            MainWindow.db = pd.read_excel(xls, list(range(5)))
+            MainWindow.currentFile = ''
+            MainWindow.modified = True
 
 
+def createEmptyDataBase():
+    MainWindow.db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты', 'Сумма', 'Код работника']),
+                     pd.DataFrame(columns=['Код', 'Код должности', 'Отделение']),
+                     pd.DataFrame(columns=['Код', 'Название', 'Норма (ч)', 'Ставка (ч)']),
+                     pd.DataFrame(columns=['Код', 'ФИО', 'Номер договора', 'Телефон', 'Образование', 'Адрес']),
+                     pd.DataFrame(columns=['Код', 'Название', 'Телефон'])]
+    MainWindow.modified = False
+    
+    
 class MainWindow:
     db = None
     currentFile = ''
@@ -80,12 +103,9 @@ class MainWindow:
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
-        #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../Data/db.pickle", "rb")
-        MainWindow.currentFile = "../Data/db.pickle"
-        MainWindow.db = pk.load(dbf)
-        dbf.close()
-
+        #refreshFromExcel("../Data/db.xlsx")  #  use once for db.pickle
+        openFromFile("../Data/db.pickle")
+        
         top.geometry("1000x600+150+30")
         top.resizable(0, 0)
         top.title("База Данных")
@@ -280,7 +300,7 @@ class MainWindow:
         helpmenu = tk.Menu(menubar, tearoff=0)
         helpmenu.add_command(label="Добавить", command=self.addRecord)
         helpmenu.add_command(label="Удалить", command=self.menuFunc)
-        helpmenu.add_command(label="Изменить", command=self.menuFunc)
+        helpmenu.add_command(label="Изменить", command=self.modRecord)
         menubar.add_cascade(label="Правка", menu=helpmenu)
 
         top.config(menu=menubar)
@@ -291,11 +311,13 @@ class MainWindow:
         self.statusbar.pack(side=tk.BOTTOM, fill=tk.X)
         self.statusUpdate()
         
-        root.bind("<Control-a>", self.selectAll)
-        
+        root.bind("<Control-a>", self.selectAll)        
         
     def selectAll(self, event=None):
         self.tables[self.Data.index("current")].selectAll()
+        
+    def modRecord(self, event=None):
+        self.tables[self.Data.index("current")].modRecord()
         
     def loadTables(self):
         for tree in self.tables:
@@ -324,7 +346,7 @@ class MainWindow:
                 self.save()
             elif ans == None:
                 return
-        file = filedialog.askopenfilename(filetypes = (("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")))
+        file = filedialog.askopenfilename(filetypes = [("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
         openFromFile(file)
         self.loadTables()
         
@@ -353,7 +375,11 @@ class MainWindow:
         root.after(1, self.statusUpdate)
         
     def addRecord(self):
-        print(addRecordDialog(root).show())
+        dic = addRecordDialog(root, MainWindow.db[self.Data.index("current")].columns).show()
+        if (list(dic.values())[0].get() != ''): # this is pretty bad
+            MainWindow.modified = True
+            MainWindow.db[self.Data.index("current")] = MainWindow.db[self.Data.index("current")].append(pd.DataFrame([[item.get() for item in dic.values()]], columns=list(dic.keys())), ignore_index=True)
+            self.tables[self.Data.index("current")].insert("", "end", values=[item.get() for item in dic.values()])
 
     def menuFunc(self):
         print("Hi!")
@@ -383,31 +409,24 @@ class message(tk.Toplevel):
  
 class addRecordDialog(tk.Toplevel):
     #print(CustomDialog(root, "Enter something:").show()) to show
-    def __init__(self, parent):
+    def __init__(self, parent, labelTexts):
         tk.Toplevel.__init__(self, parent)
-        self.var = tk.StringVar()
         self.geometry("300x400+500+300")
         self.resizable(0, 0)
         self.grab_set() # make modal
         self.focus()
         
-        self.ALabel = tk.Label(self, text="Asdfadasd: ", anchor='e')
-        self.ALabel.place(relx=.2, rely=.1, width=65)
+        self.Labels = [None] * len(labelTexts)
+        self.Edits = [None] * len(labelTexts)
+        self.retDict = dict()
+        for i in range(len(labelTexts)):
+            self.retDict[labelTexts[i]] = tk.StringVar()
+            editHeight = .8*400/len(labelTexts)
+            self.Labels[i] = tk.Label(self, text=labelTexts[i], anchor='e')
+            self.Labels[i].place(relx=.1, y=40+i*editHeight, width=100)
         
-        self.BLabel = tk.Label(self, text="Q: ", anchor='e')
-        self.BLabel.place(relx=.2, rely=.2, width=65)
-        
-        self.CLabel = tk.Label(self, text="Zxcv: ", anchor='e')
-        self.CLabel.place(relx=.2, rely=.3, width=65)
-        
-        self.AEntry = tk.Entry(self, textvariable=self.var)
-        self.AEntry.place(relx=.5, rely=.1, width=65)
-        
-        self.BEntry = tk.Entry(self, textvariable=self.var)
-        self.BEntry.place(relx=.5, rely=.2, width=65)
-        
-        self.CEntry = tk.Entry(self, textvariable=self.var)
-        self.CEntry.place(relx=.5, rely=.3, width=65)
+            self.Edits[i] = tk.Entry(self, textvariable=self.retDict[labelTexts[i]])
+            self.Edits[i].place(relx=.5, y=40+i*editHeight, width=100)
         
         self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
 
@@ -420,9 +439,8 @@ class addRecordDialog(tk.Toplevel):
 
     def show(self):
         self.wm_deiconify()
-        #self.entry.focus_force()
         self.wait_window()
-        return self.var.get()    
+        return self.retDict  
     
     
 class CustomDialog(tk.Toplevel):
@@ -484,6 +502,17 @@ class TreeViewWithPopup(ttk.Treeview):
         MainWindow.db[nb] = MainWindow.db[nb].drop(selected)
         for item in self.selection():
             self.delete(item)
+            
+    def modRecord(self):
+        nb = self.master.master
+        nb = nb.index(nb.select())
+        selected = self.selection()[0]
+        dic = addRecordDialog(root, MainWindow.db[nb].columns).show()
+        if (list(dic.values())[0].get() != ''): # this is pretty bad
+            MainWindow.modified = True
+            for i in range(len(list(dic.keys()))):
+                self.item(selected, values=[item.get() for item in dic.values()])
+                MainWindow.db[nb].loc[int(selected[1::], 16)-1, list(dic.keys())[i]] = list(dic.values())[i].get()
             
 
 if __name__ == '__main__':
