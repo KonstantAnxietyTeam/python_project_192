@@ -20,9 +20,9 @@ def start_gui():
 
 
 def refreshFromExcel():
-    xls = pd.ExcelFile('../Work/Data/db.xlsx')
+    xls = pd.ExcelFile('../Data/db.xlsx')
     p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("../Work/Data/db.pickle", p)
+    saveToPickle("../Data/db.pickle", p)
 
 
 def saveToPickle(filename, obj):
@@ -71,7 +71,7 @@ class MainWindow:
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("../Work/Data/db.pickle", "rb")
+        dbf = open("../Data/db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
 
