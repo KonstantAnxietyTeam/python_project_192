@@ -117,42 +117,42 @@ class MainWindow:
         top.geometry("1000x600+150+30")
         top.resizable(0, 0)
         top.title("База Данных")
-
-        self.Table_Frame = tk.LabelFrame(top)
-        self.Table_Frame.place(relx=0.023, rely=0.017, relheight=0.373,
-                               relwidth=0.207)
-        self.Table_Frame.configure(text='''Таблица''')
-        self.Table_Frame.configure(cursor="arrow")
-
-        self.Add_Button = tk.Button(self.Table_Frame)
-        self.Add_Button.place(relx=0.048, rely=0.625, height=32, width=88,
-                              bordermode='ignore')
-        self.Add_Button.configure(cursor="hand2")
-        self.Add_Button.configure(text='''Добавить''')
-
-        self.ExpTab_Button = tk.Button(self.Table_Frame)
-        self.ExpTab_Button.place(relx=0.531, rely=0.799, height=32, width=88,
-                                 bordermode='ignore')
-        self.ExpTab_Button.configure(cursor="hand2")
-        self.ExpTab_Button.configure(text='''Экспорт''')
-
-        self.Delete_Button = tk.Button(self.Table_Frame)
-        self.Delete_Button.place(relx=0.048, rely=0.799, height=32, width=88,
-                                 bordermode='ignore')
-        self.Delete_Button.configure(cursor="hand2")
-        self.Delete_Button.configure(text='''Удалить''')
-
-        self.Edit_Button = tk.Button(self.Table_Frame)
-        self.Edit_Button.place(relx=0.531, rely=0.625, height=32, width=88,
-                               bordermode='ignore')
-        self.Edit_Button.configure(cursor="hand2")
-        self.Edit_Button.configure(text='''Правка''')
-
-        self.Choice_Label = tk.Label(self.Table_Frame)
-        self.Choice_Label.place(relx=0.386, rely=0.089, height=25, width=65,
-                                bordermode='ignore')
-        self.Choice_Label.configure(text='''Выбор''')
-
+        
+#        self.Table_Frame = tk.LabelFrame(top)
+#        self.Table_Frame.place(relx=0.023, rely=0.017, relheight=0.373,
+#                               relwidth=0.207)
+#        self.Table_Frame.configure(text='''Таблица''')
+#        self.Table_Frame.configure(cursor="arrow")
+#
+#        self.Add_Button = tk.Button(self.Table_Frame)
+#        self.Add_Button.place(relx=0.048, rely=0.625, height=32, width=88,
+#                              bordermode='ignore')
+#        self.Add_Button.configure(cursor="hand2")
+#        self.Add_Button.configure(text='''Добавить''')
+#
+#        self.ExpTab_Button = tk.Button(self.Table_Frame)
+#        self.ExpTab_Button.place(relx=0.531, rely=0.799, height=32, width=88,
+#                                 bordermode='ignore')
+#        self.ExpTab_Button.configure(cursor="hand2")
+#        self.ExpTab_Button.configure(text='''Экспорт''')
+#
+#        self.Delete_Button = tk.Button(self.Table_Frame)
+#        self.Delete_Button.place(relx=0.048, rely=0.799, height=32, width=88,
+#                                 bordermode='ignore')
+#        self.Delete_Button.configure(cursor="hand2")
+#        self.Delete_Button.configure(text='''Удалить''')
+#
+#        self.Edit_Button = tk.Button(self.Table_Frame)
+#        self.Edit_Button.place(relx=0.531, rely=0.625, height=32, width=88,
+#                               bordermode='ignore')
+#        self.Edit_Button.configure(cursor="hand2")
+#        self.Edit_Button.configure(text='''Правка''')
+#
+#        self.Choice_Label = tk.Label(self.Table_Frame)
+#        self.Choice_Label.place(relx=0.386, rely=0.089, height=25, width=65,
+#                                bordermode='ignore')
+#        self.Choice_Label.configure(text='''Выбор''')
+        
         self.Analysis_Frame = tk.LabelFrame(top)
         self.Analysis_Frame.place(relx=0.24, rely=0.017, relheight=0.373,
                                   relwidth=0.201)
@@ -179,9 +179,9 @@ class MainWindow:
         self.Analysis_List.place(relx=0.05, rely=0.268, relheight=0.46,
                                  relwidth=0.871, bordermode='ignore')
 
-        self.Table_List = tk.Listbox(top)
-        self.Table_List.place(relx=0.033, rely=0.097, relheight=0.128,
-                              relwidth=0.188)
+#        self.Table_List = tk.Listbox(top)
+#        self.Table_List.place(relx=0.033, rely=0.097, relheight=0.128,
+#                              relwidth=0.188)
 
         self.Filter_Frame = tk.LabelFrame(top)
         self.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.373,
