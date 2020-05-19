@@ -153,27 +153,23 @@ class MainWindow:
 #                                bordermode='ignore')
 #        self.Choice_Label.configure(text='''Выбор''')
         
-        self.Analysis_Frame = tk.LabelFrame(top)
+        self.Analysis_Frame = tk.LabelFrame(top, text="Анализ")
         self.Analysis_Frame.place(relx=0.24, rely=0.017, relheight=0.373,
                                   relwidth=0.201)
-        self.Analysis_Frame.configure(text='''Анализ''')
 
-        self.Method_Label = tk.Label(self.Analysis_Frame)
+        self.Method_Label = tk.Label(self.Analysis_Frame, text="Метод Анализа")
         self.Method_Label.place(relx=0.199, rely=0.134, height=17, width=127,
                                 bordermode='ignore')
-        self.Method_Label.configure(text='''Метод Анализа''')
-
-        self.Analysis_Button = tk.Button(self.Analysis_Frame)
+        
+        self.Analysis_Button = tk.Button(self.Analysis_Frame, text="Анализ")
         self.Analysis_Button.place(relx=0.05, rely=0.795, height=32, width=88,
                                    bordermode='ignore')
         self.Analysis_Button.configure(cursor="hand2")
-        self.Analysis_Button.configure(text='''Анализ''')
 
-        self.ExpAn_Button = tk.Button(self.Analysis_Frame)
+        self.ExpAn_Button = tk.Button(self.Analysis_Frame, text="Экспорт")
         self.ExpAn_Button.place(relx=0.547, rely=0.795, height=32, width=78,
                                 bordermode='ignore')
         self.ExpAn_Button.configure(cursor="hand2")
-        self.ExpAn_Button.configure(text='''Экспорт''')
 
         self.Analysis_List = tk.Listbox(self.Analysis_Frame)
         self.Analysis_List.place(relx=0.05, rely=0.268, relheight=0.46,
@@ -183,10 +179,9 @@ class MainWindow:
 #        self.Table_List.place(relx=0.033, rely=0.097, relheight=0.128,
 #                              relwidth=0.188)
 
-        self.Filter_Frame = tk.LabelFrame(top)
+        self.Filter_Frame = tk.LabelFrame(top, text="Фильтры")
         self.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.373,
                                 relwidth=0.532)
-        self.Filter_Frame.configure(text='''Фильтры''')
 
         self.Filter_List1 = tk.Listbox(self.Filter_Frame)
         self.Filter_List1.place(relx=0.019, rely=0.268, relheight=0.46,
@@ -196,43 +191,37 @@ class MainWindow:
         self.Filter_List2.place(relx=0.338, rely=0.268, relheight=0.46,
                                 relwidth=0.301, bordermode='ignore')
 
-        self.Change_Button = tk.Button(self.Filter_Frame)
+        self.Change_Button = tk.Button(self.Filter_Frame, text="Изменить значения")
         self.Change_Button.place(relx=0.357, rely=0.804, height=32, width=148,
                                  bordermode='ignore')
         self.Change_Button.configure(cursor="hand2")
-        self.Change_Button.configure(text='''Изменить значения''')
 
-        self.Reset_Button = tk.Button(self.Filter_Frame)
+        self.Reset_Button = tk.Button(self.Filter_Frame, text="Сбросить выбор")
         self.Reset_Button.place(relx=0.677, rely=0.800, height=32, width=148,
                                 bordermode='ignore')
         self.Reset_Button.configure(cursor="hand2")
-        self.Reset_Button.configure(text='''Сбросить выбор''')
 
-        self.Param_Label = tk.Label(self.Filter_Frame)
+        self.Param_Label = tk.Label(self.Filter_Frame, text="Параметры")
         self.Param_Label.place(relx=0.075, rely=0.134, height=25, width=97,
                                bordermode='ignore')
-        self.Param_Label.configure(text='''Параметры''')
-
-        self.Values_Label = tk.Label(self.Filter_Frame)
+        
+        self.Values_Label = tk.Label(self.Filter_Frame, text="Значения")
         self.Values_Label.place(relx=0.414, rely=0.152, height=15, width=83,
                                 bordermode='ignore')
-        self.Values_Label.configure(text='''Значения''')
 
-        self.Columns_Label = tk.Label(self.Filter_Frame)
+        self.Columns_Label = tk.Label(self.Filter_Frame, text="Столбцы")
         self.Columns_Label.place(relx=0.752, rely=0.134, height=24, width=86,
                                  bordermode='ignore')
-        self.Columns_Label.configure(text='''Столбцы''')
 
         self.Filter_List3 = tk.Listbox(self.Filter_Frame)
         self.Filter_List3.place(relx=0.658, rely=0.268, relheight=0.46,
                                 relwidth=0.32, bordermode='ignore')
         self.Filter_List3.configure(foreground="#000000")
 
-        self.Filter_Button = tk.Button(self.Filter_Frame)
+        self.Filter_Button = tk.Button(self.Filter_Frame, text="Фильтровать")
         self.Filter_Button.place(relx=0.038, rely=0.804, height=32, width=148,
                                  bordermode='ignore')
         self.Filter_Button.configure(cursor="hand2")
-        self.Filter_Button.configure(text='''Фильтровать''')
 
         self.Data = ttk.Notebook(top)
         self.Data.place(relx=0.023, rely=0.417, relheight=0.528, relwidth=0.96)
