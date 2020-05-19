@@ -220,8 +220,8 @@ class MainWindow:
                 self.Data_t4, self.Data_t5]
 
         self.tables = [0, 1, 2, 3, 4]
-
-        for i in range(len(tabs)):
+        print(len(MainWindow.db))
+        for i in range(len(MainWindow.db)):
             self.tables[i] = TreeViewWithPopup(tabs[i])
             self.tables[i].place(relwidth=1.0, relheight=1.0)
             self.tables[i]["columns"] = list(MainWindow.db[i].columns)
@@ -232,18 +232,15 @@ class MainWindow:
             self.tables[i].heading("#0", text="")
 
             for j in range(len(columns)):
-                if self.treeCheckForDigit(self.db[i], columns[j]):
-                    self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',\
-                            command= lambda _treeview = self.tables[i], _col=columns[j]:self.treeSort(_treeview, _col, False))
-                else:
-                    self.tables[i].heading(columns[j], text=columns[j]) 
+                self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',\
+                           command= lambda _treeview = self.tables[i], _col=columns[j]:self.treeSort(_treeview, _col, False))
                 self.Data.update()
                 width = int((self.Data.winfo_width()-30)/(len(columns)-1))
                 self.tables[i].column(columns[j], width=width, stretch=tk.NO)
 
             self.tables[i].column(columns[0], width=30, stretch=tk.NO)
 
-            for j in self.db[i].index:
+            for j in MainWindow.db[i].index:
                 items = []
                 for title in MainWindow.db[i].columns:
                     items.append(MainWindow.db[i][title][j])
@@ -346,7 +343,7 @@ class MainWindow:
         filename = filedialog.asksaveasfilename(filetypes = [], defaultextension=".pickle")
         MainWindow.currentFile = filename
         MainWindow.modified = False
-        saveToPickle(filename, self.db)
+        saveToPickle(filename, MainWindow.db)
    
     def statusUpdate(self, event=None):
         curTable = self.tables[self.Data.index(self.Data.select())]
@@ -361,7 +358,7 @@ class MainWindow:
         root.after(1, self.statusUpdate)
         
     def treeSort(self, treeview, col, reverse):
-        l = [(float(treeview.set(k, col)), k) for k in treeview.get_children('')] 
+        l = [(str(treeview.set(k, col)), k) for k in treeview.get_children('')]  # mb bad
         l.sort(reverse=reverse)
         for index, (val, k) in enumerate(l):
             treeview.move(k, '', index)
@@ -372,13 +369,6 @@ class MainWindow:
             char = '        ▲'
         
         treeview.heading(col,text = col+char, command=lambda: self.treeSort(treeview, col, not reverse))
-
-    def treeCheckForDigit(self, data, col):
-        str = data[col][0]
-        if type(str) == type(''):
-            return False
-        else:
-            return True
         
 
 class message(tk.Toplevel):
