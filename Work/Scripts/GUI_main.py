@@ -529,7 +529,8 @@ class TreeViewWithPopup(ttk.Treeview):
         else:
             selected = int(selected[0])
             itemId = int(self.item(selected)['values'][0])
-            dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=MainWindow.db[nb][MainWindow.db[nb]['Код'] == itemId].values.tolist()[0]).show()
+            print(MainWindow.db[nb][MainWindow.db[nb]['Код'] == str(itemId)].values[0].tolist())
+            dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=MainWindow.db[nb][MainWindow.db[nb]['Код'] == str(itemId)].values[0].tolist()).show()
             keys = list(dic.keys())
             values = list(dic.values())
             if (len(values) and values[0].get() != ''): # TODO correct input validation
