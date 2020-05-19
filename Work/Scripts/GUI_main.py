@@ -18,7 +18,7 @@ def start_gui():
     root.mainloop()
 
 
-w = None
+# w = None
 
 
 #def create_MainWindow(rt, *args, **kwargs):
@@ -49,9 +49,10 @@ def refreshFromExcel(filename):
 
 
 def saveToPickle(filename, obj):
-    db = open(filename, "wb")
-    pk.dump(obj, db)
-    db.close()
+    if (filename):
+        db = open(filename, "wb")
+        pk.dump(obj, db)
+        db.close()
 
 
 def dataSort():
@@ -64,12 +65,14 @@ def dataSort():
     
     
 def openFromFile(filename):
+    if not filename:
+        return
     if (filename[-6::] == "pickle"):
         try:
             dbf = open(filename, "rb")
         except FileNotFoundError:
             mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
-            createEmptyDataBase()
+            createEmptyDatabase()
         else:
             MainWindow.currentFile = filename
             MainWindow.db = pk.load(dbf)
@@ -80,20 +83,25 @@ def openFromFile(filename):
             xls = pd.ExcelFile(filename)  #  your repository
         except FileNotFoundError:
             mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
-            createEmptyDataBase()
+            createEmptyDatabase()
         else:
             MainWindow.db = pd.read_excel(xls, list(range(5)))
             MainWindow.currentFile = ''
             MainWindow.modified = True
 
 
-def createEmptyDataBase():
+def createEmptyDatabase():
     MainWindow.db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты', 'Сумма', 'Код работника']),
                      pd.DataFrame(columns=['Код', 'Код должности', 'Отделение']),
                      pd.DataFrame(columns=['Код', 'Название', 'Норма (ч)', 'Ставка (ч)']),
                      pd.DataFrame(columns=['Код', 'ФИО', 'Номер договора', 'Телефон', 'Образование', 'Адрес']),
                      pd.DataFrame(columns=['Код', 'Название', 'Телефон'])]
     MainWindow.modified = False
+    MainWindow.currentFile = ''
+    
+    
+def idToDec(strHexID):
+    return (int(strHexID[1::], 16)-1)
     
     
 class MainWindow:
@@ -103,7 +111,7 @@ class MainWindow:
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
-        #refreshFromExcel("../Data/db.xlsx")  #  use once for db.pickle
+        # refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         openFromFile("../Data/db.pickle")
         
         top.geometry("1000x600+150+30")
@@ -288,18 +296,18 @@ class MainWindow:
         # menu
         menubar = tk.Menu(top)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Новый", command=self.menuFunc)
+        filemenu.add_command(label="Новый", command=self.newDatabase)
         filemenu.add_command(label="Открыть", command=self.open)
         filemenu.add_command(label="Сохранить", command=self.save)
         filemenu.add_command(label="Сохранить как...", command=self.saveas)
         filemenu.add_separator()
         filemenu.add_command(label="Выход", command=self.exit)
+        root.protocol("WM_DELETE_WINDOW", self.exit)
         menubar.add_cascade(label="Файл", menu=filemenu)
-        filemenu.entryconfig("0", state="disabled")
         
         helpmenu = tk.Menu(menubar, tearoff=0)
         helpmenu.add_command(label="Добавить", command=self.addRecord)
-        helpmenu.add_command(label="Удалить", command=self.menuFunc)
+        helpmenu.add_command(label="Удалить", command=self.deleteRecords)
         helpmenu.add_command(label="Изменить", command=self.modRecord)
         menubar.add_cascade(label="Правка", menu=helpmenu)
 
@@ -319,6 +327,16 @@ class MainWindow:
     def modRecord(self, event=None):
         self.tables[self.Data.index("current")].modRecord()
         
+    def addRecord(self, event=None):
+        self.tables[self.Data.index("current")].addRecord()
+        
+    def deleteRecords(self, event=None):
+        self.tables[self.Data.index("current")].deleteRecords()
+    
+    def newDatabase(self):
+        createEmptyDatabase()
+        self.loadTables()
+        
     def loadTables(self):
         for tree in self.tables:
             for item in tree.get_children():
@@ -332,7 +350,7 @@ class MainWindow:
         
     def exit(self):
         if MainWindow.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные измененя", "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
             elif ans == None:
@@ -341,7 +359,7 @@ class MainWindow:
         
     def open(self):
         if MainWindow.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные измененя", "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
             elif ans == None:
@@ -374,29 +392,19 @@ class MainWindow:
         self.statusbar.update_idletasks()
         root.after(1, self.statusUpdate)
         
-    def addRecord(self):
-        dic = addRecordDialog(root, MainWindow.db[self.Data.index("current")].columns).show()
-        if (list(dic.values())[0].get() != ''): # this is pretty bad
-            MainWindow.modified = True
-            MainWindow.db[self.Data.index("current")] = MainWindow.db[self.Data.index("current")].append(pd.DataFrame([[item.get() for item in dic.values()]], columns=list(dic.keys())), ignore_index=True)
-            self.tables[self.Data.index("current")].insert("", "end", values=[item.get() for item in dic.values()])
-
-    def menuFunc(self):
-        print("Hi!")
-        
 
 class message(tk.Toplevel):
-    def __init__(self, parent):
+    def __init__(self, parent, prompt="Сообщение"):
         self.opacity = 3.0
         tk.Toplevel.__init__(self, parent)
-        self.label = tk.Label(self, text="asdf", background='mistyrose')
+        self.label = tk.Label(self, text=prompt, background='mistyrose')
         self.label.pack(side="top", fill="x")
-        self.geometry("150x30+980+585")
+        geom = "200x60+" + str(root.winfo_screenwidth()-260) + "+" + str(root.winfo_screenheight()-120)
+        self.geometry(geom)
         self.resizable(0, 0)
-        self.configure(background='mistyrose')
+        self.configure(background='lightcoral')
         self.overrideredirect(True)
         self.title("Сообщение")
-        self.fade()
 
     def fade(self):
         self.opacity -= 0.01
@@ -407,9 +415,8 @@ class message(tk.Toplevel):
         self.after(10, self.fade)
     
  
-class addRecordDialog(tk.Toplevel):
-    #print(CustomDialog(root, "Enter something:").show()) to show
-    def __init__(self, parent, labelTexts):
+class askValuesDialog(tk.Toplevel):
+    def __init__(self, parent, labelTexts, currValues=None):
         tk.Toplevel.__init__(self, parent)
         self.geometry("300x400+500+300")
         self.resizable(0, 0)
@@ -422,18 +429,25 @@ class addRecordDialog(tk.Toplevel):
         for i in range(len(labelTexts)):
             self.retDict[labelTexts[i]] = tk.StringVar()
             editHeight = .8*400/len(labelTexts)
-            self.Labels[i] = tk.Label(self, text=labelTexts[i], anchor='e')
+            self.Labels[i] = tk.Label(self, text=labelTexts[i]+":", anchor='e')
             self.Labels[i].place(relx=.1, y=40+i*editHeight, width=100)
         
             self.Edits[i] = tk.Entry(self, textvariable=self.retDict[labelTexts[i]])
             self.Edits[i].place(relx=.5, y=40+i*editHeight, width=100)
+            if currValues:
+                self.Edits[i].insert(0, currValues[i])
         
         self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
 
-        self.ok_button.pack(side="right")
+        self.ok_button.place(relx=.5, rely=.9, relwidth=.4, height=30, anchor="c")
 
         self.bind("<Return>", self.on_ok)
+        self.protocol("WM_DELETE_WINDOW", self.exit)
 
+    def exit(self):
+        self.retDict.clear()
+        self.on_ok()
+        
     def on_ok(self, event=None):
         self.destroy()
 
@@ -479,10 +493,11 @@ class TreeViewWithPopup(ttk.Treeview):
         self.popup_menu.add_command(label="Выбрать все",
                                     command=self.selectAll)
         self.popup_menu.add_command(label="Изменить",
-                                    command=self.selectAll)
+                                    command=self.modRecord)
+        self.popup_menu.add_command(label="Добавить",
+                                    command=self.addRecord)
         self.bind("<Delete>", self.deleteRecords)
         self.bind("<Button-3>", self.popup)
-        #self.bind("<Control-a>", self.selectAll)
         
     def popup(self, event):
         try:
@@ -492,27 +507,49 @@ class TreeViewWithPopup(ttk.Treeview):
             
     def selectAll(self, event=None):
         self.selection_set(tuple(self.get_children()))  
+        
+    def addRecord(self):
+        nb = self.master.master
+        nb = nb.index(nb.select())
+        dic = askValuesDialog(root, MainWindow.db[nb].columns).show()
+        values = list(dic.values())
+        keys = list(dic.keys())
+        if (len(values) and values[0].get() != ''): # TODO correct input validation
+            MainWindow.modified = True
+            MainWindow.db[nb] = MainWindow.db[nb].append(
+                    pd.DataFrame([[item.get() for item in values]], 
+                                   columns=keys), 
+                                   ignore_index=True)
+            self.insert("", "end", values=[item.get() for item in values])
             
     def deleteRecords(self, event=None):
         nb = self.master.master
         nb = nb.index(nb.select())
-        selected = [int(i[1::], 16)-1 for i in self.selection()]
-        if len(selected):
+        selected = [idToDec(i) for i in self.selection()]
+        if not len(selected):
+            message(root, "Не выбран элемент").fade()
+        else:
             MainWindow.modified = True
-        MainWindow.db[nb] = MainWindow.db[nb].drop(selected)
-        for item in self.selection():
-            self.delete(item)
+            MainWindow.db[nb] = MainWindow.db[nb].drop(selected)
+            for item in self.selection():
+                self.delete(item)
             
     def modRecord(self):
         nb = self.master.master
         nb = nb.index(nb.select())
-        selected = self.selection()[0]
-        dic = addRecordDialog(root, MainWindow.db[nb].columns).show()
-        if (list(dic.values())[0].get() != ''): # this is pretty bad
-            MainWindow.modified = True
-            for i in range(len(list(dic.keys()))):
-                self.item(selected, values=[item.get() for item in dic.values()])
-                MainWindow.db[nb].loc[int(selected[1::], 16)-1, list(dic.keys())[i]] = list(dic.values())[i].get()
+        selected = self.selection()
+        if not selected:
+            message(root, "Не выбран элемент").fade()
+        else:
+            selected = selected[0]
+            dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=MainWindow.db[nb].iloc[idToDec(selected)].tolist()).show()
+            keys = list(dic.keys())
+            values = list(dic.values())
+            if (len(values) and values[0].get() != ''): # TODO correct input validation
+                MainWindow.modified = True
+                for i in range(len(keys)):
+                    self.item(selected, values=[item.get() for item in values])
+                    MainWindow.db[nb].loc[idToDec(selected), keys[i]] = values[i].get()
             
 
 if __name__ == '__main__':
