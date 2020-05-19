@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -6,37 +7,13 @@ import pickle as pk
 from tkinter import filedialog
 from tkinter import messagebox as mb
 
-#  import main_support
-
 
 def start_gui():
     """Starting point when module is the main routine."""
     global val, w, root
     root = tk.Tk()
     top = MainWindow(root)
-    #  main_support.init(root, top)
     root.mainloop()
-
-
-# w = None
-
-
-#def create_MainWindow(rt, *args, **kwargs):
-#    """Starting point when module is imported by another module.
-#       Correct form of call: 'create_MainWindow(root, *args, **kwargs)' ."""
-#    w, w_win, root
-#    #  rt = root
-#    root = rt
-#    w = tk.Toplevel(root)
-#    top = MainWindow(w)
-#    #  main_support.init(w, top, *args, **kwargs)
-#    return (w, top)
-
-
-#def destroy_MainWindow():
-#    global w
-#    w.destroy()
-#    w = None
 
 
 def refreshFromExcel(filename):
@@ -250,21 +227,32 @@ class MainWindow:
         # configure tables
         tabs = [self.Data_t1, self.Data_t2, self.Data_t3,
                 self.Data_t4, self.Data_t5]
+
         self.tables = [0, 1, 2, 3, 4]
+
         for i in range(len(tabs)):
             self.tables[i] = TreeViewWithPopup(tabs[i])
             self.tables[i].place(relwidth=1.0, relheight=1.0)
             self.tables[i]["columns"] = list(MainWindow.db[i].columns)
             self.tables[i]['show'] = 'headings'
-            cols = list(MainWindow.db[i].columns)
+            columns = list(MainWindow.db[i].columns)
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
+
             self.tables[i].heading("#0", text="")
-            for j in range(0, len(cols)):
-                self.tables[i].heading(cols[j], text=cols[j])
+
+            for j in range(len(columns)):
+                if self.treeCheckForDigit(self.db[i], columns[j]):
+                    self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',\
+                            command= lambda _treeview = self.tables[i], _col=columns[j]:self.treeSort(_treeview, _col, False))
+                else:
+                    self.tables[i].heading(columns[j], text=columns[j]) 
                 self.Data.update()
-                self.tables[i].column(cols[j], width=int((self.Data.winfo_width()-30)/(len(cols)-1)), stretch=tk.NO)
-            self.tables[i].column(cols[0], width=30, stretch=tk.NO)
-            for j in MainWindow.db[i].index:
+                width = int((self.Data.winfo_width()-30)/(len(columns)-1))
+                self.tables[i].column(columns[j], width=width, stretch=tk.NO)
+
+            self.tables[i].column(columns[0], width=30, stretch=tk.NO)
+
+            for j in self.db[i].index:
                 items = []
                 for title in MainWindow.db[i].columns:
                     items.append(MainWindow.db[i][title][j])
@@ -380,6 +368,26 @@ class MainWindow:
         self.statusbar.config(text=status)
         self.statusbar.update_idletasks()
         root.after(1, self.statusUpdate)
+        
+    def treeSort(self, treeview, col, reverse):
+        l = [(float(treeview.set(k, col)), k) for k in treeview.get_children('')] 
+        l.sort(reverse=reverse)
+        for index, (val, k) in enumerate(l):
+            treeview.move(k, '', index)
+        
+        if reverse:
+            char = '        ▼'
+        else:
+            char = '        ▲'
+        
+        treeview.heading(col,text = col+char, command=lambda: self.treeSort(treeview, col, not reverse))
+
+    def treeCheckForDigit(self, data, col):
+        str = data[col][0]
+        if type(str) == type(''):
+            return False
+        else:
+            return True
         
 
 class message(tk.Toplevel):
@@ -539,7 +547,9 @@ class TreeViewWithPopup(ttk.Treeview):
                 for i in range(len(keys)):
                     self.item(selected, values=[item.get() for item in values])
                     MainWindow.db[nb].loc[idToDec(selected), keys[i]] = values[i].get()
-            
+
+    def menuFunc(self):
+        pass
 
 if __name__ == '__main__':
     start_gui()
