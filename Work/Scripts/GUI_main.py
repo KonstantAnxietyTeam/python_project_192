@@ -358,7 +358,11 @@ class MainWindow:
         root.after(1, self.statusUpdate)
         
     def treeSort(self, treeview, col, reverse):
-        l = [(str(treeview.set(k, col)), k) for k in treeview.get_children('')]  # mb bad
+        firstElement = treeview.set(treeview.get_children('')[0], col)
+        if self.treeCheckForDigit(firstElement):
+            l = [(float(treeview.set(k, col)), k) for k in treeview.get_children('')]
+        else:
+            l = [(str(treeview.set(k, col)), k) for k in treeview.get_children('')]
         l.sort(reverse=reverse)
         for index, (val, k) in enumerate(l):
             treeview.move(k, '', index)
@@ -369,7 +373,17 @@ class MainWindow:
             char = '        ▲'
         
         treeview.heading(col,text = col+char, command=lambda: self.treeSort(treeview, col, not reverse))
-        
+    
+    def treeCheckForDigit(self, string):
+        print(string, type(string))
+        if string.isdigit():
+            return True
+        else:
+            try:
+                float(string)
+                return True
+            except ValueError:
+                return False
 
 class message(tk.Toplevel):
     def __init__(self, parent, prompt="Сообщение"):
