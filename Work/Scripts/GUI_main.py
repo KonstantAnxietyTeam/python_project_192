@@ -31,15 +31,6 @@ def saveToPickle(filename, obj):
         pk.dump(obj, db)
         db.close()
 
-
-def dataSort():
-    refreshFromExcel()
-    db = open("../db.pickle","rb")
-    p = pk.load(db)
-    db.close()
-    db = open("../db.pickle", "wb")
-    p.sort_values("Код работника")
-    
     
 def openFromFile(filename):
     if not filename:
