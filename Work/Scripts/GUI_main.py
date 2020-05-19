@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -232,8 +231,9 @@ class MainWindow:
             self.tables[i].heading("#0", text="")
 
             for j in range(len(columns)):
-                if self.checkForDigit(self.db[i], columns[j]):
-                    self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲', command= lambda _treeview = self.tables[i], _col=columns[j]:self.tree_sort(_treeview, _col, False)) #Надо првить тутя
+                if self.treeCheckForDigit(self.db[i], columns[j]):
+                    self.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',\
+                            command= lambda _treeview = self.tables[i], _col=columns[j]:self.treeSort(_treeview, _col, False))
                 else:
                     self.tables[i].heading(columns[j], text=columns[j]) 
                 self.Data.update()
@@ -241,7 +241,6 @@ class MainWindow:
                 self.tables[i].column(columns[j], width=width, stretch=tk.NO)
 
             self.tables[i].column(columns[0], width=30, stretch=tk.NO)
-            #self.tables[i].heading("Код", text="Код", command=com[i])
 
             for j in self.db[i].index:
                 items = []
@@ -285,10 +284,9 @@ class MainWindow:
                              relief=tk.SUNKEN, anchor=tk.W)
         statusbar.pack(side=tk.BOTTOM, fill=tk.X)
         
-    def tree_sort(self, treeview, col, reverse):
+    def treeSort(self, treeview, col, reverse):
         l = [(float(treeview.set(k, col)), k) for k in treeview.get_children('')] 
         l.sort(reverse=reverse)
-        
         for index, (val, k) in enumerate(l):
             treeview.move(k, '', index)
         
@@ -297,9 +295,9 @@ class MainWindow:
         else:
             char = '        ▲'
         
-        treeview.heading(col,text = col+char, command=lambda: self.tree_sort(treeview, col, not reverse))
+        treeview.heading(col,text = col+char, command=lambda: self.treeSort(treeview, col, not reverse))
 
-    def checkForDigit(self, data, col):
+    def treeCheckForDigit(self, data, col):
         str = data[col][0]
         if type(str) == type(''):
             return False
