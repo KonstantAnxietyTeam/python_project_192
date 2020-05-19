@@ -3,7 +3,12 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
-from tkinter import ttk
+import numpy as np
+
+w = None
+newPar = ""
+select = []
+selected_tab = 0
 
 
 def start_gui():
@@ -14,21 +19,17 @@ def start_gui():
     root.mainloop()
 
 
-w = None
-newPar = ""
-select = []
-
-
 def refreshFromExcel():
-    xls = pd.ExcelFile('D:/db.xlsx')  #  your repository
+    xls = pd.ExcelFile('../Work/Data/db.xlsx')
     p = pd.read_excel(xls, list(range(5)))
-    saveToPickle("D:/db.pickle", p)
+    saveToPickle("../Work/Data/db.pickle", p)
 
 
 def saveToPickle(filename, obj):
     db = open(filename, "wb")
     pk.dump(obj, db)
     db.close()
+
 
 class ChangeDialog(tk.Toplevel):
     def __init__(self, parent, prompt):
@@ -43,7 +44,7 @@ class ChangeDialog(tk.Toplevel):
         self.entry = tk.Entry(self, textvariable=self.var)
         self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
         self.ok_button.place(relx=0.338, rely=0.55, relheight=0.35,
-                                relwidth=0.3, bordermode='ignore')
+                             relwidth=0.3, bordermode='ignore')
 
         self.label.pack(side="top", fill="x")
         self.entry.pack(side="top", fill="x")
@@ -64,12 +65,13 @@ class ChangeDialog(tk.Toplevel):
         self.wait_window()
         return self.var.get()
 
+
 class MainWindow:
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
         #  refreshFromExcel()  #  use once for db.pickle
-        dbf = open("D:/db.pickle", "rb")
+        dbf = open("../Work/Data/db.pickle", "rb")
         self.db = pk.load(dbf)
         dbf.close()
 
@@ -147,68 +149,7 @@ class MainWindow:
                                 relwidth=0.532)
         self.Filter_Frame.configure(text='''Фильтры''')
 
-        self.Filter_List1 = tk.Listbox(self.Filter_Frame, exportselection=0)
-        self.Filter_List1.place(relx=0.019, rely=0.268, relheight=0.46,
-                                relwidth=0.301, bordermode='ignore')
-
-        self.Filter_List2 = tk.Listbox(self.Filter_Frame, exportselection=0)
-        self.Filter_List2.place(relx=0.338, rely=0.268, relheight=0.46,
-                                relwidth=0.301, bordermode='ignore')
-
-        self.Filter_List1.insert('end', "Тип выплаты")
-        self.Filter_List1.insert('end', "Дата выплаты")
-        self.Filter_List1.insert('end', "Сумма")
-        self.Filter_List1.insert('end', "Код работника")
-        for i in range(4):
-            self.Filter_List2.insert('end', "")
-
-
-        #  configure scrolling filter lists
-        self.Filter_scroll = tk.Scrollbar(self.Filter_List1)
-        self.Filter_List1.config(yscrollcommand=self.Filter_scroll.set)
-        self.Filter_List1.bind("<MouseWheel>", self.scrollList2)
-        self.Filter_List2.config(yscrollcommand=self.Filter_scroll.set)
-        self.Filter_List2.bind("<MouseWheel>", self.scrollList1)
-
-        self.Change_Button = tk.Button(self.Filter_Frame)
-        self.Change_Button.place(relx=0.357, rely=0.804, height=32, width=148,
-                                 bordermode='ignore')
-        self.Change_Button.configure(cursor="hand2")
-        self.Change_Button.configure(text='''Изменить значения''', command=self.open_dialog)
-        self.Filter_List1.bind("<<ListboxSelect>>", self.moveSelection2)
-        self.Filter_List2.bind("<<ListboxSelect>>", self.moveSelection1)
-
-        self.Reset_Button = tk.Button(self.Filter_Frame)
-        self.Reset_Button.place(relx=0.677, rely=0.800, height=32, width=148,
-                                bordermode='ignore')
-        self.Reset_Button.configure(cursor="hand2")
-        self.Reset_Button.configure(text='''Сбросить выбор''')
-
-        self.Param_Label = tk.Label(self.Filter_Frame)
-        self.Param_Label.place(relx=0.075, rely=0.134, height=25, width=97,
-                               bordermode='ignore')
-        self.Param_Label.configure(text='''Параметры''')
-
-        self.Values_Label = tk.Label(self.Filter_Frame)
-        self.Values_Label.place(relx=0.414, rely=0.152, height=15, width=83,
-                                bordermode='ignore')
-        self.Values_Label.configure(text='''Значения''')
-
-        self.Columns_Label = tk.Label(self.Filter_Frame)
-        self.Columns_Label.place(relx=0.752, rely=0.134, height=24, width=86,
-                                 bordermode='ignore')
-        self.Columns_Label.configure(text='''Столбцы''')
-
-        self.Filter_List3 = tk.Listbox(self.Filter_Frame)
-        self.Filter_List3.place(relx=0.658, rely=0.268, relheight=0.46,
-                                relwidth=0.32, bordermode='ignore')
-
-        self.Filter_Button = tk.Button(self.Filter_Frame)
-        self.Filter_Button.place(relx=0.038, rely=0.804, height=32, width=148,
-                                 bordermode='ignore')
-        self.Filter_Button.configure(cursor="hand2")
-        self.Filter_Button.configure(text='''Фильтровать''')
-
+        #  configure tabs
         self.Data = ttk.Notebook(top)
         self.Data.place(relx=0.023, rely=0.417, relheight=0.528, relwidth=0.96)
         #  self.Data.configure(takefocus="")
@@ -271,6 +212,67 @@ class MainWindow:
         # filters
         self.Data.bind("<<NotebookTabChanged>>", self.tabChoice)
 
+        #  configure filter lists
+        self.Filter_List1 = tk.Listbox(self.Filter_Frame, exportselection=0)
+        self.Filter_List1.place(relx=0.019, rely=0.268, relheight=0.46,
+                                relwidth=0.301, bordermode='ignore')
+
+        self.Filter_List2 = tk.Listbox(self.Filter_Frame, exportselection=0)
+        self.Filter_List2.place(relx=0.338, rely=0.268, relheight=0.46,
+                                relwidth=0.301, bordermode='ignore')
+
+        self.Filter_List1.insert('end', "Тип выплаты")
+        self.Filter_List1.insert('end', "Дата выплаты")
+        self.Filter_List1.insert('end', "Сумма")
+        self.Filter_List1.insert('end', "Код работника")
+        for i in range(4):
+            self.Filter_List2.insert('end', "")
+
+        self.Filter_scroll = tk.Scrollbar(self.Filter_List1)
+        self.Filter_List1.config(yscrollcommand=self.Filter_scroll.set)
+        self.Filter_List1.bind("<MouseWheel>", self.scrollList2)
+        self.Filter_List2.config(yscrollcommand=self.Filter_scroll.set)
+        self.Filter_List2.bind("<MouseWheel>", self.scrollList1)
+
+        self.Change_Button = tk.Button(self.Filter_Frame)
+        self.Change_Button.place(relx=0.357, rely=0.804, height=32, width=148,
+                                 bordermode='ignore')
+        self.Change_Button.configure(cursor="hand2")
+        self.Change_Button.configure(text='''Изменить значения''', command=self.open_dialog)
+        self.Filter_List1.bind("<<ListboxSelect>>", self.moveSelection2)
+        self.Filter_List2.bind("<<ListboxSelect>>", self.moveSelection1)
+
+        self.Reset_Button = tk.Button(self.Filter_Frame)
+        self.Reset_Button.place(relx=0.677, rely=0.800, height=32, width=148,
+                                bordermode='ignore')
+        self.Reset_Button.configure(cursor="hand2")
+        self.Reset_Button.configure(text='''Сбросить выбор''')
+
+        self.Param_Label = tk.Label(self.Filter_Frame)
+        self.Param_Label.place(relx=0.075, rely=0.134, height=25, width=97,
+                               bordermode='ignore')
+        self.Param_Label.configure(text='''Параметры''')
+
+        self.Values_Label = tk.Label(self.Filter_Frame)
+        self.Values_Label.place(relx=0.414, rely=0.152, height=15, width=83,
+                                bordermode='ignore')
+        self.Values_Label.configure(text='''Значения''')
+
+        self.Columns_Label = tk.Label(self.Filter_Frame)
+        self.Columns_Label.place(relx=0.752, rely=0.134, height=24, width=86,
+                                 bordermode='ignore')
+        self.Columns_Label.configure(text='''Столбцы''')
+
+        self.Filter_List3 = tk.Listbox(self.Filter_Frame)
+        self.Filter_List3.place(relx=0.658, rely=0.268, relheight=0.46,
+                                relwidth=0.32, bordermode='ignore')
+
+        self.Filter_Button = tk.Button(self.Filter_Frame)
+        self.Filter_Button.place(relx=0.038, rely=0.804, height=32, width=148,
+                                 bordermode='ignore')
+        self.Filter_Button.configure(cursor="hand2")
+        self.Filter_Button.configure(text='''Фильтровать''', command=self.filterTable)
+
         # menu
         menubar = tk.Menu(top)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -316,6 +318,7 @@ class MainWindow:
         self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), "units")
 
     def tabChoice(self, event):
+        global selected_tab
         selected_tab = event.widget.select()
         if event.widget.index(selected_tab) == 0:
             self.parInsert(0)
@@ -341,6 +344,44 @@ class MainWindow:
         newPar = ChangeDialog(root, "Введите новое значение:").show()
         self.Filter_List2.delete(select[0])
         self.Filter_List2.insert(select[0], newPar)
+
+    def filterTable(self):
+        global selcted_tab
+        filters = []
+        tab = self.Data.index(selected_tab)
+        cols = list(self.db[tab].columns)
+        cols = cols[1:]
+        df = self.db[tab]
+        check = True
+        for i in range(len(cols)):
+            filters.append(self.Filter_List2.get(i))
+        for fil in filters:
+            if fil != "":
+                check = False
+        if check:
+            for i in self.tables[tab].get_children():
+                self.tables[tab].delete(i)
+            for j in self.db[tab].index:
+                items = []
+                for title in self.db[tab].columns:
+                    items.append(self.db[tab][title][j])
+                self.tables[tab].insert("", "end", values=items)
+        else:
+            for i in range(len(filters)):
+                if filters[i] != "":
+                    name = df.columns[i+1]
+                    if (filters[i].isdigit()):
+                        df = df.drop(np.where(df[name] != int(filters[i]))[0])
+                        df.index = np.arange(len(df))
+                    else:
+                        df = df.drop(np.where(df[name] != filters[i])[0])
+            for i in self.tables[tab].get_children():
+                self.tables[tab].delete(i)
+            for j in df.index:
+                items = []
+                for title in df.columns:
+                    items.append(df[title][j])
+                self.tables[tab].insert("", "end", values=items)
 
     def menuFunc(self):
         pass
