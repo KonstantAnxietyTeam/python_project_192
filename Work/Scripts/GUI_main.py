@@ -21,7 +21,6 @@ def refreshFromExcel(filename):
     p = []
     for sheet in xls.sheet_names:
         p.append(pd.read_excel(xls, sheet))
-    print(p[0])
     saveToPickle("../Data/db.pickle", p)
 
 
@@ -81,7 +80,7 @@ class MainWindow:
            top is the toplevel containing window."""
         # refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         openFromFile("../Data/db.pickle")
-        
+
         top.geometry("1000x600+150+30")
         top.resizable(0, 0)
         top.title("База Данных")
@@ -220,7 +219,6 @@ class MainWindow:
                 self.Data_t4, self.Data_t5]
 
         self.tables = [0, 1, 2, 3, 4]
-        print(len(MainWindow.db))
         for i in range(len(MainWindow.db)):
             self.tables[i] = TreeViewWithPopup(tabs[i])
             self.tables[i].place(relwidth=1.0, relheight=1.0)
@@ -244,7 +242,7 @@ class MainWindow:
                 items = []
                 for title in MainWindow.db[i].columns:
                     items.append(MainWindow.db[i][title][j])
-                self.tables[i].insert("", "end", values=items)
+                self.tables[i].add("", values=items)
 
         # configure scrolls
         self.scrolls = [0, 1, 2, 3, 4]
@@ -311,8 +309,8 @@ class MainWindow:
                 items = []
                 for title in MainWindow.db[i].columns:
                     items.append(MainWindow.db[i][title][j])
-                self.tables[i].insert("", "end", values=items)
-        
+                self.tables[i].add("", values=items)
+            
     def exit(self):
         if MainWindow.modified:
             ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
@@ -476,6 +474,11 @@ class TreeViewWithPopup(ttk.Treeview):
                                     command=self.addRecord)
         self.bind("<Delete>", self.deleteRecords)
         self.bind("<Button-3>", self.popup)
+        self.globalCounter = 0
+        
+    def add(self, parent, values):
+        self.insert("", "end", iid=self.globalCounter, values=values)
+        self.globalCounter += 1
         
     def popup(self, event):
         try:
@@ -487,6 +490,7 @@ class TreeViewWithPopup(ttk.Treeview):
         self.selection_set(tuple(self.get_children()))  
         
     def addRecord(self):
+        #print(MainWindow.db[0])
         nb = self.master.master
         nb = nb.index(nb.select())
         dic = askValuesDialog(root, MainWindow.db[nb].columns).show()
@@ -498,19 +502,23 @@ class TreeViewWithPopup(ttk.Treeview):
                     pd.DataFrame([[item.get() for item in values]], 
                                    columns=keys), 
                                    ignore_index=True)
-            self.insert("", "end", values=[item.get() for item in values])
+            self.add("", values=[item.get() for item in values])
+        #for i in self.get_children():
+        #    print(i)
             
     def deleteRecords(self, event=None):
         nb = self.master.master
         nb = nb.index(nb.select())
-        selected = [idToDec(i) for i in self.selection()]
+        selected = [int(i) for i in self.selection()]
         if not len(selected):
             message(root, "Не выбран элемент").fade()
         else:
             MainWindow.modified = True
-            MainWindow.db[nb] = MainWindow.db[nb].drop(selected)
-            for item in self.selection():
-                self.delete(item)
+            for item in selected:
+                itemId = int(self.item(item)['values'][0])
+                MainWindow.db[nb] = MainWindow.db[nb].drop(MainWindow.db[nb].index[MainWindow.db[nb]['Код']==itemId])
+                self.delete(self.selection()[0])
+            #print(MainWindow.db[nb]['Код'])
             
     def modRecord(self):
         nb = self.master.master
@@ -519,18 +527,17 @@ class TreeViewWithPopup(ttk.Treeview):
         if not selected:
             message(root, "Не выбран элемент").fade()
         else:
-            selected = selected[0]
-            dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=MainWindow.db[nb].iloc[idToDec(selected)].tolist()).show()
+            selected = int(selected[0])
+            itemId = int(self.item(selected)['values'][0])
+            dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=MainWindow.db[nb][MainWindow.db[nb]['Код'] == itemId].values.tolist()[0]).show()
             keys = list(dic.keys())
             values = list(dic.values())
             if (len(values) and values[0].get() != ''): # TODO correct input validation
                 MainWindow.modified = True
                 for i in range(len(keys)):
                     self.item(selected, values=[item.get() for item in values])
-                    MainWindow.db[nb].loc[idToDec(selected), keys[i]] = values[i].get()
+                    MainWindow.db[nb].loc[itemId-1 , keys[i]] = values[i].get()
 
-    def menuFunc(self):
-        pass
 
 if __name__ == '__main__':
     start_gui()
