@@ -340,7 +340,7 @@ class MainWindow:
             self.Filter_List2.selection_set(select[0])
             self.Filter_List2.select_anchor(select[0])
         else:
-
+            message(root, "Не выбран элемент").fade()
 
     def filterTable(self):
         global selcted_tab
