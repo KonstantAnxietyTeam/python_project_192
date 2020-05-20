@@ -333,12 +333,14 @@ class MainWindow:
 
     def open_dialog(self):
         global newPar, select
-        newPar = ChangeDialog(root, "Введите новое значение:").show()
         if len(select) != 0:
+            newPar = ChangeDialog(root, "Введите новое значение:").show()
             self.Filter_List2.delete(select[0])
             self.Filter_List2.insert(select[0], newPar)
             self.Filter_List2.selection_set(select[0])
             self.Filter_List2.select_anchor(select[0])
+        else:
+
 
     def filterTable(self):
         global selcted_tab
