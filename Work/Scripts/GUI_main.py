@@ -102,16 +102,20 @@ class MainWindow:
         self.Pick_Analysis.configure(text="Анализ")
         self.Pick_Analysis.configure(cursor="arrow")
         
-        self.ComboAnalysis = ttk.Combobox(self.Pick_Analysis)
+        self.ComboAnalysis = ttk.Combobox(self.Pick_Analysis, values=['Простой отчет',
+                                                                      'Столбчкатая диаграмма',
+                                                                      'Гистограмма',
+                                                                      'Диаграмма Бокса-Вискера',
+                                                                      'Диаграмма рассеивания',])
         self.ComboAnalysis.place(relx=.05, rely=.35, height=20, relwidth=.9,
                               bordermode='ignore')
 
-        self.ShowAnalysisBtn = tk.Button(self.Pick_Analysis, text="Показать")
+        self.ShowAnalysisBtn = tk.Button(self.Pick_Analysis, text="Показать", command=self.showReport)
         self.ShowAnalysisBtn.place(relx=.048, rely=.5, height=32, relwidth=.9,
                               bordermode='ignore')
         self.ShowAnalysisBtn.configure(cursor="hand2")
 
-        self.ExportAnalysisBtn = tk.Button(self.Pick_Analysis, text="Экспорт")
+        self.ExportAnalysisBtn = tk.Button(self.Pick_Analysis, text="Экспорт", command=self.exportReport)
         self.ExportAnalysisBtn.place(relx=.048, rely=.7, height=32, relwidth=.9,
                                  bordermode='ignore')
         self.ExportAnalysisBtn.configure(cursor="hand2")
@@ -188,7 +192,6 @@ class MainWindow:
             self.tables[i]['show'] = 'headings'
             columns = list(MainWindow.db[i].columns)
             self.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
-
             self.tables[i].heading("#0", text="")
 
             for j in range(len(columns)):
@@ -306,7 +309,15 @@ class MainWindow:
         self.statusUpdate()
 
         root.bind("<Control-a>", self.selectAll)
-
+    
+    def showReport(self):
+        if self.ComboAnalysis.current() == -1:
+            message(root, "Не выбран элемент").fade()
+            
+    def exportReport(self):
+        if not self.ComboAnalysis.current() == -1:
+            message(root, "Не выбран элемент").fade()
+        
     def saveAsExcel(self):
         saveAsExcel(self.tables[self.Data.index("current")], self.Data.index("current"))
     
