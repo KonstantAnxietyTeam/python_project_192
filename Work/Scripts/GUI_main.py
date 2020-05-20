@@ -122,7 +122,8 @@ class MainWindow:
         openFromFile("../Data/db.pickle")
 
         top.geometry("1000x600+150+30")
-        top.resizable(0, 0)
+        top.minsize(width=1000, height=600)
+        #top.resizable(0, 0)
         top.title("База Данных")
         
 #        self.Table_Frame = tk.LabelFrame(top)
