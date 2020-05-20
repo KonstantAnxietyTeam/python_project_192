@@ -57,7 +57,7 @@ def createEmptyDatabase():
                      pd.DataFrame(columns=['Код', 'Название', 'Телефон'])]
     MainWindow.modified = False
     MainWindow.currentFile = ''
-    
+
 
 def saveAsExcel(tree, nb):
     file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
@@ -71,7 +71,7 @@ def saveAsExcel(tree, nb):
         for iid in ids:
             for i in range(len(keys)):
                 dic[keys[i]].append(tree.item(iid)["values"][i])
-    
+
         dic = pd.DataFrame.from_dict(dic)
         try:
            dic.to_excel(file, engine='xlsxwriter',index= False)
@@ -314,7 +314,7 @@ class MainWindow:
 
     def saveAsExcel(self):
         saveAsExcel(self.tables[self.Data.index("current")], self.Data.index("current"))
-    
+
     def moveSelection1(self, event):
         global select
         select = list(self.Filter_List2.curselection())
@@ -439,7 +439,7 @@ class MainWindow:
             ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
-            elif ans == None:
+            elif ans is None:
                 return
         root.destroy()
 
