@@ -57,6 +57,28 @@ def createEmptyDatabase():
                      pd.DataFrame(columns=['Код', 'Название', 'Телефон'])]
     MainWindow.modified = False
     MainWindow.currentFile = ''
+    
+
+def saveAsExcel(tree, nb):
+    file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
+    if file:
+        ids=tree.get_children()
+        #dic = dict([tree.column(i)['id'] for i in tree["displaycolumns"]]) # TODO get displayed columns only
+        dic = dict.fromkeys(MainWindow.db[nb].columns, [])
+        keys = list(dic.keys())
+        for i in range(len(keys)):
+            dic[keys[i]] = []
+        for iid in ids:
+            for i in range(len(keys)):
+                dic[keys[i]].append(tree.item(iid)["values"][i])
+    
+        dic = pd.DataFrame.from_dict(dic)
+        try:
+           dic.to_excel(file, engine='xlsxwriter',index= False)
+        except:
+           print("Close the file than retry")
+    else:
+        print("You did not save the file")
 
 
 class MainWindow:
@@ -268,6 +290,7 @@ class MainWindow:
         filemenu.add_command(label="Открыть", command=self.open)
         filemenu.add_command(label="Сохранить", command=self.save)
         filemenu.add_command(label="Сохранить как...", command=self.saveas)
+        filemenu.add_command(label="Экспорт", command=self.saveAsExcel)
         filemenu.add_separator()
         filemenu.add_command(label="Выход", command=self.exit)
         root.protocol("WM_DELETE_WINDOW", self.exit)
@@ -289,6 +312,9 @@ class MainWindow:
 
         root.bind("<Control-a>", self.selectAll)
 
+    def saveAsExcel(self):
+        saveAsExcel(self.tables[self.Data.index("current")], self.Data.index("current"))
+    
     def moveSelection1(self, event):
         global select
         select = list(self.Filter_List2.curselection())
