@@ -63,7 +63,7 @@ def saveAsExcel(tree, nb):
     file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
     if file:
         ids=tree.get_children()
-        #dic = dict([tree.column(i)['id'] for i in tree["displaycolumns"]]) # TODO get displayed columns only
+        #dic = dict([tree.column(i)['id'] for i in tree["displaycolumns"]]) # TODO need to get displayed columns only
         dic = dict.fromkeys(MainWindow.db[nb].columns, [])
         keys = list(dic.keys())
         for i in range(len(keys)):
@@ -96,69 +96,64 @@ class MainWindow:
         top.minsize(width=1000, height=600)
         top.title("База Данных")
 
-#        self.Table_Frame = tk.LabelFrame(top)
-#        self.Table_Frame.place(relx=0.023, rely=0.017, relheight=0.373,
-#                               relwidth=0.207)
-#        self.Table_Frame.configure(text="Таблица")
-#        self.Table_Frame.configure(cursor="arrow")
-#
-#        self.Add_Button = tk.Button(self.Table_Frame)
-#        self.Add_Button.place(relx=0.048, rely=0.625, height=32, width=88,
-#                              bordermode='ignore')
-#        self.Add_Button.configure(cursor="hand2")
-#        self.Add_Button.configure(text="Добавить")
-#
-#        self.ExpTab_Button = tk.Button(self.Table_Frame)
-#        self.ExpTab_Button.place(relx=0.531, rely=0.799, height=32, width=88,
-#                                 bordermode='ignore')
-#        self.ExpTab_Button.configure(cursor="hand2")
-#        self.ExpTab_Button.configure(text="Экспорт")
-#
-#        self.Delete_Button = tk.Button(self.Table_Frame)
-#        self.Delete_Button.place(relx=0.048, rely=0.799, height=32, width=88,
-#                                 bordermode='ignore')
-#        self.Delete_Button.configure(cursor="hand2")
-#        self.Delete_Button.configure(text="Удалить")
-#
-#        self.Edit_Button = tk.Button(self.Table_Frame)
-#        self.Edit_Button.place(relx=0.531, rely=0.625, height=32, width=88,
-#                               bordermode='ignore')
-#        self.Edit_Button.configure(cursor="hand2")
-#        self.Edit_Button.configure(text="Правка")
-#
-#        self.Choice_Label = tk.Label(self.Table_Frame)
-#        self.Choice_Label.place(relx=0.386, rely=0.089, height=25, width=65,
-#                                bordermode='ignore')
-#        self.Choice_Label.configure(text="Выбор")
+        self.Pick_Analysis = tk.LabelFrame(top)
+        self.Pick_Analysis.place(relx=0.023, rely=0.017, relheight=0.33,
+                               relwidth=0.207)
+        self.Pick_Analysis.configure(text="Анализ")
+        self.Pick_Analysis.configure(cursor="arrow")
+        
+        self.ComboAnalysis = ttk.Combobox(self.Pick_Analysis)
+        self.ComboAnalysis.place(relx=.05, rely=.35, height=20, relwidth=.9,
+                              bordermode='ignore')
 
-        self.Analysis_Frame = tk.LabelFrame(top, text="Анализ")
-        self.Analysis_Frame.place(relx=0.24, rely=0.017, relheight=0.373,
-                                  relwidth=0.201)
+        self.ShowAnalysisBtn = tk.Button(self.Pick_Analysis, text="Показать")
+        self.ShowAnalysisBtn.place(relx=.048, rely=.5, height=32, relwidth=.9,
+                              bordermode='ignore')
+        self.ShowAnalysisBtn.configure(cursor="hand2")
 
-        self.Method_Label = tk.Label(self.Analysis_Frame, text="Метод Анализа")
-        self.Method_Label.place(relx=0.199, rely=0.134, height=17, width=127,
+        self.ExportAnalysisBtn = tk.Button(self.Pick_Analysis, text="Экспорт")
+        self.ExportAnalysisBtn.place(relx=.048, rely=.7, height=32, relwidth=.9,
+                                 bordermode='ignore')
+        self.ExportAnalysisBtn.configure(cursor="hand2")
+
+        self.Choice_Label = tk.Label(self.Pick_Analysis, text="Вид отчета")
+        self.Choice_Label.place(relx=.05, rely=.2, height=25, width=127,
                                 bordermode='ignore')
 
-        self.Analysis_Button = tk.Button(self.Analysis_Frame, text="Анализ")
-        self.Analysis_Button.place(relx=0.05, rely=0.795, height=32, width=88,
-                                   bordermode='ignore')
-        self.Analysis_Button.configure(cursor="hand2")
+        self.Analysis_Frame = tk.LabelFrame(top, text="Параметры отчета")
+        self.Analysis_Frame.place(relx=.24, rely=.017, relheight=.33,
+                                  relwidth=.201)
 
-        self.ExpAn_Button = tk.Button(self.Analysis_Frame, text="Экспорт")
-        self.ExpAn_Button.place(relx=0.547, rely=0.795, height=32, width=78,
+        self.Method_Label = tk.Label(self.Analysis_Frame, text="Качественный: ", anchor="w")
+        self.Method_Label.place(relx=.05, rely=.2, height=25, width=127,
                                 bordermode='ignore')
-        self.ExpAn_Button.configure(cursor="hand2")
-
-        self.Analysis_List = tk.Listbox(self.Analysis_Frame)
-        self.Analysis_List.place(relx=0.05, rely=0.268, relheight=0.46,
-                                 relwidth=0.871, bordermode='ignore')
+        
+        self.ComboQual = ttk.Combobox(self.Analysis_Frame)
+        self.ComboQual.place(relx=.05, rely=.3, height=20, relwidth=.9,
+                              bordermode='ignore')
+        
+        self.Method_Label = tk.Label(self.Analysis_Frame, text="Количественный: ", anchor="w")
+        self.Method_Label.place(relx=.05, rely=.4, height=25, width=127,
+                                bordermode='ignore')
+        
+        self.ComboQuantFirst = ttk.Combobox(self.Analysis_Frame)
+        self.ComboQuantFirst.place(relx=.05, rely=.5, height=20, relwidth=.9,
+                             bordermode='ignore')
+        
+        self.Method_Label = tk.Label(self.Analysis_Frame, text="Количественный: ", anchor="w")
+        self.Method_Label.place(relx=.05, rely=.6, height=25, width=127,
+                                bordermode='ignore')
+        
+        self.ComboQuantSecond = ttk.Combobox(self.Analysis_Frame)
+        self.ComboQuantSecond.place(relx=.05, rely=.7, height=20, relwidth=.9,
+                                    bordermode='ignore')
 
         self.Filter_Frame = tk.LabelFrame(top, text="Фильтры")
-        self.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.373,
+        self.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.33,
                                 relwidth=0.532)
 
         self.Data = ttk.Notebook(top)
-        self.Data.place(relx=0.023, rely=0.417, relheight=0.528, relwidth=0.96)
+        self.Data.place(relx=0.023, rely=0.374, relheight=.571, relwidth=0.96)
         #  self.Data.configure(takefocus="")
 
         self.Data_t1 = tk.Frame(self.Data)
