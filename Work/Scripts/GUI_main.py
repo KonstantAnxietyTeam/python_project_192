@@ -349,6 +349,7 @@ class MainWindow:
         cols = list(self.db[tab].columns)
         cols = cols[1:]
         df = self.db[tab]
+        df.index = np.arange(len(df))
         check = True
         for i in range(len(cols)):
             filters.append(self.Filter_List2.get(i))
