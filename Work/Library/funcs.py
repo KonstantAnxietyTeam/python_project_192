@@ -62,7 +62,7 @@ class message(tk.Toplevel):
         tk.Toplevel.__init__(self, parent)
         self.label = tk.Label(self, text=prompt, background='mistyrose')
         self.label.pack(side="top", fill="x")
-        geom = "200x60+" + str(root.winfo_screenwidth()-260) + "+" + str(root.winfo_screenheight()-120)
+        geom = "200x60+" + str(parent.winfo_screenwidth()-260) + "+" + str(parent.winfo_screenheight()-120)
         self.geometry(geom)
         self.resizable(0, 0)
         self.configure(background='lightcoral')
