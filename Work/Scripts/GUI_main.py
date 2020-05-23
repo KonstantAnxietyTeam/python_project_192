@@ -269,19 +269,106 @@ class MainWindow:
         self.Values_Label.place(relx=0.414, rely=0.152, height=15, width=83,
                                 bordermode='ignore')
 
-        self.Columns_Label = tk.Label(self.Filter_Frame, text="Столбцы")
-        self.Columns_Label.place(relx=0.752, rely=0.134, height=24, width=86,
-                                 bordermode='ignore')
+        # Checkboxes
+        self.Boxes_Frame = tk.LabelFrame(self.Filter_Frame, text="Столбцы")
+        self.Boxes_Frame.place(relx=0.658, rely=0.130, relheight=0.65,
+                               relwidth=0.32, bordermode='ignore')
+        self.Cvars = []
+        for i in range(16):
+            self.Cvars.append(tk.BooleanVar())
+            self.Cvars[i].set(1)
 
-        self.Filter_List3 = tk.Listbox(self.Filter_Frame)
-        self.Filter_List3.place(relx=0.658, rely=0.268, relheight=0.46,
-                                relwidth=0.32, bordermode='ignore')
+        self.Cbox0 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox0.grid(row=0, column=0, sticky='W')
+        self.Cbox0.configure(justify='left')
+        self.Cbox0.configure(text='''Тип выплаты''', variable=self.Cvars[0])
 
-        self.Filter_Button = tk.Button(self.Filter_Frame)
-        self.Filter_Button.place(relx=0.038, rely=0.804, height=32, width=148,
-                                 bordermode='ignore')
-        self.Filter_Button.configure(cursor="hand2")
-        self.Filter_Button.configure(text="Фильтровать", command=self.filterTable)
+        self.Cbox1 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox1.grid(row=1, column=0, sticky='W')
+        self.Cbox1.configure(justify='left')
+        self.Cbox1.configure(text='''Дата выплаты''', variable=self.Cvars[1])
+
+        self.Cbox2 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox2.grid(row=2, column=0, sticky='W')
+        self.Cbox2.configure(justify='left')
+        self.Cbox2.configure(text='''Сумма''', variable=self.Cvars[2])
+
+        self.Cbox3 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox3.grid(row=3, column=0, sticky='W')
+        self.Cbox3.configure(justify='left')
+        self.Cbox3.configure(text='''Код работника''', variable=self.Cvars[3])
+
+        self.Cbox4 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox4.grid(row=0, column=0, sticky='W')
+        self.Cbox4.configure(justify='left')
+        self.Cbox4.configure(text='''Код должности''', variable=self.Cvars[4])
+        self.Cbox4.grid_forget()
+
+        self.Cbox5 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox5.grid(row=1, column=0, sticky='W')
+        self.Cbox5.configure(justify='left')
+        self.Cbox5.configure(text='''Отделение''', variable=self.Cvars[5])
+        self.Cbox5.grid_forget()
+
+        self.Cbox6 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox6.grid(row=0, column=0, sticky='W')
+        self.Cbox6.configure(justify='left')
+        self.Cbox6.configure(text='''Название''', variable=self.Cvars[6])
+        self.Cbox6.grid_forget()
+
+        self.Cbox7 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox7.grid(row=1, column=0, sticky='W')
+        self.Cbox7.configure(justify='left')
+        self.Cbox7.configure(text='''Норма (ч)''', variable=self.Cvars[7])
+        self.Cbox7.grid_forget()
+
+        self.Cbox8 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox8.grid(row=2, column=0, sticky='W')
+        self.Cbox8.configure(justify='left')
+        self.Cbox8.configure(text='''Ставка (ч)''', variable=self.Cvars[8])
+        self.Cbox8.grid_forget()
+
+        self.Cbox9 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox9.grid(row=0, column=0, sticky='W')
+        self.Cbox9.configure(justify='left')
+        self.Cbox9.configure(text='''ФИО''', variable=self.Cvars[9])
+        self.Cbox9.grid_forget()
+
+        self.Cbox10 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox10.grid(row=1, column=0, sticky='W')
+        self.Cbox10.configure(justify='left')
+        self.Cbox10.configure(text='''Номер договора''', variable=self.Cvars[10])
+        self.Cbox10.grid_forget()
+
+        self.Cbox11 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox11.grid(row=2, column=0, sticky='W')
+        self.Cbox11.configure(justify='left')
+        self.Cbox11.configure(text='''Телефон''', variable=self.Cvars[11])
+        self.Cbox11.grid_forget()
+
+        self.Cbox12 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox12.grid(row=3, column=0, sticky='W')
+        self.Cbox12.configure(justify='left')
+        self.Cbox12.configure(text='''Образование''', variable=self.Cvars[12])
+        self.Cbox12.grid_forget()
+
+        self.Cbox13 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox13.grid(row=4, column=0, sticky='W')
+        self.Cbox13.configure(justify='left')
+        self.Cbox13.configure(text='''Адрес''', variable=self.Cvars[13])
+        self.Cbox13.grid_forget()
+
+        self.Cbox14 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox14.grid(row=0, column=0, sticky='W')
+        self.Cbox14.configure(justify='left')
+        self.Cbox14.configure(text='''Название''', variable=self.Cvars[14])
+        self.Cbox14.grid_forget()
+
+        self.Cbox15 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox15.grid(row=1, column=0, sticky='W')
+        self.Cbox15.configure(justify='left')
+        self.Cbox15.configure(text='''Телефон''', variable=self.Cvars[15])
+        self.Cbox15.grid_forget()
 
         # menu
         menubar = tk.Menu(top)
@@ -340,14 +427,71 @@ class MainWindow:
         selected_tab = event.widget.select()
         if event.widget.index(selected_tab) == 0:
             self.parInsert(0)
+            self.insertCheckBoxes0()
         elif event.widget.index(selected_tab) == 1:
             self.parInsert(1)
+            self.insertCheckBoxes1()
         elif event.widget.index(selected_tab) == 2:
             self.parInsert(2)
+            self.insertCheckBoxes2()
         elif event.widget.index(selected_tab) == 3:
             self.parInsert(3)
+            self.insertCheckBoxes3()
         else:
             self.parInsert(4)
+            self.insertCheckBoxes4()
+
+    def hideCheckBox(self, CheckBox):
+        CheckBox.grid_forget()
+
+    def hideAll(self):
+        self.hideCheckBox(self.Cbox0)
+        self.hideCheckBox(self.Cbox1)
+        self.hideCheckBox(self.Cbox2)
+        self.hideCheckBox(self.Cbox3)
+        self.hideCheckBox(self.Cbox4)
+        self.hideCheckBox(self.Cbox5)
+        self.hideCheckBox(self.Cbox6)
+        self.hideCheckBox(self.Cbox7)
+        self.hideCheckBox(self.Cbox8)
+        self.hideCheckBox(self.Cbox9)
+        self.hideCheckBox(self.Cbox10)
+        self.hideCheckBox(self.Cbox11)
+        self.hideCheckBox(self.Cbox12)
+        self.hideCheckBox(self.Cbox13)
+        self.hideCheckBox(self.Cbox14)
+        self.hideCheckBox(self.Cbox15)
+
+    def insertCheckBoxes0(self):
+        self.hideAll()
+        self.Cbox0.grid(row=0, column=0, sticky='W')
+        self.Cbox1.grid(row=1, column=0, sticky='W')
+        self.Cbox2.grid(row=2, column=0, sticky='W')
+        self.Cbox3.grid(row=3, column=0, sticky='W')
+
+    def insertCheckBoxes1(self):
+        self.hideAll()
+        self.Cbox4.grid(row=0, column=0, sticky='W')
+        self.Cbox5.grid(row=1, column=0, sticky='W')
+
+    def insertCheckBoxes2(self):
+        self.hideAll()
+        self.Cbox6.grid(row=0, column=0, sticky='W')
+        self.Cbox7.grid(row=1, column=0, sticky='W')
+        self.Cbox8.grid(row=2, column=0, sticky='W')
+
+    def insertCheckBoxes3(self):
+        self.hideAll()
+        self.Cbox9.grid(row=0, column=0, sticky='W')
+        self.Cbox10.grid(row=1, column=0, sticky='W')
+        self.Cbox11.grid(row=2, column=0, sticky='W')
+        self.Cbox12.grid(row=3, column=0, sticky='W')
+        self.Cbox13.grid(row=4, column=0, sticky='W')
+
+    def insertCheckBoxes4(self):
+        self.hideAll()
+        self.Cbox14.grid(row=0, column=0, sticky='W')
+        self.Cbox15.grid(row=1, column=0, sticky='W')
 
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')
