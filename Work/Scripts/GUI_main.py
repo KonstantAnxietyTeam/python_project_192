@@ -257,8 +257,7 @@ class MainWindow:
         self.Filter_List2.bind("<<ListboxSelect>>", self.moveSelection1)
 
         self.Reset_Button = tk.Button(self.Filter_Frame, text="Сбросить выбор")
-        self.Reset_Button.place(relx=0.677, rely=0.800, height=32, width=148,
-                                bordermode='ignore')
+        self.Reset_Button.place(relx=0.03, rely=0.804, height=32, width=148)
         self.Reset_Button.configure(cursor="hand2")
 
         self.Param_Label = tk.Label(self.Filter_Frame, text="Параметры")
