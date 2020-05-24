@@ -15,8 +15,9 @@ def configureWidgets(scr, top):
     scr.Pick_Analysis.configure(text="Анализ")
     scr.Pick_Analysis.configure(cursor="arrow")
     
-    scr.ComboAnalysis = ttk.Combobox(scr.Pick_Analysis, values=['Простой отчет',
-                                                                  'Столбчкатая диаграмма',
+    scr.ComboAnalysis = ttk.Combobox(scr.Pick_Analysis, values=['Качественный параметр',
+                                                                'Количественный параметр',
+                                                                  'Столбчатая диаграмма',
                                                                   'Гистограмма',
                                                                   'Диаграмма Бокса-Вискера',
                                                                   'Диаграмма рассеивания',])
@@ -41,29 +42,21 @@ def configureWidgets(scr, top):
     scr.Analysis_Frame.place(relx=.24, rely=.017, relheight=.33,
                               relwidth=.201)
 
-    scr.Method_Label = tk.Label(scr.Analysis_Frame, text="Качественный: ", anchor="w")
-    scr.Method_Label.place(relx=.05, rely=.2, height=25, width=127,
+    scr.LabelQual = tk.Label(scr.Analysis_Frame, text="Качественный: ", anchor="w")
+    scr.LabelQual.place(relx=.05, rely=.2, height=25, width=127,
                             bordermode='ignore')
     
     scr.ComboQual = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQual.place(relx=.05, rely=.3, height=20, relwidth=.9,
                           bordermode='ignore')
     
-    scr.Method_Label = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w")
-    scr.Method_Label.place(relx=.05, rely=.4, height=25, width=127,
+    scr.LabelQuant = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w")
+    scr.LabelQuant.place(relx=.05, rely=.4, height=25, width=127,
                             bordermode='ignore')
     
-    scr.ComboQuantFirst = ttk.Combobox(scr.Analysis_Frame)
-    scr.ComboQuantFirst.place(relx=.05, rely=.5, height=20, relwidth=.9,
+    scr.ComboQuant = ttk.Combobox(scr.Analysis_Frame)
+    scr.ComboQuant.place(relx=.05, rely=.5, height=20, relwidth=.9,
                          bordermode='ignore')
-    
-    scr.Method_Label = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w")
-    scr.Method_Label.place(relx=.05, rely=.6, height=25, width=127,
-                            bordermode='ignore')
-    
-    scr.ComboQuantSecond = ttk.Combobox(scr.Analysis_Frame)
-    scr.ComboQuantSecond.place(relx=.05, rely=.7, height=20, relwidth=.9,
-                                bordermode='ignore')
 
     scr.Filter_Frame = tk.LabelFrame(top, text="Фильтры")
     scr.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.33,

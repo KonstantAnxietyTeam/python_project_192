@@ -15,6 +15,13 @@ select = []
 selected_tab = 0
 
 
+quantParams = [{"Код", "Сумма", "Код работника"},
+               {"Код", "Код должности", "Отделение"},
+               {"Код", "Норма (ч)", "Ставка (ч)"},
+               {"Код", "Номер договора"},
+               {"Код"}]
+
+
 def start_gui():
     """Starting point when module is the main routine."""
     global val, w, root
@@ -136,15 +143,22 @@ def configureGUI(scr, top):
     root.bind("<Control-n>", scr.addRecord)
     root.bind("<Delete>", scr.deleteRecords)
     
+    scr.ComboAnalysis.bind("<<ComboboxSelected>>", scr.configAnalysisCombos)
+    
     # start status bar
     scr.statusUpdate()
+    
+    scr.ComboAnalysis.current(2)
+    scr.configAnalysisCombos()
+    scr.updateCombos()
 
 
 class MainWindow:
     db = None
     currentFile = ''
     modified = False
-
+    col = []
+        
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
@@ -154,8 +168,24 @@ class MainWindow:
         top.geometry("1000x600+150+30")
         top.minsize(width=1000, height=600)
         top.title("База Данных")
-        
+
         configureGUI(self, top)
+        
+    def configAnalysisCombos(self, event=None):
+        anId = self.ComboAnalysis.current()
+        if anId == 0:
+            self.ComboQuant.configure(state="disabled")
+            self.ComboQual.configure(state="normal")
+        elif anId == 1:
+            self.ComboQuant.configure(state="normal")
+            self.ComboQual.configure(state="disabled")
+        else:
+            self.ComboQuant.configure(state="normal")
+            self.ComboQual.configure(state="normal")
+        if anId == 5:
+            self.LabelQual.configure(text="Количественный")
+        else:
+            self.LabelQual.configure(text="Качественный")
 
     def showReport(self):
         if self.ComboAnalysis.current() == -1:
@@ -188,6 +218,21 @@ class MainWindow:
     def scrollList2(self, event):
         self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), "units")
 
+    def updateCombos(self):
+        self.ComboQuant.set('')
+        self.ComboQual.set('')
+        nb = self.Data.index(self.Data.select())
+        self.ComboQuant.configure(values = [h for h in MainWindow.db[nb].columns if h in quantParams[nb]])
+        self.ComboQual.configure(values = [h for h in MainWindow.db[nb].columns if not h in quantParams[nb]])
+        if len(self.ComboQuant["values"]) == 0:
+            self.ComboQuant.configure(state="disabled")
+        else:
+            self.ComboQuant.configure(state="normal")
+        if len(self.ComboQual["values"]) == 0:
+            self.ComboQual.configure(state="disabled")
+        else:
+            self.ComboQual.configure(state="normal")
+        
     def tabChoice(self, event):
         global selected_tab
         selected_tab = event.widget.select()
@@ -206,6 +251,7 @@ class MainWindow:
         else:
             self.parInsert(4)
             self.insertCheckBoxes4()
+        self.updateCombos()
 
     def hideCheckBox(self, CheckBox):
         CheckBox.grid_forget()
