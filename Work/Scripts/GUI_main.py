@@ -66,12 +66,12 @@ def createEmptyDatabase():
     MainWindow.currentFile = ''
 
 
-def saveAsExcel(tree, nb):
+def saveAsExcel(tree):
     file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
     if file:
         ids=tree.get_children()
         #dic = dict([tree.column(i)['id'] for i in tree["displaycolumns"]]) # TODO need to get displayed columns only
-        dic = dict.fromkeys(MainWindow.db[nb].columns, [])
+        dic = dict.fromkeys(tree["columns"], [])
         keys = list(dic.keys())
         for i in range(len(keys)):
             dic[keys[i]] = []
@@ -196,7 +196,7 @@ class MainWindow:
             message(root, "Не выбран элемент").fade()
         
     def saveAsExcel(self):
-        saveAsExcel(self.tables[self.Data.index("current")], self.Data.index("current"))
+        saveAsExcel(self.tables[self.Data.index("current")])
 
     def moveSelection1(self, event):
         global select
