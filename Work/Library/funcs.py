@@ -70,7 +70,7 @@ def configureWidgets(scr, top):
                             relwidth=0.532)
 
     scr.Data = ttk.Notebook(top)
-    scr.Data.place(relx=0.023, rely=0.374, relheight=.571, relwidth=0.96)
+    scr.Data.place(relx=0.023, rely=0.374, relheight=.528, relwidth=0.96)
     #  scr.Data.configure(takefocus="")
 
     scr.Data_t1 = tk.Frame(scr.Data)
