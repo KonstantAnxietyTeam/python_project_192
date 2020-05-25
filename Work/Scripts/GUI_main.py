@@ -305,6 +305,23 @@ class MainWindow:
         self.Cbox14.grid(row=0, column=0, sticky='W')
         self.Cbox15.grid(row=1, column=0, sticky='W')
 
+    def removeColumns(self):
+        global selected_tab
+        tab = self.Data.index(selected_tab)
+        indTab = 0
+        for i in range(tab):
+            indTab += len(self.Cvars[i])
+        exclude = []
+        for i in range(len(self.Cvars[tab])):
+            ind = indTab + i
+            if self.Cvars[tab][i].get() is False:
+                exclude.append(self.names[ind])
+        display = []
+        for col in self.tables[tab]["columns"]:
+            if col not in exclude:
+                display.append(col)
+        self.tables[tab]["displaycolumns"] = (display)
+
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')
         self.Filter_List2.delete(0, 'end')
@@ -328,9 +345,9 @@ class MainWindow:
         global selcted_tab
         filters = []
         tab = self.Data.index(selected_tab)
-        cols = list(self.db[tab].columns)
+        cols = list(MainWindow.db[tab].columns)
         cols = cols[1:]
-        df = self.db[tab]
+        df = MainWindow.db[tab]
         df.index = np.arange(len(df))
         check = True
         for i in range(len(cols)):
@@ -341,10 +358,10 @@ class MainWindow:
         if check:
             for i in self.tables[tab].get_children():
                 self.tables[tab].delete(i)
-            for j in self.db[tab].index:
+            for j in MainWindow.db[tab].index:
                 items = []
-                for title in self.db[tab].columns:
-                    items.append(self.db[tab][title][j])
+                for title in MainWindow.db[tab].columns:
+                    items.append(MainWindow.db[tab][title][j])
                 self.tables[tab].add("", values=items)
         else:
             for i in range(len(filters)):
