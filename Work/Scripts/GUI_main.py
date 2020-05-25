@@ -4,6 +4,7 @@ import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
 import numpy as np
+import matplotlib.pyplot as plt
 from tkinter import filedialog
 from tkinter import messagebox as mb
 sys.path.insert(1, '../Library')
@@ -188,8 +189,28 @@ class MainWindow:
             self.LabelQual.configure(text="Качественный")
 
     def showReport(self):
-        if self.ComboAnalysis.current() == -1:
+        nb = self.Data.index(self.Data.select())
+        if self.ComboAnalysis.current() == -1 or \
+            self.ComboQual.current() == -1 or \
+            self.ComboQuant.current() == -1:
             message(root, "Не выбран элемент").fade()
+        elif self.ComboAnalysis.current() == 2: # сжимать ФИО
+            qual = self.ComboQual.get()
+            quant = self.ComboQuant.get()
+            fig, ax1 = plt.subplots(
+                nrows=1, ncols=1,
+                figsize=(8, 4)
+            )
+            quals = MainWindow.db[nb][qual].tolist()
+            quants = MainWindow.db[nb][quant].tolist()
+            ax1.bar(quals, quants)
+            #plt.xticks(rotation=45)
+            ax1.set_title('Диаграмма: $' + str(qual) +'$ от $' + str(quant) + '$')
+            ax1.set_xlabel('$' + str(qual) +'$')
+            ax1.set_ylabel('$' + str(quant) + '$')
+            labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
+            ax1.set_xticklabels(labels_formatted)
+            plt.show()
             
     def exportReport(self):
         if not self.ComboAnalysis.current() == -1:
