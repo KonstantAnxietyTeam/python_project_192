@@ -253,6 +253,13 @@ class MainWindow:
                                  bordermode='ignore')
         self.Change_Button.configure(cursor="hand2")
         self.Change_Button.configure(text="Изменить значения", command=self.open_dialog)
+
+        self.DelCol_Button = tk.Button(self.Filter_Frame)
+        self.DelCol_Button.place(relx=0.675, rely=0.804, height=32, width=148,
+                                 bordermode='ignore')
+        self.DelCol_Button.configure(cursor="hand2")
+        self.DelCol_Button.configure(text="Удалить")
+
         self.Filter_List1.bind("<<ListboxSelect>>", self.moveSelection2)
         self.Filter_List2.bind("<<ListboxSelect>>", self.moveSelection1)
 
@@ -273,101 +280,141 @@ class MainWindow:
         self.Boxes_Frame.place(relx=0.658, rely=0.130, relheight=0.65,
                                relwidth=0.32, bordermode='ignore')
         self.Cvars = []
-        for i in range(16):
-            self.Cvars.append(tk.BooleanVar())
-            self.Cvars[i].set(1)
+        self.Cvars0 = []
+        self.Cvars.append(self.Cvars0)
+        self.Cvars1 = []
+        self.Cvars.append(self.Cvars1)
+        self.Cvars2 = []
+        self.Cvars.append(self.Cvars2)
+        self.Cvars3 = []
+        self.Cvars.append(self.Cvars3)
+        self.Cvars4 = []
+        self.Cvars.append(self.Cvars4)
 
-        self.Cbox0 = tk.Checkbutton(self.Boxes_Frame)
+        for i in range(4):
+            self.Cvars0.append(tk.BooleanVar())
+            self.Cvars0[i].set(1)
+        for i in range(2):
+            self.Cvars1.append(tk.BooleanVar())
+            self.Cvars1[i].set(1)
+        for i in range(3):
+            self.Cvars2.append(tk.BooleanVar())
+            self.Cvars2[i].set(1)
+        for i in range(5):
+            self.Cvars3.append(tk.BooleanVar())
+            self.Cvars3[i].set(1)
+        for i in range(2):
+            self.Cvars4.append(tk.BooleanVar())
+            self.Cvars4[i].set(1)
+
+        self.names = []
+        self.Cbox0 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox0.grid(row=0, column=0, sticky='W')
         self.Cbox0.configure(justify='left')
-        self.Cbox0.configure(text='''Тип выплаты''', variable=self.Cvars[0])
+        self.Cbox0.configure(text="Тип выплаты", variable=self.Cvars0[0])
+        self.names.append(self.Cbox0.cget("text"))
 
-        self.Cbox1 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox1 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox1.grid(row=1, column=0, sticky='W')
         self.Cbox1.configure(justify='left')
-        self.Cbox1.configure(text='''Дата выплаты''', variable=self.Cvars[1])
+        self.Cbox1.configure(text="Дата выплаты", variable=self.Cvars0[1])
+        self.names.append(self.Cbox1.cget("text"))
 
-        self.Cbox2 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox2 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox2.grid(row=2, column=0, sticky='W')
         self.Cbox2.configure(justify='left')
-        self.Cbox2.configure(text='''Сумма''', variable=self.Cvars[2])
+        self.Cbox2.configure(text="Сумма", variable=self.Cvars0[2])
+        self.names.append(self.Cbox2.cget("text"))
 
-        self.Cbox3 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox3 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox3.grid(row=3, column=0, sticky='W')
         self.Cbox3.configure(justify='left')
-        self.Cbox3.configure(text='''Код работника''', variable=self.Cvars[3])
+        self.Cbox3.configure(text="Код работника", variable=self.Cvars0[3])
+        self.names.append(self.Cbox3.cget("text"))
 
-        self.Cbox4 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox4 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox4.grid(row=0, column=0, sticky='W')
         self.Cbox4.configure(justify='left')
-        self.Cbox4.configure(text='''Код должности''', variable=self.Cvars[4])
+        self.Cbox4.configure(text="Код должности", variable=self.Cvars1[0])
         self.Cbox4.grid_forget()
+        self.names.append(self.Cbox4.cget("text"))
 
-        self.Cbox5 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox5 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox5.grid(row=1, column=0, sticky='W')
         self.Cbox5.configure(justify='left')
-        self.Cbox5.configure(text='''Отделение''', variable=self.Cvars[5])
+        self.Cbox5.configure(text="Отделение", variable=self.Cvars1[1])
         self.Cbox5.grid_forget()
+        self.names.append(self.Cbox5.cget("text"))
 
-        self.Cbox6 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox6 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox6.grid(row=0, column=0, sticky='W')
         self.Cbox6.configure(justify='left')
-        self.Cbox6.configure(text='''Название''', variable=self.Cvars[6])
+        self.Cbox6.configure(text="Название", variable=self.Cvars2[0])
         self.Cbox6.grid_forget()
+        self.names.append(self.Cbox6.cget("text"))
 
-        self.Cbox7 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox7 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox7.grid(row=1, column=0, sticky='W')
         self.Cbox7.configure(justify='left')
-        self.Cbox7.configure(text='''Норма (ч)''', variable=self.Cvars[7])
+        self.Cbox7.configure(text="Норма (ч)", variable=self.Cvars2[1])
         self.Cbox7.grid_forget()
+        self.names.append(self.Cbox7.cget("text"))
 
-        self.Cbox8 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox8 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox8.grid(row=2, column=0, sticky='W')
         self.Cbox8.configure(justify='left')
-        self.Cbox8.configure(text='''Ставка (ч)''', variable=self.Cvars[8])
+        self.Cbox8.configure(text="Ставка (ч)", variable=self.Cvars2[2])
         self.Cbox8.grid_forget()
+        self.names.append(self.Cbox8.cget("text"))
 
-        self.Cbox9 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox9 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox9.grid(row=0, column=0, sticky='W')
         self.Cbox9.configure(justify='left')
-        self.Cbox9.configure(text='''ФИО''', variable=self.Cvars[9])
+        self.Cbox9.configure(text="ФИО", variable=self.Cvars3[0])
         self.Cbox9.grid_forget()
+        self.names.append(self.Cbox9.cget("text"))
 
-        self.Cbox10 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox10 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox10.grid(row=1, column=0, sticky='W')
         self.Cbox10.configure(justify='left')
-        self.Cbox10.configure(text='''Номер договора''', variable=self.Cvars[10])
+        self.Cbox10.configure(text="Номер договора", variable=self.Cvars3[1])
         self.Cbox10.grid_forget()
+        self.names.append(self.Cbox10.cget("text"))
 
-        self.Cbox11 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox11 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox11.grid(row=2, column=0, sticky='W')
         self.Cbox11.configure(justify='left')
-        self.Cbox11.configure(text='''Телефон''', variable=self.Cvars[11])
+        self.Cbox11.configure(text="Телефон", variable=self.Cvars3[2])
         self.Cbox11.grid_forget()
+        self.names.append(self.Cbox11.cget("text"))
 
-        self.Cbox12 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox12 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox12.grid(row=3, column=0, sticky='W')
         self.Cbox12.configure(justify='left')
-        self.Cbox12.configure(text='''Образование''', variable=self.Cvars[12])
+        self.Cbox12.configure(text="Образование", variable=self.Cvars3[3])
         self.Cbox12.grid_forget()
+        self.names.append(self.Cbox12.cget("text"))
 
-        self.Cbox13 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox13 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox13.grid(row=4, column=0, sticky='W')
         self.Cbox13.configure(justify='left')
-        self.Cbox13.configure(text='''Адрес''', variable=self.Cvars[13])
+        self.Cbox13.configure(text="Адрес", variable=self.Cvars3[4])
         self.Cbox13.grid_forget()
+        self.names.append(self.Cbox13.cget("text"))
 
-        self.Cbox14 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox14 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox14.grid(row=0, column=0, sticky='W')
         self.Cbox14.configure(justify='left')
-        self.Cbox14.configure(text='''Название''', variable=self.Cvars[14])
+        self.Cbox14.configure(text="Название", variable=self.Cvars4[0])
         self.Cbox14.grid_forget()
+        self.names.append(self.Cbox14.cget("text"))
 
-        self.Cbox15 = tk.Checkbutton(self.Boxes_Frame)
+        self.Cbox15 = tk.Checkbutton(self.Boxes_Frame, command= self.removeColumns)
         self.Cbox15.grid(row=1, column=0, sticky='W')
         self.Cbox15.configure(justify='left')
-        self.Cbox15.configure(text='''Телефон''', variable=self.Cvars[15])
+        self.Cbox15.configure(text="Телефон", variable=self.Cvars4[1])
         self.Cbox15.grid_forget()
+        self.names.append(self.Cbox15.cget("text"))
 
         # menu
         menubar = tk.Menu(top)
@@ -492,6 +539,23 @@ class MainWindow:
         self.Cbox14.grid(row=0, column=0, sticky='W')
         self.Cbox15.grid(row=1, column=0, sticky='W')
 
+    def removeColumns(self):
+        global selected_tab
+        tab = self.Data.index(selected_tab)
+        indTab = 0
+        for i in range(tab):
+            indTab += len(self.Cvars[i])
+        exclude = []
+        for i in range(len(self.Cvars[tab])):
+            ind = indTab + i
+            if self.Cvars[tab][i].get() is False:
+                exclude.append(self.names[ind])
+        display = []
+        for col in self.tables[tab]["columns"]:
+            if col not in exclude:
+                display.append(col)
+        self.tables[tab]["displaycolumns"] = (display)
+
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')
         self.Filter_List2.delete(0, 'end')
@@ -515,9 +579,9 @@ class MainWindow:
         global selcted_tab
         filters = []
         tab = self.Data.index(selected_tab)
-        cols = list(self.db[tab].columns)
+        cols = list(MainWindow.db[tab].columns)
         cols = cols[1:]
-        df = self.db[tab]
+        df = MainWindow.db[tab]
         df.index = np.arange(len(df))
         check = True
         for i in range(len(cols)):
@@ -528,10 +592,10 @@ class MainWindow:
         if check:
             for i in self.tables[tab].get_children():
                 self.tables[tab].delete(i)
-            for j in self.db[tab].index:
+            for j in MainWindow.db[tab].index:
                 items = []
-                for title in self.db[tab].columns:
-                    items.append(self.db[tab][title][j])
+                for title in MainWindow.db[tab].columns:
+                    items.append(MainWindow.db[tab][title][j])
                 self.tables[tab].add("", values=items)
         else:
             for i in range(len(filters)):
