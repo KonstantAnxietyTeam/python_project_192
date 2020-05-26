@@ -188,33 +188,35 @@ class MainWindow:
         else:
             self.LabelQual.configure(text="Качественный")
 
-    def showReport(self):
-        nb = self.Data.index(self.Data.select())
-        if self.ComboAnalysis.current() == -1 or \
+    def paramsValid(self):
+        return (self.ComboAnalysis.current() == -1 or \
             self.ComboQual.current() == -1 or \
-            self.ComboQuant.current() == -1:
+            self.ComboQuant.current() == -1)
+    
+    def showReport(self):
+        if self.paramsValid():
             message(root, "Не выбран элемент").fade()
-        elif self.ComboAnalysis.current() == 2: # сжимать ФИО
-            qual = self.ComboQual.get()
-            quant = self.ComboQuant.get()
-            fig, ax1 = plt.subplots(
-                nrows=1, ncols=1,
-                figsize=(8, 4)
-            )
-            quals = MainWindow.db[nb][qual].tolist()
-            quants = MainWindow.db[nb][quant].tolist()
-            ax1.bar(quals, quants)
-            #plt.xticks(rotation=45)
-            ax1.set_title('Диаграмма: $' + str(qual) +'$ от $' + str(quant) + '$')
-            ax1.set_xlabel('$' + str(qual) +'$')
-            ax1.set_ylabel('$' + str(quant) + '$')
-            labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
-            ax1.set_xticklabels(labels_formatted)
-            plt.show()
+            return
+        nb = self.Data.index(self.Data.select())
+        df = MainWindow.db[nb]
+        if self.ComboAnalysis.current() == 2:
+            plot, file = getBar(self, df)
+        elif self.ComboAnalysis.current() == 3: # add analysis here
+            pass
+        plot.show()
             
     def exportReport(self):
-        if not self.ComboAnalysis.current() == -1:
+        if self.paramsValid():
             message(root, "Не выбран элемент").fade()
+            return
+        nb = self.Data.index(self.Data.select())
+        df = MainWindow.db[nb]
+        pltType = 'plot'
+        if self.ComboAnalysis.current() == 2:
+            plot, file = getBar(self, df)
+        elif self.ComboAnalysis.current() == 3: # add analysis here
+            pass
+        plot.savefig(file)
         
     def saveAsExcel(self):
         saveAsExcel(self.tables[self.Data.index("current")])
@@ -436,6 +438,7 @@ class MainWindow:
             elif ans is None:
                 return
         root.destroy()
+        exit()
 
     def open(self):
         if MainWindow.modified:

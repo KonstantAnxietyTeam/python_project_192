@@ -4,9 +4,76 @@ import tkinter.ttk as ttk
 import pandas as pd
 import pickle as pk
 import numpy as np
+import matplotlib.pyplot as plt
 from tkinter import filedialog
 from tkinter import messagebox as mb
+import matplotlib
+from os import listdir
+from os.path import isfile, join
 
+
+def getUID(s):
+    if (s.find(".png") == -1):
+        return -1
+    uid = 0
+    i = s.rfind('_')
+    if i == -1:
+        return -1
+    i += 1
+    while i < len(s) and s[i] != '.':
+        uid = uid * 10 + int(s[i])
+        i += 1
+    return uid
+
+
+def createUniqueFilename(specs, extension, directory):
+    newUID = 1
+    specs.append(str(newUID))
+    filename = '_'.join(specs).replace(' ', '_') + extension
+    onlyfiles = [f for f in listdir(directory) if isfile(join(directory, f))]
+    uids = set([getUID(file) for file in onlyfiles if filename[:filename.rfind('_')] == file[:filename.rfind('_')]])
+    while newUID in uids:
+        newUID += 1
+    specs[-1] = str(newUID)
+    filename = directory + '_'.join(specs).replace(' ', '_') + extension
+    return filename
+
+
+def getBar(window, df):
+    qual = window.ComboQual.get()
+    quant = window.ComboQuant.get()
+    fig, ax1 = plt.subplots(figsize=(8, 4))
+    quals = df[qual].tolist()
+    quants = df[quant].tolist()
+    quants = [int(item) for item in quants]
+    if (qual == "ФИО"):
+        quals = [cutName(name) for name in quals]
+    ax1.bar(quals, quants)
+    ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
+    ax1.set_xlabel('$' + str(qual) +'$')
+    ax1.set_ylabel('$' + str(quant) + '$')
+    if len(ax1.get_xticks()) > 30:
+        for tick in ax1.xaxis.get_majorticklabels():
+            tick.set_horizontalalignment("right")
+        plt.xticks(rotation=45, fontsize=6)
+    else:
+        labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
+        ax1.set_xticklabels(labels_formatted)
+    plt.tight_layout()
+    
+    filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
+    return fig, filename
+    
+
+def cutName(s):
+     words = s.split()
+     shortName = words[0]
+     if len(words) > 1:
+         shortName += (' ' + words[1][0] + '.')
+     if len(words) > 2:
+         shortName += (' ' + words[2][0] + '.')
+     return shortName
+     
 
 def configureWidgets(scr, top):
     scr.Pick_Analysis = tk.LabelFrame(top)
