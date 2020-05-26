@@ -64,6 +64,38 @@ def getBar(window, df):
     filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
     return fig, filename
     
+def getQuantStatistics(window, df):
+    quant = window.ComboQuant.get()
+    quants = df[quant].tolist()
+    
+    columns = ('Переменная', 'Минимум', 'Максимум', 'Среднее', 'Дисперсия', 'Стандартное отклонение')
+    
+    fig, ax = plt.subplots(figsize = (12,12))
+    
+    # hide axes
+    fig.patch.set_visible(False)
+    ax.axis('off')
+    ax.axis('tight')
+    
+    cellTable = []
+    for i in range(1): #todo edit
+        line = []
+        line.append(quant)
+        line.append(round(min(quants), 2))  #min
+        line.append(round(max(quants), 2))  #max
+        line.append(round(np.mean(quants), 2))  #avg
+        line.append(round(np.var(quants), 2))   #dispersion
+        #line.append(round(sum((xi - np.mean(quants)) ** 2 for xi in quants)/len(quants)  , 2))
+        line.append(round(np.std(quants), 2))   #stdDeviation
+        cellTable.append(line)
+
+
+    ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
+    fig.tight_layout()
+    
+    filename = createUniqueFilename(['Колич', quant], '.png', '../Graphics/')
+    return fig, filename
+
 
 def cutName(s):
      words = s.split()

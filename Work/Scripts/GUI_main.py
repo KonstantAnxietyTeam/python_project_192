@@ -199,11 +199,13 @@ class MainWindow:
             return
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
-        if self.ComboAnalysis.current() == 2:
+        if self.ComboAnalysis.current() == 1:
+            plot, file = getQuantStatistics(self, df)
+        elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
             pass
-        plot.show()
+        plt.show(plot)
             
     def exportReport(self):
         if self.paramsValid():
@@ -212,7 +214,9 @@ class MainWindow:
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
         pltType = 'plot'
-        if self.ComboAnalysis.current() == 2:
+        if self.ComboAnalysis.current() == 1:
+            plot, file = getQuantStatistics(self, df)
+        elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
             pass
