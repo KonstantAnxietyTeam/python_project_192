@@ -176,22 +176,23 @@ class MainWindow:
         anId = self.ComboAnalysis.current()
         if anId == 0:
             self.ComboQuant.configure(state="disabled")
-            self.ComboQual.configure(state="normal")
+            self.ComboQual.configure(state="readonly")
         elif anId == 1:
-            self.ComboQuant.configure(state="normal")
+            self.ComboQuant.configure(state="readonly")
             self.ComboQual.configure(state="disabled")
+            print()
         else:
-            self.ComboQuant.configure(state="normal")
-            self.ComboQual.configure(state="normal")
+            self.ComboQuant.configure(state="readonly")
+            self.ComboQual.configure(state="readonly")
         if anId == 5:
             self.LabelQual.configure(text="Количественный")
         else:
             self.LabelQual.configure(text="Качественный")
 
     def paramsValid(self):
-        return (self.ComboAnalysis.current() == -1 or \
-            self.ComboQual.current() == -1 or \
-            self.ComboQuant.current() == -1)
+        return (self.ComboAnalysis.current() == 0 or \
+                (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == "readonly") \
+                or (self.ComboQual.current() == -1 and self.ComboQual['state'].string == "readonly"))
     
     def showReport(self):
         if self.paramsValid():
@@ -254,11 +255,11 @@ class MainWindow:
         if len(self.ComboQuant["values"]) == 0:
             self.ComboQuant.configure(state="disabled")
         else:
-            self.ComboQuant.configure(state="normal")
+            self.ComboQuant.configure(state="readonly")
         if len(self.ComboQual["values"]) == 0:
             self.ComboQual.configure(state="disabled")
         else:
-            self.ComboQual.configure(state="normal")
+            self.ComboQual.configure(state="readonly")
         
     def tabChoice(self, event):
         global selected_tab

@@ -93,7 +93,7 @@ def getQuantStatistics(window, df):
     ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
     fig.tight_layout()
     
-    filename = createUniqueFilename(['Колич', quant], '.png', '../Graphics/')
+    filename = createUniqueFilename(['Количественная', quant], '.png', '../Graphics/')
     return fig, filename
 
 
@@ -119,7 +119,7 @@ def configureWidgets(scr, top):
                                                                   'Столбчатая диаграмма',
                                                                   'Гистограмма',
                                                                   'Диаграмма Бокса-Вискера',
-                                                                  'Диаграмма рассеивания',])
+                                                                  'Диаграмма рассеивания',], state ='readonly')
     scr.ComboAnalysis.place(relx=.05, rely=.35, height=20, relwidth=.9,
                           bordermode='ignore')
 
