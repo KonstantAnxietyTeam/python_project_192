@@ -90,7 +90,7 @@ def saveAsExcel(tree):
 
 def configureGUI(scr, top):
     configureWidgets(scr, top)
-    
+
     # configure tables
     scr.tabs = [scr.Data_t1, scr.Data_t2, scr.Data_t3,
             scr.Data_t4, scr.Data_t5]
@@ -131,23 +131,23 @@ def configureGUI(scr, top):
                                         command=scr.tables[i].xview)
         scr.tables[i].config(xscrollcommand=scr.scrolls[i].set)
         scr.scrolls[i].pack(fill="x", side='bottom')
-        
+
     # binds
     scr.Data.bind("<<NotebookTabChanged>>", scr.tabChoice)
-    
+
     scr.Filter_List1.bind("<<ListboxSelect>>", scr.moveSelection2)
     scr.Filter_List2.bind("<<ListboxSelect>>", scr.moveSelection1)
-    
+
     root.protocol("WM_DELETE_WINDOW", scr.exit)
     root.bind("<Control-a>", scr.selectAll)
     root.bind("<Control-n>", scr.addRecord)
     root.bind("<Delete>", scr.deleteRecords)
-    
+
     scr.ComboAnalysis.bind("<<ComboboxSelected>>", scr.configAnalysisCombos)
-    
+
     # start status bar
     scr.statusUpdate()
-    
+
     scr.ComboAnalysis.current(2)
     scr.configAnalysisCombos()
     scr.updateCombos()
@@ -158,7 +158,7 @@ class MainWindow:
     currentFile = ''
     modified = False
     col = []
-        
+
     def __init__(self, top=None):
         """This class configures and populates the toplevel window.
            top is the toplevel containing window."""
@@ -170,7 +170,7 @@ class MainWindow:
         top.title("База Данных")
 
         configureGUI(self, top)
-        
+
     def configAnalysisCombos(self, event=None):
         anId = self.ComboAnalysis.current()
         if anId == 0:
@@ -190,11 +190,11 @@ class MainWindow:
     def showReport(self):
         if self.ComboAnalysis.current() == -1:
             message(root, "Не выбран элемент").fade()
-            
+
     def exportReport(self):
         if not self.ComboAnalysis.current() == -1:
             message(root, "Не выбран элемент").fade()
-        
+
     def saveAsExcel(self):
         saveAsExcel(self.tables[self.Data.index("current")])
 
@@ -232,7 +232,7 @@ class MainWindow:
             self.ComboQual.configure(state="disabled")
         else:
             self.ComboQual.configure(state="normal")
-        
+
     def tabChoice(self, event):
         global selected_tab
         selected_tab = event.widget.select()
@@ -253,26 +253,10 @@ class MainWindow:
             self.insertCheckBoxes4()
         self.updateCombos()
 
-    def hideCheckBox(self, CheckBox):
-        CheckBox.grid_forget()
-
     def hideAll(self):
-        self.hideCheckBox(self.Cbox0)
-        self.hideCheckBox(self.Cbox1)
-        self.hideCheckBox(self.Cbox2)
-        self.hideCheckBox(self.Cbox3)
-        self.hideCheckBox(self.Cbox4)
-        self.hideCheckBox(self.Cbox5)
-        self.hideCheckBox(self.Cbox6)
-        self.hideCheckBox(self.Cbox7)
-        self.hideCheckBox(self.Cbox8)
-        self.hideCheckBox(self.Cbox9)
-        self.hideCheckBox(self.Cbox10)
-        self.hideCheckBox(self.Cbox11)
-        self.hideCheckBox(self.Cbox12)
-        self.hideCheckBox(self.Cbox13)
-        self.hideCheckBox(self.Cbox14)
-        self.hideCheckBox(self.Cbox15)
+        for i in self.Cboxes:
+            for j in i:
+                j.grid_forget()
 
     def insertCheckBoxes0(self):
         self.hideAll()
@@ -316,6 +300,18 @@ class MainWindow:
             ind = indTab + i
             if self.Cvars[tab][i].get() is False:
                 exclude.append(self.names[ind])
+        display = []
+        for col in self.tables[tab]["columns"]:
+            if col not in exclude:
+                display.append(col)
+        self.tables[tab]["displaycolumns"] = (display)
+
+    def reset(self):
+        global selected_tab
+        tab = self.Data.index(selected_tab)
+        for box in self.Cboxes[tab]:
+            box.select()
+        exclude = []
         display = []
         for col in self.tables[tab]["columns"]:
             if col not in exclude:
