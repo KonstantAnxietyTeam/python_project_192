@@ -190,7 +190,6 @@ class MainWindow:
             self.LabelQual.configure(text="Качественный")
 
     def paramsValid(self):
-        print(self.ComboQuant['state'].string, self.ComboQuant.current(), self.ComboQual['state'].string, self.ComboQual.current())
         return (self.ComboAnalysis.current() == -1 or \
                 (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == "readonly") \
                 or (self.ComboQual.current() == -1 and self.ComboQual['state'].string == "readonly"))
@@ -201,7 +200,9 @@ class MainWindow:
             return
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
-        if self.ComboAnalysis.current() == 1:
+        if self.ComboAnalysis.current() == 0:
+            plot, file = getQualityStatistics(self, df)
+        elif self.ComboAnalysis.current() == 1:
             plot, file = getQuantStatistics(self, df)
         elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
@@ -216,7 +217,9 @@ class MainWindow:
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
         pltType = 'plot'
-        if self.ComboAnalysis.current() == 1:
+        if self.ComboAnalysis.current() == 0:
+            plot, file = getQualityStatistics(self, df)
+        elif self.ComboAnalysis.current() == 1:
             plot, file = getQuantStatistics(self, df)
         elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
