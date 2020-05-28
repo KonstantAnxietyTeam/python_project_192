@@ -39,6 +39,74 @@ def createUniqueFilename(specs, extension, directory):
     return filename
 
 
+def getBoxWhisker(root, window, fdf):
+    qual = window.ComboQual.get()
+    quant = window.ComboQuant.get()
+    fig, ax1 = plt.subplots(figsize=(8, 4))
+    size = len(fdf[0].index)
+    data = []
+    names = []
+    if (qual == "Должность" and quant == "Сумма"):
+        lprof = len(fdf[2].index)
+        for i in fdf[2]["Название"]:
+            names.append(i)
+        for i in range(lprof - 1):
+            fdata = []
+            fnums = []
+            for j in range(size - 1):
+                if fdf[1].loc[j + 1, "Код должности"] == fdf[2].loc[i + 1, "Код"]:
+                    fnums.append(fdf[1].loc[j + 1, "Код"])
+            for j in range(size - 1):
+                if fdf[0].loc[j + 1, "Код работника"] in fnums:
+                    fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
+            data.append(fdata)
+    elif (qual == "Образование" and quant == "Сумма"):
+        names = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
+                 "Студент", "Среднее общее"]
+        for i in names:
+            fdata = []
+            fnums = []
+            for j in range(size - 1):
+                if fdf[3].loc[j + 1, "Образование"] == i:
+                    fnums.append(fdf[3].loc[j + 1, "Код"])
+            for j in range(size - 1):
+                if fdf[0].loc[j + 1, "Код работника"] in fnums:
+                    fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
+            data.append(fdata)
+    elif (qual == "Отделение" and quant == "Сумма"):
+        ldep = len(fdf[4].index)
+        for i in fdf[4]["Название"]:
+            names.append(i)
+        for i in range(ldep - 1):
+            fdata = []
+            fnums = []
+            for j in range(size - 1):
+                if fdf[1].loc[j + 1, "Отделение"] == fdf[4].loc[i + 1, "Код"]:
+                    fnums.append(fdf[1].loc[j + 1, "Код"])
+            for j in range(size - 1):
+                if fdf[0].loc[j + 1, "Код работника"] in fnums:
+                    fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
+            data.append(fdata)
+    else:
+        message(root, "Диаграмма недоступна").fade()
+        return None, None
+    ax1.boxplot(data, 0, '')
+    ax1.set_xticklabels(names, rotation=45, fontsize=8)
+    ax1.set_title('Диаграмма: $' + str(quant) + '$ от $' + str(qual) + '$')
+    ax1.set_xlabel('$' + str(qual) + '$')
+    ax1.set_ylabel('$' + str(quant) + '$')
+    if len(ax1.get_xticks()) > 30:
+        for tick in ax1.xaxis.get_majorticklabels():
+            tick.set_horizontalalignment("right")
+        plt.xticks(rotation=45, fontsize=6)
+    else:
+        labels_formatted = [str(label) if i % 2 == 0 else '\n' + str(label) for i, label in enumerate(names)]
+        ax1.set_xticklabels(labels_formatted)
+    plt.tight_layout()
+
+    filename = createUniqueFilename(['БокВис', quant, qual], '.png', '../Graphics/')
+    return fig, filename
+
 def getBar(window, df):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
@@ -60,20 +128,20 @@ def getBar(window, df):
         labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
         ax1.set_xticklabels(labels_formatted)
     plt.tight_layout()
-    
+
     filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
     return fig, filename
-    
+
 
 def cutName(s):
-     words = s.split()
-     shortName = words[0]
-     if len(words) > 1:
-         shortName += (' ' + words[1][0] + '.')
-     if len(words) > 2:
-         shortName += (' ' + words[2][0] + '.')
-     return shortName
-     
+    words = s.split()
+    shortName = words[0]
+    if len(words) > 1:
+        shortName += (' ' + words[1][0] + '.')
+    if len(words) > 2:
+        shortName += (' ' + words[2][0] + '.')
+    return shortName
+
 
 def configureWidgets(scr, top):
     scr.Pick_Analysis = tk.LabelFrame(top)
@@ -81,7 +149,7 @@ def configureWidgets(scr, top):
                            relwidth=0.207)
     scr.Pick_Analysis.configure(text="Анализ")
     scr.Pick_Analysis.configure(cursor="arrow")
-    
+
     scr.ComboAnalysis = ttk.Combobox(scr.Pick_Analysis, values=['Качественный параметр',
                                                                 'Количественный параметр',
                                                                   'Столбчатая диаграмма',
@@ -112,15 +180,15 @@ def configureWidgets(scr, top):
     scr.LabelQual = tk.Label(scr.Analysis_Frame, text="Качественный: ", anchor="w")
     scr.LabelQual.place(relx=.05, rely=.2, height=25, width=127,
                             bordermode='ignore')
-    
+
     scr.ComboQual = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQual.place(relx=.05, rely=.3, height=20, relwidth=.9,
                           bordermode='ignore')
-    
+
     scr.LabelQuant = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w")
     scr.LabelQuant.place(relx=.05, rely=.4, height=25, width=127,
                             bordermode='ignore')
-    
+
     scr.ComboQuant = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQuant.place(relx=.05, rely=.5, height=20, relwidth=.9,
                          bordermode='ignore')
@@ -353,7 +421,7 @@ def configureWidgets(scr, top):
     menubar.add_cascade(label="Правка", menu=helpmenu)
 
     top.config(menu=menubar)
-    
+
     # status bar
     scr.statusbar = tk.Label(top, text="Oh hi. I didn't see you there...", bd=1,
                          relief=tk.SUNKEN, anchor=tk.W)
@@ -373,7 +441,7 @@ def saveToPickle(filename, obj):
         db = open(filename, "wb")
         pk.dump(obj, db)
         db.close()
-        
+
 class ChangeDialog(tk.Toplevel):
     def __init__(self, parent, prompt):
         tk.Toplevel.__init__(self, parent)
@@ -437,7 +505,7 @@ class askValuesDialog(tk.Toplevel):
         self.resizable(0, 0)
         self.grab_set() # make modal
         self.focus()
-        
+
         self.Labels = [None] * len(labelTexts)
         self.Edits = [None] * len(labelTexts)
         self.retDict = dict()
@@ -446,14 +514,14 @@ class askValuesDialog(tk.Toplevel):
             editHeight = .8*400/len(labelTexts)
             self.Labels[i] = tk.Label(self, text=labelTexts[i]+":", anchor='e')
             self.Labels[i].place(relx=.1, y=40+i*editHeight, width=100)
-        
+
             self.Edits[i] = tk.Entry(self, textvariable=self.retDict[labelTexts[i]])
             self.Edits[i].place(relx=.5, y=40+i*editHeight, width=100)
             if labelTexts[i] == 'Код':
                 self.Edits[i].configure(state='disabled')
             if currValues:
                 self.Edits[i].insert(0, currValues[i])
-        
+
         self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
 
         self.ok_button.place(relx=.5, rely=.9, relwidth=.4, height=30, anchor="c")
@@ -464,11 +532,11 @@ class askValuesDialog(tk.Toplevel):
     def exit(self):
         self.retDict.clear()
         self.on_ok()
-        
+
     def on_ok(self, event=None):
         self.destroy()
 
     def show(self):
         self.wm_deiconify()
         self.wait_window()
-        return self.retDict  
+        return self.retDict
