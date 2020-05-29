@@ -178,7 +178,7 @@ class MainWindow:
             self.ComboQuant.configure(state="disabled")
             self.ComboQual.configure(state="readonly")
         elif anId == 1:
-            self.ComboQuant.configure(state="readonly")
+            self.ComboQuant.configure(state="disabled")
             self.ComboQual.configure(state="disabled")
             print()
         else:
@@ -190,7 +190,6 @@ class MainWindow:
             self.LabelQual.configure(text="Качественный")
 
     def paramsValid(self):
-        print(self.ComboQuant['state'].string, self.ComboQuant.current(), self.ComboQual['state'].string, self.ComboQual.current())
         return (self.ComboAnalysis.current() == -1 or \
                 (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == "readonly") \
                 or (self.ComboQual.current() == -1 and self.ComboQual['state'].string == "readonly"))

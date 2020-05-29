@@ -63,10 +63,14 @@ def getBar(window, df):
     
     filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
     return fig, filename
-    
+
+
 def getQuantStatistics(window, df):
-    quant = window.ComboQuant.get()
-    quants = df[quant].tolist()
+    quant = []
+    tab = window.Data.index('current')
+    for i in range(len(window.Cvars[tab])):
+        if(window.Cvars[tab][i].get() == 1):
+            quant.append(window.tables[tab]["columns"][i+1]) #код пропускается
     
     columns = ('Переменная', 'Минимум', 'Максимум', 'Среднее', 'Дисперсия', 'Стандартное отклонение')
     
@@ -78,9 +82,10 @@ def getQuantStatistics(window, df):
     ax.axis('tight')
     
     cellTable = []
-    for i in range(1): #todo edit
+    for column in quant: #todo edit
+        quants = df[column].tolist()
         line = []
-        line.append(quant)
+        line.append(column)
         line.append(round(min(quants), 2))  #min
         line.append(round(max(quants), 2))  #max
         line.append(round(np.mean(quants), 2))  #avg
@@ -93,7 +98,7 @@ def getQuantStatistics(window, df):
     ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
     fig.tight_layout()
     
-    filename = createUniqueFilename(['Количественная', quant], '.png', '../Graphics/')
+    filename = createUniqueFilename(['Количественная'], '.png', '../Graphics/')
     return fig, filename
 
 
