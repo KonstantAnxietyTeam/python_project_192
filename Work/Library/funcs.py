@@ -48,7 +48,7 @@ def getBar(window, df):
     quants = [int(item) for item in quants]
     if (qual == "ФИО"):
         quals = [cutName(name) for name in quals]
-    ax1.bar(quals, quants)
+    ax1.bar(quals, quants, edgecolor="black", alpha=0.15)
     ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
     ax1.set_xlabel('$' + str(qual) +'$')
     ax1.set_ylabel('$' + str(quant) + '$')
@@ -62,6 +62,32 @@ def getBar(window, df):
     plt.tight_layout()
     
     filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
+    return fig, filename
+
+
+def getHist(window, df):
+    qual = window.ComboQual.get()
+    quant = window.ComboQuant.get()
+    fig, ax1 = plt.subplots(figsize=(8, 4))
+    quals = df[qual].tolist()
+    quants = df[quant].tolist()
+    quants = [int(item) for item in quants]
+    if (qual == "ФИО"):
+        quals = [cutName(name) for name in quals]
+    ax1.hist(quals, 10, density=True, stacked=True, edgecolor="black")
+    ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
+    ax1.set_xlabel('$' + str(qual) +'$')
+    ax1.set_ylabel('$' + str(quant) + '$')
+    if len(ax1.get_xticks()) > 30:
+        for tick in ax1.xaxis.get_majorticklabels():
+            tick.set_horizontalalignment("right")
+        plt.xticks(rotation=45, fontsize=6)
+    else:
+        labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
+        ax1.set_xticklabels(labels_formatted)
+    plt.tight_layout()
+    
+    filename = createUniqueFilename(['гист', quant, qual], '.png', '../Graphics/')
     return fig, filename
     
 
@@ -195,7 +221,7 @@ def configureWidgets(scr, top):
 
     # Checkboxes
     scr.Boxes_Frame = tk.LabelFrame(scr.Filter_Frame, text="Столбцы")
-    scr.Boxes_Frame.place(relx=0.658, rely=0.130, relheight=0.65,
+    scr.Boxes_Frame.place(relx=0.658, rely=0.130, relheight=0.8,
                            relwidth=0.32, bordermode='ignore')
     scr.Cvars = []
     scr.Cvars0 = []

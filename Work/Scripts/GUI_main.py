@@ -16,7 +16,7 @@ select = []
 selected_tab = 0
 
 
-quantParams = [{"Код", "Сумма", "Код работника"},
+quantParams = [{"Код", "Сумма", "Код работника", "Дата выплаты"},
                {"Код", "Код должности", "Отделение"},
                {"Код", "Норма (ч)", "Ставка (ч)"},
                {"Код", "Номер договора"},
@@ -202,7 +202,7 @@ class MainWindow:
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            pass
+            plot, file = getHist(self, df)
         plot.show()
             
     def exportReport(self):
@@ -215,7 +215,7 @@ class MainWindow:
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            pass
+            plot, file = getHist(self, df)
         plot.savefig(file)
         
     def saveAsExcel(self):
