@@ -285,26 +285,10 @@ class MainWindow:
             self.insertCheckBoxes4()
         self.updateCombos()
 
-    def hideCheckBox(self, CheckBox):
-        CheckBox.grid_forget()
-
     def hideAll(self):
-        self.hideCheckBox(self.Cbox0)
-        self.hideCheckBox(self.Cbox1)
-        self.hideCheckBox(self.Cbox2)
-        self.hideCheckBox(self.Cbox3)
-        self.hideCheckBox(self.Cbox4)
-        self.hideCheckBox(self.Cbox5)
-        self.hideCheckBox(self.Cbox6)
-        self.hideCheckBox(self.Cbox7)
-        self.hideCheckBox(self.Cbox8)
-        self.hideCheckBox(self.Cbox9)
-        self.hideCheckBox(self.Cbox10)
-        self.hideCheckBox(self.Cbox11)
-        self.hideCheckBox(self.Cbox12)
-        self.hideCheckBox(self.Cbox13)
-        self.hideCheckBox(self.Cbox14)
-        self.hideCheckBox(self.Cbox15)
+        for i in self.Cboxes:
+            for j in i:
+                j.grid_forget()
 
     def insertCheckBoxes0(self):
         self.hideAll()
@@ -348,6 +332,18 @@ class MainWindow:
             ind = indTab + i
             if self.Cvars[tab][i].get() is False:
                 exclude.append(self.names[ind])
+        display = []
+        for col in self.tables[tab]["columns"]:
+            if col not in exclude:
+                display.append(col)
+        self.tables[tab]["displaycolumns"] = (display)
+
+    def reset(self):
+        global selected_tab
+        tab = self.Data.index(selected_tab)
+        for box in self.Cboxes[tab]:
+            box.select()
+        exclude = []
         display = []
         for col in self.tables[tab]["columns"]:
             if col not in exclude:
