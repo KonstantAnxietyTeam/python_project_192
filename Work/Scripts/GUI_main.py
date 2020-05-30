@@ -195,7 +195,7 @@ class MainWindow:
 
     def showReport(self):
         if self.paramsValid():
-            message(root, "Не выбран элемент").fade()
+            message(root, "Не выбран элемент", msgtype="warning").fade()
             return
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
@@ -212,7 +212,7 @@ class MainWindow:
 
     def exportReport(self):
         if self.paramsValid():
-            message(root, "Не выбран элемент").fade()
+            message(root, "Не выбран элемент", msgtype="warning").fade()
             return
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
@@ -367,7 +367,7 @@ class MainWindow:
             self.Filter_List2.selection_set(select[0])
             self.Filter_List2.select_anchor(select[0])
         else:
-            message(root, "Не выбран элемент").fade()
+            message(root, "Не выбран элемент", msgtype="warning").fade()
 
     def filterTable(self):
         global selcted_tab
@@ -586,7 +586,7 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = [int(i) for i in self.selection()]
         if not len(selected):
-            message(root, "Не выбран элемент").fade()
+            message(root, "Не выбран элемент", msgtype="warning").fade()
         else:
             MainWindow.modified = True
             for item in selected:
@@ -600,7 +600,7 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = self.selection()
         if not selected:
-            message(root, "Не выбран элемент").fade()
+            message(root, "Не выбран элемент", msgtype="warning").fade()
         else:
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])

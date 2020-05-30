@@ -12,6 +12,12 @@ from os import listdir
 from os.path import isfile, join
 
 
+colorDict = {"warning": ["yellow", "lightyellow"],
+             "error": ["red", "mistyrose"],
+             "success": ["lawngreen", "palegreen"],
+             "info": ["cornflowerblue", "lightsteelblue"]}
+
+
 def getUID(s):
     if (s.find(".png") == -1):
         return -1
@@ -531,20 +537,26 @@ class ChangeDialog(tk.Toplevel):
         self.entry.focus_force()
         self.wait_window()
         return self.var.get()
-
+    
 
 class message(tk.Toplevel):
-    def __init__(self, parent, prompt="Сообщение"):
+    def __init__(self, parent, prompt="Сообщение", msgtype="info"):
         self.opacity = 3.0
         tk.Toplevel.__init__(self, parent)
-        self.label = tk.Label(self, text=prompt, background='mistyrose')
-        self.label.pack(side="top", fill="x")
+        self.resizable(0, 0)
+        self.header = tk.Label(self, text="")
+        self.header.pack(side="top", fill="x")
+        self.label = tk.Label(self, text=prompt)
+        self.label.pack(side="top", fill="both", expand=1)
         geom = "200x60+" + str(parent.winfo_screenwidth()-260) + "+" + str(parent.winfo_screenheight()-120)
         self.geometry(geom)
-        self.resizable(0, 0)
-        self.configure(background='lightcoral')
+        self.setColor(msgtype)
         self.overrideredirect(True)
-        self.title("Сообщение")
+
+    def setColor(self, msgtype="info"):
+        self.header.configure(background=colorDict[msgtype][0])
+        self.label.configure(background=colorDict[msgtype][1])
+        self.configure(background=colorDict[msgtype][1])
 
     def fade(self):
         self.opacity -= 0.01
