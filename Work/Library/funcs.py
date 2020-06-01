@@ -625,6 +625,7 @@ class askValuesDialog(tk.Toplevel):
         for edit in self.Edits[1:]:
             if edit.get().strip() == '':
                 message(self.parent, "Поля не могут быть пустыми.", msgtype="warning").fade()
+                return
         self.destroy()
 
     def show(self):

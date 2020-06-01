@@ -567,6 +567,15 @@ class TreeViewWithPopup(ttk.Treeview):
     def selectAll(self, event=None):
         self.selection_set(tuple(self.get_children()))
 
+    def genUID(self):
+        uid = 1
+        ids = self.get_children()
+        ids = set([int(self.item(item)["values"][0]) for item in ids])
+        while uid in ids:
+            uid += 1
+        return uid
+            
+
     def addRecord(self):
         # print(MainWindow.db[0])
         nb = self.master.master
@@ -574,13 +583,16 @@ class TreeViewWithPopup(ttk.Treeview):
         dic = askValuesDialog(root, MainWindow.db[nb].columns).show()
         values = list(dic.values())
         keys = list(dic.keys())
-        if (len(values)):  # TODO correct input validation
+        if (len(values)):
+            values = [item.get() for item in values]
+            values[0] = str(self.genUID())
             MainWindow.modified = True
+            
             MainWindow.db[nb] = MainWindow.db[nb].append(
-                    pd.DataFrame([[np.int64(item.get()) if item.get().isdigit() else item.get() for item in values]],
+                    pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                      columns=keys),
                                    ignore_index=True)
-            self.add("", values=[item.get() for item in values])
+            self.add("", values=values)
 
     def deleteRecords(self, event=None):
         nb = self.master.master
@@ -604,16 +616,17 @@ class TreeViewWithPopup(ttk.Treeview):
         else:
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])
-            print(itemId)
             itemValues = MainWindow.db[nb][MainWindow.db[nb]['Код'] == itemId].values[0].tolist()
             dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())
-            if (len(values)):  # TODO correct input validation
+            if (len(values)):
+                values = [item.get() for item in values]
+                values[0] = itemId
                 MainWindow.modified = True
                 for i in range(len(keys)):
-                    self.item(selected, values=[item.get() for item in values])
-                    MainWindow.db[nb].loc[itemId-1, keys[i]] = values[i].get()
+                    self.item(selected, values=values)
+                    MainWindow.db[nb].loc[itemId-1, keys[i]] = values[i]
 
 
 if __name__ == '__main__':
