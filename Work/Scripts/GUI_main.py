@@ -143,6 +143,7 @@ def configureGUI(scr, top):
     root.bind("<Control-a>", scr.selectAll)
     root.bind("<Control-n>", scr.addRecord)
     root.bind("<Delete>", scr.deleteRecords)
+    root.bind("<Button-1>", scr.statusUpdate)
 
     scr.ComboAnalysis.bind("<<ComboboxSelected>>", scr.configAnalysisCombos)
 
@@ -203,12 +204,14 @@ class MainWindow:
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(self, df)
+            plot, file = getHist(root, self, MainWindow.db)
         elif self.ComboAnalysis.current() == 4:
             plot, file = getBoxWhisker(root, self, fdf)
-            if (plot is None and file is None):
-                return
-        plot.show()
+        if file and plot:
+            plot.show()
+        else:
+            message(root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
+                    "другие данные", msgtype="error").fade()
 
     def exportReport(self):
         if self.paramsValid():
@@ -251,19 +254,20 @@ class MainWindow:
         self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), "units")
 
     def updateCombos(self):
-        self.ComboQuant.set('')
-        self.ComboQual.set('')
-        nb = self.Data.index(self.Data.select())
-        self.ComboQuant.configure(values = [h for h in MainWindow.db[nb].columns if h in quantParams[nb]])
-        self.ComboQual.configure(values = [h for h in MainWindow.db[nb].columns if not h in quantParams[nb]])
-        if len(self.ComboQuant["values"]) == 0:
-            self.ComboQuant.configure(state="disabled")
-        else:
-            self.ComboQuant.configure(state="normal")
-        if len(self.ComboQual["values"]) == 0:
-            self.ComboQual.configure(state="disabled")
-        else:
-            self.ComboQual.configure(state="normal")
+        pass
+        #self.ComboQuant.set('')
+        #self.ComboQual.set('')
+        #nb = self.Data.index(self.Data.select())
+        #self.ComboQuant.configure(values = [h for h in MainWindow.db[nb].columns if h in quantParams[nb]])
+        #self.ComboQual.configure(values = [h for h in MainWindow.db[nb].columns if not h in quantParams[nb]])
+        #if len(self.ComboQuant["values"]) == 0:
+        #    self.ComboQuant.configure(state="disabled")
+        #else:
+        #    self.ComboQuant.configure(state="normal")
+        #if len(self.ComboQual["values"]) == 0:
+        #    self.ComboQual.configure(state="disabled")
+        #else:
+        #    self.ComboQual.configure(state="normal")
 
     def tabChoice(self, event):
         global selected_tab
@@ -283,7 +287,6 @@ class MainWindow:
         else:
             self.parInsert(4)
             self.insertCheckBoxes4()
-        self.updateCombos()
 
     def hideAll(self):
         for i in self.Cboxes:
@@ -478,7 +481,7 @@ class MainWindow:
             status += ("%d out of %d" % (selected, len(curTable.get_children())))
         self.statusbar.config(text=status)
         self.statusbar.update_idletasks()
-        root.after(1, self.statusUpdate)
+        #root.after(100, self.statusUpdate)
 
     def treeSort(self, treeview, col, reverse):
         firstElement = treeview.set(treeview.get_children('')[0], col)
@@ -578,8 +581,6 @@ class TreeViewWithPopup(ttk.Treeview):
                                      columns=keys),
                                    ignore_index=True)
             self.add("", values=[item.get() for item in values])
-        # for i in self.get_children():
-        # print(i)
 
     def deleteRecords(self, event=None):
         nb = self.master.master
@@ -593,7 +594,6 @@ class TreeViewWithPopup(ttk.Treeview):
                 itemId = int(self.item(item)['values'][0])
                 MainWindow.db[nb] = MainWindow.db[nb].drop(MainWindow.db[nb].index[MainWindow.db[nb]['Код'] == itemId])
                 self.delete(self.selection()[0])
-            # print(MainWindow.db[nb]['Код'])
 
     def modRecord(self):
         nb = self.master.master

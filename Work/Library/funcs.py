@@ -94,7 +94,6 @@ def getBoxWhisker(root, window, fdf):
                     fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
             data.append(fdata)
     else:
-        message(root, "Диаграмма недоступна").fade()
         return None, None
     ax1.boxplot(data, 0, '')
     ax1.set_xticklabels(names, rotation=45, fontsize=8)
@@ -114,46 +113,52 @@ def getBoxWhisker(root, window, fdf):
     return fig, filename
 
 def getBar(window, df):
-    qual = window.ComboQual.get()
-    quant = window.ComboQuant.get()
-    fig, ax1 = plt.subplots(figsize=(8, 4))
-    quals = df[qual].tolist()
-    quants = df[quant].tolist()
-    if (qual == "ФИО"):
-        quals = [cutName(name) for name in quals]
-    quants = [int(item) for item in quants]
+    try:
+        qual = window.ComboQual.get()
+        quant = window.ComboQuant.get()
+        fig, ax1 = plt.subplots(figsize=(8, 4))
+        quals = df[qual].tolist()
+        quants = df[quant].tolist()
+        if (qual == "ФИО"):
+            quals = [cutName(name) for name in quals]
+        quants = [int(item) for item in quants]
+        
+        ax1.bar(quals, quants, edgecolor="black", alpha=0.15)
+        ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
+        ax1.set_xlabel('$' + str(qual) +'$')
+        ax1.set_ylabel('$' + str(quant) + '$')
+        if len(ax1.get_xticks()) > 30:
+            for tick in ax1.xaxis.get_majorticklabels():
+                tick.set_horizontalalignment("right")
+            plt.xticks(rotation=45, fontsize=6)
+        else:
+            labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
+            ax1.set_xticklabels(labels_formatted)
+        plt.tight_layout()
     
-    ax1.bar(quals, quants, edgecolor="black", alpha=0.15)
-    ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
-    ax1.set_xlabel('$' + str(qual) +'$')
-    ax1.set_ylabel('$' + str(quant) + '$')
-    if len(ax1.get_xticks()) > 30:
-        for tick in ax1.xaxis.get_majorticklabels():
-            tick.set_horizontalalignment("right")
-        plt.xticks(rotation=45, fontsize=6)
-    else:
-        labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
-        ax1.set_xticklabels(labels_formatted)
-    plt.tight_layout()
-
-    filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
+        filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
+    except:
+        return None, None
     return fig, filename
 
 
-def getHist(window, df):
+def getHist(root, window, df):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
-    quals = df[qual].tolist()
-    quants = df[quant].tolist()
-    quants = [int(item) for item in quants]
-    if (qual == "ФИО"):
-        quals = [cutName(name) for name in quals]
-    quals = set(quals)
-    data = [None] * len(quals)
-    i = 0
-    for attr in quals:
-        data[i] = df.index[df[qual] == attr].tolist()
-        i += 1
+    quals = []
+    data = None
+    if qual == "Должность" and quant == "Сумма":
+        quals = df[2]["Название"].tolist()
+        data = [None] * len(quals)
+        profs = df[2]["Код"].tolist()
+        for i in range(len(profs)):
+            workerIDs = df[1].loc[df[1]["Код должности"] == int(profs[i])]["Код"].tolist()
+            sals = []
+            for worker in workerIDs:
+                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+            data[i] = sals
+    else:
+        return None, None
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.set_xlabel('$' + str(quant) +'$')
     ax1.set_ylabel('$Частота$')
@@ -185,10 +190,10 @@ def configureWidgets(scr, top):
 
     scr.ComboAnalysis = ttk.Combobox(scr.Pick_Analysis, values=['Качественный параметр',
                                                                 'Количественный параметр',
-                                                                  'Столбчатая диаграмма',
-                                                                  'Гистограмма',
-                                                                  'Диаграмма Бокса-Вискера',
-                                                                  'Диаграмма рассеивания',])
+                                                                'Столбчатая диаграмма',
+                                                                'Гистограмма',
+                                                                'Диаграмма Бокса-Вискера',
+                                                                'Диаграмма рассеивания',])
     scr.ComboAnalysis.place(relx=.05, rely=.35, height=20, relwidth=.9,
                             bordermode='ignore')
 
@@ -217,6 +222,7 @@ def configureWidgets(scr, top):
     scr.ComboQual = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQual.place(relx=.05, rely=.3, height=20, relwidth=.9,
                           bordermode='ignore')
+    scr.ComboQual.configure(values = ["Тип выплаты", "Должность", "Образование", "Отдел"])
 
     scr.LabelQuant = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w")
     scr.LabelQuant.place(relx=.05, rely=.4, height=25, width=127,
@@ -225,6 +231,7 @@ def configureWidgets(scr, top):
     scr.ComboQuant = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQuant.place(relx=.05, rely=.5, height=20, relwidth=.9,
                          bordermode='ignore')
+    scr.ComboQuant.configure(values = ["Сумма", "Дата выплаты", "Отделение", "Норма (ч)", "Ставка (ч)"])
 
     scr.Filter_Frame = tk.LabelFrame(top, text="Фильтры")
     scr.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.33,
@@ -546,9 +553,9 @@ class message(tk.Toplevel):
         self.resizable(0, 0)
         self.header = tk.Label(self, text="")
         self.header.pack(side="top", fill="x")
-        self.label = tk.Label(self, text=prompt)
+        self.label = tk.Label(self, text=prompt, justify="center")
         self.label.pack(side="top", fill="both", expand=1)
-        geom = "200x60+" + str(parent.winfo_screenwidth()-260) + "+" + str(parent.winfo_screenheight()-120)
+        geom = "200x80+" + str(parent.winfo_screenwidth()-260) + "+" + str(parent.winfo_screenheight()-120)
         self.geometry(geom)
         self.setColor(msgtype)
         self.overrideredirect(True)
