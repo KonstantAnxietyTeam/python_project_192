@@ -574,7 +574,7 @@ class TreeViewWithPopup(ttk.Treeview):
         dic = askValuesDialog(root, MainWindow.db[nb].columns).show()
         values = list(dic.values())
         keys = list(dic.keys())
-        if (len(values) and values[0].get() != ''):  # TODO correct input validation
+        if (len(values)):  # TODO correct input validation
             MainWindow.modified = True
             MainWindow.db[nb] = MainWindow.db[nb].append(
                     pd.DataFrame([[np.int64(item.get()) if item.get().isdigit() else item.get() for item in values]],
@@ -609,7 +609,7 @@ class TreeViewWithPopup(ttk.Treeview):
             dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())
-            if (len(values) and values[0].get() != ''):  # TODO correct input validation
+            if (len(values)):  # TODO correct input validation
                 MainWindow.modified = True
                 for i in range(len(keys)):
                     self.item(selected, values=[item.get() for item in values])

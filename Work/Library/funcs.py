@@ -18,6 +18,10 @@ colorDict = {"warning": ["yellow", "lightyellow"],
              "info": ["cornflowerblue", "lightsteelblue"]}
 
 
+quantParams = set(["Сумма", "Код работника", "Дата выплаты", "Код должности", \
+                   "Отделение","Норма (ч)", "Ставка (ч)", "Номер договора"])
+
+
 def getUID(s):
     if (s.find(".png") == -1):
         return -1
@@ -545,7 +549,12 @@ class ChangeDialog(tk.Toplevel):
         self.wait_window()
         return self.var.get()
     
-
+def testVal(inStr,acttyp):
+        if acttyp == '1': #insert
+            if not inStr.isdigit():
+                return False
+        return True
+    
 class message(tk.Toplevel):
     def __init__(self, parent, prompt="Сообщение", msgtype="info"):
         self.opacity = 3.0
@@ -577,11 +586,11 @@ class message(tk.Toplevel):
 class askValuesDialog(tk.Toplevel):
     def __init__(self, parent, labelTexts, currValues=None):
         tk.Toplevel.__init__(self, parent)
+        self.parent = parent
         self.geometry("300x400+500+300")
         self.resizable(0, 0)
         self.grab_set()  # make modal
         self.focus()
-
         self.Labels = [None] * len(labelTexts)
         self.Edits = [None] * len(labelTexts)
         self.retDict = dict()
@@ -591,7 +600,10 @@ class askValuesDialog(tk.Toplevel):
             self.Labels[i] = tk.Label(self, text=labelTexts[i]+":", anchor='e')
             self.Labels[i].place(relx=.1, y=40+i*editHeight, width=100)
 
-            self.Edits[i] = tk.Entry(self, textvariable=self.retDict[labelTexts[i]])
+            self.Edits[i] = tk.Entry(self, textvariable=self.retDict[labelTexts[i]], validate="key")
+            if labelTexts[i] in quantParams:
+                self.Edits[i].configure(validate="key")
+                self.Edits[i].configure(validatecommand = (self.Edits[i].register(testVal),'%P','%d'))
             self.Edits[i].place(relx=.5, y=40+i*editHeight, width=100)
             if labelTexts[i] == 'Код':
                 self.Edits[i].configure(state='disabled')
@@ -610,6 +622,9 @@ class askValuesDialog(tk.Toplevel):
         self.on_ok()
 
     def on_ok(self, event=None):
+        for edit in self.Edits[1:]:
+            if edit.get().strip() == '':
+                message(self.parent, "Поля не могут быть пустыми.", msgtype="warning").fade()
         self.destroy()
 
     def show(self):
