@@ -62,8 +62,6 @@ def getBoxWhisker(root, window, fdf):
     if (qual == "Должность" and quant == "Сумма"):
         lprof = len(fdf[2].index)
         names = fdf[2]["Название"].tolist()
-        # for i in fdf[2]["Название"]:
-        #     names.append(i)
         for i in range(lprof - 1):
             fdata = []
             fnums = []
@@ -90,8 +88,6 @@ def getBoxWhisker(root, window, fdf):
     elif (qual == "Отдел" and quant == "Сумма"):
         ldep = len(fdf[4].index)
         names = fdf[4]["Название"].tolist()
-        # for i in fdf[4]["Название"]:
-        #     names.append(i)
         for i in range(ldep - 1):
             fdata = []
             fnums = []
