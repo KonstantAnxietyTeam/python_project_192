@@ -224,7 +224,7 @@ class MainWindow:
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(self, df)
+            plot, file = getHist(root, self, MainWindow.db)
         elif self.ComboAnalysis.current() == 4:
             plot, file = getBoxWhisker(root, self, fdf)
             if (plot is None and file is None):
