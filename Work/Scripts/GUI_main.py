@@ -226,9 +226,11 @@ class MainWindow:
             plot, file = getHist(root, self, MainWindow.db)
         elif self.ComboAnalysis.current() == 4:
             plot, file = getBoxWhisker(root, self, MainWindow.db)
-            if (plot is None and file is None):
-                return
-        plot.savefig(file)
+        if file and plot:
+            plot.savefig(file)
+        else:
+            message(root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
+                    "другие данные", msgtype="error").fade()
 
     def saveAsExcel(self):
         saveAsExcel(self.tables[self.Data.index("current")])
