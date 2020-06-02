@@ -631,7 +631,9 @@ class askValuesDialog(tk.Toplevel):
     def __init__(self, parent, labelTexts, currValues=None):
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
-        self.geometry("300x400+500+300")
+        x = str(parent.winfo_screenwidth() // 2 - 150)
+        y = str(parent.winfo_screenheight() // 2 - 200)
+        self.geometry("300x400+" + x + "+" + y)
         self.resizable(0, 0)
         self.grab_set()  # make modal
         self.focus()
@@ -663,7 +665,7 @@ class askValuesDialog(tk.Toplevel):
 
     def exit(self):
         self.retDict.clear()
-        self.on_ok()
+        self.destroy()
 
     def on_ok(self, event=None):
         for edit in self.Edits[1:]:
