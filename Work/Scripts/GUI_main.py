@@ -228,6 +228,8 @@ class MainWindow:
             plot, file = getBoxWhisker(root, self, MainWindow.db)
         if file and plot:
             plot.savefig(file)
+            message(root, "Файл сохранён", msgtype="success").fade() # TODO show path
+            # need to change label to text in message
         else:
             message(root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
                     "другие данные", msgtype="error").fade()
