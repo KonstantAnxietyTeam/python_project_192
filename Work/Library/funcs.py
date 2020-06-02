@@ -159,7 +159,9 @@ def getHist(root, window, df):
             workerIDs = df[1].loc[df[1]["Код должности"] == int(profs[i])]["Код"].tolist()
             sals = []
             for worker in workerIDs:
-                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+                found = df[0].loc[df[0]["Код работника"] == worker]["Сумма"]
+                if not found.empty:
+                    sals.append(float(found))
             data[i] = sals
     elif qual == "Образование" and quant == "Сумма":
         quals = set(df[3]["Образование"].tolist())
@@ -170,7 +172,9 @@ def getHist(root, window, df):
             workerIDs = df[3].loc[df[3]["Образование"] == edu]["Код"].tolist()
             sals = []
             for worker in workerIDs:
-                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+                found = df[0].loc[df[0]["Код работника"] == worker]["Сумма"]
+                if not found.empty:
+                    sals.append(float(found))
             data[i] = sals
             i += 1
     elif qual == "Отдел" and quant == "Сумма":
@@ -181,7 +185,9 @@ def getHist(root, window, df):
             workerIDs = df[1].loc[df[1]["Отделение"] == int(deps[i])]["Код"].tolist()
             sals = []
             for worker in workerIDs:
-                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+                found = df[0].loc[df[0]["Код работника"] == worker]["Сумма"]
+                if not found.empty:
+                    sals.append(float(found))
             data[i] = sals
     elif qual == "Тип выплаты" and quant == "Сумма":
         quals = set(df[0]["Тип выплаты"].tolist())
