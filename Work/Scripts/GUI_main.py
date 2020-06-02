@@ -201,13 +201,12 @@ class MainWindow:
             return
         nb = self.Data.index(self.Data.select())
         df = MainWindow.db[nb]
-        fdf = MainWindow.db
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
             plot, file = getHist(root, self, MainWindow.db)
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(root, self, fdf)
+            plot, file = getBoxWhisker(root, self, MainWindow.db)
         if file and plot:
             plot.show()
         else:
@@ -575,7 +574,7 @@ class TreeViewWithPopup(ttk.Treeview):
         while uid in ids:
             uid += 1
         return uid
-            
+
 
     def addRecord(self):
         nb = self.master.master
@@ -587,7 +586,7 @@ class TreeViewWithPopup(ttk.Treeview):
             values = [item.get() for item in values]
             values[0] = str(self.genUID())
             MainWindow.modified = True
-            
+
             MainWindow.db[nb] = MainWindow.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                      columns=keys),
