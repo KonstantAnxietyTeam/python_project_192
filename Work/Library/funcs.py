@@ -84,6 +84,7 @@ def getQuantStatistics(window, df):
     cellTable = []
     for column in quant: #todo edit
         quants = df[column].tolist()
+        print('Добавить исключения')
         line = []
         line.append(column)
         line.append(round(min(quants), 2))  #min

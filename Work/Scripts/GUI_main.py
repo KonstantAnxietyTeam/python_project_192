@@ -498,7 +498,6 @@ class MainWindow:
         treeview.heading(col, text=col+char, command=lambda: self.treeSort(treeview, col, not reverse))
 
     def treeCheckForDigit(self, string):
-        # print(string, type(string))
         if string.isdigit():
             return True
         else:
