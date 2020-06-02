@@ -274,55 +274,29 @@ class MainWindow:
         selected_tab = event.widget.select()
         if event.widget.index(selected_tab) == 0:
             self.parInsert(0)
-            self.insertCheckBoxes0()
+            self.insertCheckBoxes(0)
         elif event.widget.index(selected_tab) == 1:
             self.parInsert(1)
-            self.insertCheckBoxes1()
+            self.insertCheckBoxes(1)
         elif event.widget.index(selected_tab) == 2:
             self.parInsert(2)
-            self.insertCheckBoxes2()
+            self.insertCheckBoxes(2)
         elif event.widget.index(selected_tab) == 3:
             self.parInsert(3)
-            self.insertCheckBoxes3()
+            self.insertCheckBoxes(3)
         else:
             self.parInsert(4)
-            self.insertCheckBoxes4()
+            self.insertCheckBoxes(4)
 
     def hideAll(self):
         for i in self.Cboxes:
             for j in i:
                 j.grid_forget()
 
-    def insertCheckBoxes0(self):
+    def insertCheckBoxes(self, tab):
         self.hideAll()
-        self.Cbox0.grid(row=0, column=0, sticky='W')
-        self.Cbox1.grid(row=1, column=0, sticky='W')
-        self.Cbox2.grid(row=2, column=0, sticky='W')
-        self.Cbox3.grid(row=3, column=0, sticky='W')
-
-    def insertCheckBoxes1(self):
-        self.hideAll()
-        self.Cbox4.grid(row=0, column=0, sticky='W')
-        self.Cbox5.grid(row=1, column=0, sticky='W')
-
-    def insertCheckBoxes2(self):
-        self.hideAll()
-        self.Cbox6.grid(row=0, column=0, sticky='W')
-        self.Cbox7.grid(row=1, column=0, sticky='W')
-        self.Cbox8.grid(row=2, column=0, sticky='W')
-
-    def insertCheckBoxes3(self):
-        self.hideAll()
-        self.Cbox9.grid(row=0, column=0, sticky='W')
-        self.Cbox10.grid(row=1, column=0, sticky='W')
-        self.Cbox11.grid(row=2, column=0, sticky='W')
-        self.Cbox12.grid(row=3, column=0, sticky='W')
-        self.Cbox13.grid(row=4, column=0, sticky='W')
-
-    def insertCheckBoxes4(self):
-        self.hideAll()
-        self.Cbox14.grid(row=0, column=0, sticky='W')
-        self.Cbox15.grid(row=1, column=0, sticky='W')
+        for i in range(len(self.Cboxes[tab])):
+            self.Cboxes[tab][i].grid(row=i, column=0, sticky='W')
 
     def removeColumns(self):
         global selected_tab
