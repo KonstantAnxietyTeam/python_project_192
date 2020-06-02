@@ -84,17 +84,18 @@ def getQuantStatistics(window, df):
     cellTable = []
     for column in quant: #todo edit
         quants = df[column].tolist()
-        print('Добавить исключения')
-        line = []
-        line.append(column)
-        line.append(round(min(quants), 2))  #min
-        line.append(round(max(quants), 2))  #max
-        line.append(round(np.mean(quants), 2))  #avg
-        line.append(round(np.var(quants), 2))   #dispersion
-        #line.append(round(sum((xi - np.mean(quants)) ** 2 for xi in quants)/len(quants)  , 2))
-        line.append(round(np.std(quants), 2))   #stdDeviation
-        cellTable.append(line)
-
+        try:
+            line = []
+            line.append(column)
+            line.append(round(min(quants), 2))  #min
+            line.append(round(max(quants), 2))  #max
+            line.append(round(np.mean(quants), 2))  #avg
+            line.append(round(np.var(quants), 2))   #dispersion
+            #line.append(round(sum((xi - np.mean(quants)) ** 2 for xi in quants)/len(quants)  , 2))
+            line.append(round(np.std(quants), 2))   #stdDeviation
+            cellTable.append(line)
+        except TypeError:
+            return
 
     ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
     fig.tight_layout()
