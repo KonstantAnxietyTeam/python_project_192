@@ -152,7 +152,7 @@ def getHist(root, window, df):
     quals = []
     data = None
     if qual == "Должность" and quant == "Сумма":
-        quals = df[2]["Название"].tolist()
+        quals = set(df[2]["Название"].tolist())
         data = [None] * len(quals)
         profs = df[2]["Код"].tolist()
         for i in range(len(profs)):
@@ -161,13 +161,46 @@ def getHist(root, window, df):
             for worker in workerIDs:
                 sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
             data[i] = sals
+    elif qual == "Образование" and quant == "Сумма":
+        quals = set(df[3]["Образование"].tolist())
+        data = [None] * len(quals)
+        profs = df[2]["Код"].tolist()
+        i = 0
+        for edu in quals:
+            workerIDs = df[3].loc[df[3]["Образование"] == edu]["Код"].tolist()
+            sals = []
+            for worker in workerIDs:
+                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+            data[i] = sals
+            i += 1
+    elif qual == "Отдел" and quant == "Сумма":
+        quals = set(df[4]["Название"].tolist())
+        data = [None] * len(quals)
+        deps = df[4]["Код"].tolist()
+        for i in range(len(deps)):
+            workerIDs = df[1].loc[df[1]["Отделение"] == int(deps[i])]["Код"].tolist()
+            sals = []
+            for worker in workerIDs:
+                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+            data[i] = sals
+    elif qual == "Тип выплаты" and quant == "Сумма":
+        quals = set(df[0]["Тип выплаты"].tolist())
+        data = [None] * len(quals)
+        i = 0
+        for stype in quals:
+            workerIDs = df[0].loc[df[0]["Тип выплаты"] == stype]["Код"].tolist()
+            sals = []
+            for worker in workerIDs:
+                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
+            data[i] = sals
+            i += 1
     else:
         return None, None
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.set_xlabel('$' + str(quant) +'$')
     ax1.set_ylabel('$Частота$')
     colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta']
-    ax1.hist(data, 10, density=True, histtype='bar', color=colors[:len(data)], label=quals)
+    ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)], label=quals, edgecolor='black')
     ax1.legend(prop={'size': 10})
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
     

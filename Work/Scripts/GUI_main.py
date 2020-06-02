@@ -82,11 +82,12 @@ def saveAsExcel(tree):
 
         dic = pd.DataFrame.from_dict(dic)
         try:
-           dic.to_excel(file, engine='xlsxwriter',index= False)
+           dic.to_excel(file, engine='xlsxwriter',index=False)
+           message(root, "Таблица сохранена", msgtype="success").fade()
         except:
-           print("Close the file than retry")
+           message(root, "Не удалось сохранить файл!\nВозможно, он открыт\nв другой программе", msgtype="error").fade()
     else:
-        print("You did not save the file")
+        pass # pressed cancel
 
 
 def configureGUI(scr, top):
@@ -446,7 +447,7 @@ class MainWindow:
             elif ans is None:
                 return
         root.destroy()
-        self.exit
+        exit()
 
     def open(self):
         if MainWindow.modified:
@@ -577,7 +578,6 @@ class TreeViewWithPopup(ttk.Treeview):
             
 
     def addRecord(self):
-        # print(MainWindow.db[0])
         nb = self.master.master
         nb = nb.index(nb.select())
         dic = askValuesDialog(root, MainWindow.db[nb].columns).show()
