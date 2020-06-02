@@ -53,20 +53,22 @@ def getBoxWhisker(root, window, fdf):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     fig, ax1 = plt.subplots(figsize=(8, 4))
-    size = len(fdf[0].index)
     data = []
     names = []
+    for i in range(5):
+        fdf[i].index = np.arange(len(fdf[i]))
+    size = len(fdf[1].index)
+    csize = len(fdf[0].index)
     if (qual == "Должность" and quant == "Сумма"):
         lprof = len(fdf[2].index)
-        for i in fdf[2]["Название"]:
-            names.append(i)
+        names = fdf[2]["Название"].tolist()
         for i in range(lprof - 1):
             fdata = []
             fnums = []
             for j in range(size - 1):
                 if fdf[1].loc[j + 1, "Код должности"] == fdf[2].loc[i + 1, "Код"]:
                     fnums.append(fdf[1].loc[j + 1, "Код"])
-            for j in range(size - 1):
+            for j in range(csize - 1):
                 if fdf[0].loc[j + 1, "Код работника"] in fnums:
                     fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
             data.append(fdata)
@@ -79,21 +81,20 @@ def getBoxWhisker(root, window, fdf):
             for j in range(size - 1):
                 if fdf[3].loc[j + 1, "Образование"] == i:
                     fnums.append(fdf[3].loc[j + 1, "Код"])
-            for j in range(size - 1):
+            for j in range(csize - 1):
                 if fdf[0].loc[j + 1, "Код работника"] in fnums:
                     fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
             data.append(fdata)
-    elif (qual == "Отделение" and quant == "Сумма"):
+    elif (qual == "Отдел" and quant == "Сумма"):
         ldep = len(fdf[4].index)
-        for i in fdf[4]["Название"]:
-            names.append(i)
+        names = fdf[4]["Название"].tolist()
         for i in range(ldep - 1):
             fdata = []
             fnums = []
             for j in range(size - 1):
                 if fdf[1].loc[j + 1, "Отделение"] == fdf[4].loc[i + 1, "Код"]:
                     fnums.append(fdf[1].loc[j + 1, "Код"])
-            for j in range(size - 1):
+            for j in range(csize - 1):
                 if fdf[0].loc[j + 1, "Код работника"] in fnums:
                     fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
             data.append(fdata)
@@ -126,7 +127,7 @@ def getBar(window, df):
         if (qual == "ФИО"):
             quals = [cutName(name) for name in quals]
         quants = [int(item) for item in quants]
-        
+
         ax1.bar(quals, quants, edgecolor="black", alpha=0.15)
         ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
         ax1.set_xlabel('$' + str(qual) +'$')
@@ -139,7 +140,7 @@ def getBar(window, df):
             labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
             ax1.set_xticklabels(labels_formatted)
         plt.tight_layout()
-    
+
         filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
     except:
         return None, None
@@ -209,10 +210,10 @@ def getHist(root, window, df):
     ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)], label=quals, edgecolor='black')
     ax1.legend(prop={'size': 10})
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
-    
+
     filename = createUniqueFilename(['гист', quant, qual], '.png', '../Graphics/')
     return fig, filename
-    
+
 
 def cutName(s):
     words = s.split()
@@ -587,13 +588,13 @@ class ChangeDialog(tk.Toplevel):
         self.entry.focus_force()
         self.wait_window()
         return self.var.get()
-    
+
 def testVal(inStr,acttyp):
         if acttyp == '1': #insert
             if not inStr.isdigit():
                 return False
         return True
-    
+
 class message(tk.Toplevel):
     def __init__(self, parent, prompt="Сообщение", msgtype="info"):
         self.opacity = 3.0
