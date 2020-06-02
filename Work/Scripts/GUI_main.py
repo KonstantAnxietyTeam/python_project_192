@@ -354,6 +354,20 @@ class MainWindow:
                 display.append(col)
         self.tables[tab]["displaycolumns"] = (display)
 
+        self.Filter_List2.delete(0, 'end')
+        for i in range(4):
+            self.Filter_List2.insert('end', "")
+        for i in self.tables[tab].get_children():
+            self.tables[tab].delete(i)
+        for j in MainWindow.db[tab].index:
+            items = []
+            for title in MainWindow.db[tab].columns:
+                items.append(MainWindow.db[tab][title][j])
+            self.tables[tab].add("", values=items)
+
+        self.Filter_List2.selection_set(select[0])
+        self.Filter_List2.select_anchor(select[0])
+
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')
         self.Filter_List2.delete(0, 'end')
@@ -370,6 +384,7 @@ class MainWindow:
             self.Filter_List2.insert(select[0], newPar)
             self.Filter_List2.selection_set(select[0])
             self.Filter_List2.select_anchor(select[0])
+            self.filterTable()
         else:
             message(root, "Не выбран элемент", msgtype="warning").fade()
 
@@ -575,7 +590,7 @@ class TreeViewWithPopup(ttk.Treeview):
         while uid in ids:
             uid += 1
         return uid
-            
+
 
     def addRecord(self):
         nb = self.master.master
@@ -587,7 +602,7 @@ class TreeViewWithPopup(ttk.Treeview):
             values = [item.get() for item in values]
             values[0] = str(self.genUID())
             MainWindow.modified = True
-            
+
             MainWindow.db[nb] = MainWindow.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                      columns=keys),
