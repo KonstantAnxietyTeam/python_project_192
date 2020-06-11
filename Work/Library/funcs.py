@@ -22,6 +22,57 @@ quantParams = set(["Сумма", "Код работника", "Дата выпл
                    "Отделение","Норма (ч)", "Ставка (ч)", "Номер договора"])
 
 
+def saveAsExcel(tree):
+    file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
+    if file:
+        ids=tree.get_children()
+        #dic = dict([tree.column(i)['id'] for i in tree["displaycolumns"]]) # TODO need to get displayed columns only
+        dic = dict.fromkeys(tree["columns"], [])
+        keys = list(dic.keys())
+        for i in range(len(keys)):
+            dic[keys[i]] = []
+        for iid in ids:
+            for i in range(len(keys)):
+                dic[keys[i]].append(tree.item(iid)["values"][i])
+
+        dic = pd.DataFrame.from_dict(dic)
+        try:
+           dic.to_excel(file, engine='xlsxwriter',index=False)
+           message(root, "Таблица сохранена", msgtype="success").fade()
+        except:
+           message(root, "Не удалось сохранить файл!\nВозможно, он открыт\nв другой программе", msgtype="error").fade()
+    else:
+        pass # pressed cancel
+        
+
+def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
+    if not filename:
+        return db, modified, currentFile
+    if (filename[-6::] == "pickle"):
+        try:
+            dbf = open(filename, "rb")
+        except FileNotFoundError:
+            mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
+            createEmptyDatabase()
+        else:
+            currentFile = filename
+            db = pk.load(dbf)
+            dbf.close()
+            modified = False
+            return db, modified, currentFile
+    else:
+        try:
+            xls = pd.ExcelFile(filename)  # your repository
+        except FileNotFoundError:
+            mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
+            createEmptyDatabase()
+        else:
+            db = pd.read_excel(xls, list(range(5)))
+            currentFile = ''
+            modified = True
+            return db, modified, currentFile
+
+
 def getUID(s):
     if (s.find(".png") == -1):
         return -1

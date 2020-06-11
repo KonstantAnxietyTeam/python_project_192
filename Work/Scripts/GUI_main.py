@@ -21,73 +21,23 @@ quantParams = [{"Код", "Сумма", "Код работника", "Дата �
                {"Код", "Норма (ч)", "Ставка (ч)"},
                {"Код", "Номер договора"},
                {"Код"}]
+    
+
+class DB:
+    db = None
+    currentFile = ''
+    modified = False
 
 
-def start_gui():
-    """Starting point when module is the main routine."""
-    global val, w, root
-    root = tk.Tk()
-    top = MainWindow(root)
-    root.mainloop()
-
-
-def openFromFile(filename):
-    if not filename:
-        return
-    if (filename[-6::] == "pickle"):
-        try:
-            dbf = open(filename, "rb")
-        except FileNotFoundError:
-            mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
-            createEmptyDatabase()
-        else:
-            MainWindow.currentFile = filename
-            MainWindow.db = pk.load(dbf)
-            dbf.close()
-            MainWindow.modified = False
-    else:
-        try:
-            xls = pd.ExcelFile(filename)  # your repository
-        except FileNotFoundError:
-            mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
-            createEmptyDatabase()
-        else:
-            MainWindow.db = pd.read_excel(xls, list(range(5)))
-            MainWindow.currentFile = ''
-            MainWindow.modified = True
-
-
-def createEmptyDatabase():
-    MainWindow.db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты', 'Сумма', 'Код работника']),
+def createEmptyDatabase(db, modified, currentFile):
+    db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты', 'Сумма', 'Код работника']),
                      pd.DataFrame(columns=['Код', 'Код должности', 'Отделение']),
                      pd.DataFrame(columns=['Код', 'Название', 'Норма (ч)', 'Ставка (ч)']),
                      pd.DataFrame(columns=['Код', 'ФИО', 'Номер договора', 'Телефон', 'Образование', 'Адрес']),
                      pd.DataFrame(columns=['Код', 'Название', 'Телефон'])]
-    MainWindow.modified = False
-    MainWindow.currentFile = ''
-
-
-def saveAsExcel(tree):
-    file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
-    if file:
-        ids=tree.get_children()
-        #dic = dict([tree.column(i)['id'] for i in tree["displaycolumns"]]) # TODO need to get displayed columns only
-        dic = dict.fromkeys(tree["columns"], [])
-        keys = list(dic.keys())
-        for i in range(len(keys)):
-            dic[keys[i]] = []
-        for iid in ids:
-            for i in range(len(keys)):
-                dic[keys[i]].append(tree.item(iid)["values"][i])
-
-        dic = pd.DataFrame.from_dict(dic)
-        try:
-           dic.to_excel(file, engine='xlsxwriter',index=False)
-           message(root, "Таблица сохранена", msgtype="success").fade()
-        except:
-           message(root, "Не удалось сохранить файл!\nВозможно, он открыт\nв другой программе", msgtype="error").fade()
-    else:
-        pass # pressed cancel
+    modified = False
+    currentFile = ''
+    return db, modified, currentFile
 
 
 def configureGUI(scr, top):
@@ -98,12 +48,12 @@ def configureGUI(scr, top):
             scr.Data_t4, scr.Data_t5]
 
     scr.tables = [None] * 5
-    for i in range(len(MainWindow.db)):
+    for i in range(len(DB.db)):
         scr.tables[i] = TreeViewWithPopup(scr.tabs[i])
         scr.tables[i].place(relwidth=1.0, relheight=1.0)
-        scr.tables[i]["columns"] = list(MainWindow.db[i].columns)
+        scr.tables[i]["columns"] = list(DB.db[i].columns)
         scr.tables[i]['show'] = 'headings'
-        columns = list(MainWindow.db[i].columns)
+        columns = list(DB.db[i].columns)
         scr.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
         scr.tables[i].heading("#0", text="")
 
@@ -116,10 +66,10 @@ def configureGUI(scr, top):
 
         scr.tables[i].column(columns[0], width=30, stretch=tk.NO)
 
-        for j in MainWindow.db[i].index:
+        for j in DB.db[i].index:
             items = []
-            for title in MainWindow.db[i].columns:
-                items.append(MainWindow.db[i][title][j])
+            for title in DB.db[i].columns:
+                items.append(DB.db[i][title][j])
             scr.tables[i].add("", values=items)
 
     # configure scrolls
@@ -140,11 +90,11 @@ def configureGUI(scr, top):
     scr.Filter_List1.bind("<<ListboxSelect>>", scr.moveSelection2)
     scr.Filter_List2.bind("<<ListboxSelect>>", scr.moveSelection1)
 
-    root.protocol("WM_DELETE_WINDOW", scr.exit)
-    root.bind("<Control-a>", scr.selectAll)
-    root.bind("<Control-n>", scr.addRecord)
-    root.bind("<Delete>", scr.deleteRecords)
-    root.bind("<Button-1>", scr.statusUpdate)
+    top.protocol("WM_DELETE_WINDOW", scr.exit)
+    top.bind("<Control-a>", scr.selectAll)
+    top.bind("<Control-n>", scr.addRecord)
+    top.bind("<Delete>", scr.deleteRecords)
+    top.bind("<Button-1>", scr.statusUpdate)
 
     scr.ComboAnalysis.bind("<<ComboboxSelected>>", scr.configAnalysisCombos)
 
@@ -157,22 +107,18 @@ def configureGUI(scr, top):
 
 
 class MainWindow:
-    db = None
-    currentFile = ''
-    modified = False
-    col = []
-
-    def __init__(self, top=None):
+    def __init__(self, root=None):
         """This class configures and populates the toplevel window.
-           top is the toplevel containing window."""
+           root is the toplevel containing window."""
         # refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
-        openFromFile("../Data/db.pickle")
+        self.root = root
+        DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle", DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
 
-        top.geometry("1000x600+150+30")
-        top.minsize(width=1000, height=600)
-        top.title("База Данных")
+        self.root.geometry("1000x600+150+30")
+        self.root.minsize(width=1000, height=600)
+        self.root.title("База Данных")
 
-        configureGUI(self, top)
+        configureGUI(self, self.root)
 
     def configAnalysisCombos(self, event=None):
         anId = self.ComboAnalysis.current()
@@ -197,41 +143,41 @@ class MainWindow:
 
     def showReport(self):
         if self.paramsValid():
-            message(root, "Не выбран элемент", msgtype="warning").fade()
+            message(self.root, "Не выбран элемент", msgtype="warning").fade()
             return
         nb = self.Data.index(self.Data.select())
-        df = MainWindow.db[nb]
+        df = DB.db[nb]
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(root, self, MainWindow.db)
+            plot, file = getHist(self.root, self, DB.db)
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(root, self, MainWindow.db)
+            plot, file = getBoxWhisker(self.root, self, DB.db)
         if file and plot:
             plot.show()
         else:
-            message(root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
+            message(self.root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
                     "другие данные", msgtype="error").fade()
 
     def exportReport(self):
         if self.paramsValid():
-            message(root, "Не выбран элемент", msgtype="warning").fade()
+            message(self.root, "Не выбран элемент", msgtype="warning").fade()
             return
         nb = self.Data.index(self.Data.select())
-        df = MainWindow.db[nb]
+        df = DB.db[nb]
         pltType = 'plot'
         if self.ComboAnalysis.current() == 2:
             plot, file = getBar(self, df)
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(root, self, MainWindow.db)
+            plot, file = getHist(self.root, self, DB.db)
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(root, self, MainWindow.db)
+            plot, file = getBoxWhisker(self.root, self, DB.db)
         if file and plot:
             plot.savefig(file)
-            message(root, "Файл сохранён", msgtype="success").fade() # TODO show path
+            message(self.root, "Файл сохранён", msgtype="success").fade() # TODO show path
             # need to change label to text in message
         else:
-            message(root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
+            message(self.root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
                     "другие данные", msgtype="error").fade()
 
     def saveAsExcel(self):
@@ -262,8 +208,8 @@ class MainWindow:
         #self.ComboQuant.set('')
         #self.ComboQual.set('')
         #nb = self.Data.index(self.Data.select())
-        #self.ComboQuant.configure(values = [h for h in MainWindow.db[nb].columns if h in quantParams[nb]])
-        #self.ComboQual.configure(values = [h for h in MainWindow.db[nb].columns if not h in quantParams[nb]])
+        #self.ComboQuant.configure(values = [h for h in DB.db[nb].columns if h in quantParams[nb]])
+        #self.ComboQual.configure(values = [h for h in DB.db[nb].columns if not h in quantParams[nb]])
         #if len(self.ComboQuant["values"]) == 0:
         #    self.ComboQuant.configure(state="disabled")
         #else:
@@ -336,10 +282,10 @@ class MainWindow:
             self.Filter_List2.insert('end', "")
         for i in self.tables[tab].get_children():
             self.tables[tab].delete(i)
-        for j in MainWindow.db[tab].index:
+        for j in DB.db[tab].index:
             items = []
-            for title in MainWindow.db[tab].columns:
-                items.append(MainWindow.db[tab][title][j])
+            for title in DB.db[tab].columns:
+                items.append(DB.db[tab][title][j])
             self.tables[tab].add("", values=items)
 
         self.Filter_List2.selection_set(select[0])
@@ -356,22 +302,22 @@ class MainWindow:
     def open_dialog(self):
         global newPar, select
         if len(select) != 0:
-            newPar = ChangeDialog(root, "Введите новое значение:").show()
+            newPar = ChangeDialog(self.root, "Введите новое значение:").show()
             self.Filter_List2.delete(select[0])
             self.Filter_List2.insert(select[0], newPar)
             self.Filter_List2.selection_set(select[0])
             self.Filter_List2.select_anchor(select[0])
             self.filterTable()
         else:
-            message(root, "Не выбран элемент", msgtype="warning").fade()
+            message(self.root, "Не выбран элемент", msgtype="warning").fade()
 
     def filterTable(self):
         global selcted_tab
         filters = []
         tab = self.Data.index(selected_tab)
-        cols = list(MainWindow.db[tab].columns)
+        cols = list(DB.db[tab].columns)
         cols = cols[1:]
-        df = MainWindow.db[tab]
+        df = DB.db[tab]
         df.index = np.arange(len(df))
         check = True
         for i in range(len(cols)):
@@ -382,10 +328,10 @@ class MainWindow:
         if check:
             for i in self.tables[tab].get_children():
                 self.tables[tab].delete(i)
-            for j in MainWindow.db[tab].index:
+            for j in DB.db[tab].index:
                 items = []
-                for title in MainWindow.db[tab].columns:
-                    items.append(MainWindow.db[tab][title][j])
+                for title in DB.db[tab].columns:
+                    items.append(DB.db[tab][title][j])
                 self.tables[tab].add("", values=items)
         else:
             for i in range(len(filters)):
@@ -425,44 +371,44 @@ class MainWindow:
             for item in tree.get_children():
                 tree.delete(item)
         for i in range(len(self.tables)):
-            for j in MainWindow.db[i].index:
+            for j in DB.db[i].index:
                 items = []
-                for title in MainWindow.db[i].columns:
-                    items.append(MainWindow.db[i][title][j])
+                for title in DB.db[i].columns:
+                    items.append(DB.db[i][title][j])
                 self.tables[i].add("", values=items)
 
     def exit(self):
-        if MainWindow.modified:
+        if DB.modified:
             ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
             elif ans is None:
                 return
-        root.destroy()
+        self.root.destroy()
         exit()
 
     def open(self):
-        if MainWindow.modified:
+        if DB.modified:
             ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
             elif ans is None:
                 return
         file = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
-        openFromFile(file)
+        DB.db, DB.modified, DB.currentFile = openFromFile(file, DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
         self.loadTables()
 
     def save(self):
-        if (MainWindow.currentFile != ''):
-            saveToPickle(MainWindow.currentFile, MainWindow.db)
+        if (DB.currentFile != ''):
+            saveToPickle(DB.currentFile, DB.db)
         else:
             self.saveas()
 
     def saveas(self):
         filename = filedialog.asksaveasfilename(filetypes=[], defaultextension=".pickle")
-        MainWindow.currentFile = filename
-        MainWindow.modified = False
-        saveToPickle(filename, MainWindow.db)
+        DB.currentFile = filename
+        DB.modified = False
+        saveToPickle(filename, DB.db)
 
     def statusUpdate(self, event=None):
         curTable = self.tables[self.Data.index(self.Data.select())]
@@ -474,7 +420,7 @@ class MainWindow:
             status += ("%d out of %d" % (selected, len(curTable.get_children())))
         self.statusbar.config(text=status)
         self.statusbar.update_idletasks()
-        #root.after(100, self.statusUpdate)
+        #self.root.after(100, self.statusUpdate)
 
     def treeSort(self, treeview, col, reverse):
         firstElement = treeview.set(treeview.get_children('')[0], col)
@@ -505,33 +451,6 @@ class MainWindow:
                 return False
 
 
-class CustomDialog(tk.Toplevel):
-    # print(CustomDialog(root, "Enter something:").show()) to show
-    def __init__(self, parent, prompt):
-        tk.Toplevel.__init__(self, parent)
-
-        self.var = tk.StringVar()
-
-        self.label = tk.Label(self, text=prompt)
-        self.entry = tk.Entry(self, textvariable=self.var)
-        self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
-
-        self.label.pack(side="top", fill="x")
-        self.entry.pack(side="top", fill="x")
-        self.ok_button.pack(side="right")
-
-        self.entry.bind("<Return>", self.on_ok)
-
-    def on_ok(self, event=None):
-        self.destroy()
-
-    def show(self):
-        self.wm_deiconify()
-        self.entry.focus_force()
-        self.wait_window()
-        return self.var.get()
-
-
 class TreeViewWithPopup(ttk.Treeview):
     def __init__(self, parent, *args, **kwargs):
         ttk.Treeview.__init__(self, parent, *args, **kwargs)
@@ -545,6 +464,7 @@ class TreeViewWithPopup(ttk.Treeview):
         self.popup_menu.add_command(label="Добавить",
                                     command=self.addRecord)
         self.bind("<Button-3>", self.popup)
+        self.root = parent
         self.globalCounter = 0
 
     def add(self, parent, values):
@@ -572,15 +492,15 @@ class TreeViewWithPopup(ttk.Treeview):
     def addRecord(self):
         nb = self.master.master
         nb = nb.index(nb.select())
-        dic = askValuesDialog(root, MainWindow.db[nb].columns).show()
+        dic = askValuesDialog(self.root, DB.db[nb].columns).show()
         values = list(dic.values())
         keys = list(dic.keys())
         if (len(values)):
             values = [item.get() for item in values]
             values[0] = str(self.genUID())
-            MainWindow.modified = True
+            DB.modified = True
 
-            MainWindow.db[nb] = MainWindow.db[nb].append(
+            DB.db[nb] = DB.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                      columns=keys),
                                    ignore_index=True)
@@ -591,12 +511,12 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = [int(i) for i in self.selection()]
         if not len(selected):
-            message(root, "Не выбран элемент", msgtype="warning").fade()
+            message(self.root, "Не выбран элемент", msgtype="warning").fade()
         else:
-            MainWindow.modified = True
+            DB.modified = True
             for item in selected:
                 itemId = int(self.item(item)['values'][0])
-                MainWindow.db[nb] = MainWindow.db[nb].drop(MainWindow.db[nb].index[MainWindow.db[nb]['Код'] == itemId])
+                DB.db[nb] = DB.db[nb].drop(DB.db[nb].index[DB.db[nb]['Код'] == itemId])
                 self.delete(self.selection()[0])
 
     def modRecord(self):
@@ -604,22 +524,18 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = self.selection()
         if not selected:
-            message(root, "Не выбран элемент", msgtype="warning").fade()
+            message(self.root, "Не выбран элемент", msgtype="warning").fade()
         else:
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])
-            itemValues = MainWindow.db[nb][MainWindow.db[nb]['Код'] == itemId].values[0].tolist()
-            dic = askValuesDialog(root, MainWindow.db[nb].columns, currValues=itemValues).show()
+            itemValues = DB.db[nb][DB.db[nb]['Код'] == itemId].values[0].tolist()
+            dic = askValuesDialog(self.root, DB.db[nb].columns, currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())
             if (len(values)):
                 values = [item.get() for item in values]
                 values[0] = itemId
-                MainWindow.modified = True
+                DB.modified = True
                 for i in range(len(keys)):
                     self.item(selected, values=values)
-                    MainWindow.db[nb].loc[itemId-1, keys[i]] = values[i]
-
-
-if __name__ == '__main__':
-    start_gui()
+                    DB.db[nb].loc[itemId-1, keys[i]] = values[i]
