@@ -1,3 +1,7 @@
+"""
+Модуль, содержащий универсальные функции
+"""
+
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -89,6 +93,15 @@ def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
 
 
 def getUID(s):
+    """
+    Изъятие UID из строки формата `info1_info2_UID.png`
+    
+    :param s: Имя файла
+    :type s: string
+    :return: UID
+    :rtype: `integer`
+    :Автор(ы): Константинов
+    """
     if (s.find(".png") == -1):
         return -1
     uid = 0
@@ -103,6 +116,19 @@ def getUID(s):
 
 
 def createUniqueFilename(specs, extension, directory):
+    """
+    Создание уникального для директории имени файла в формате `spec_spec_spec_UID.ext`
+    
+    :param specs: Список для формирования информационной части названия
+    :type specs: list
+    :param extension: Расширение файла
+    :type extension: string
+    :param directory: Директория для сохранения
+    :type directory: string
+    :return: Путь к файлу с созданным именем
+    :rtype: string
+    :Автор((ы): Константинов
+    """
     newUID = 1
     specs.append(str(newUID))
     filename = '_'.join(specs).replace(' ', '_') + extension

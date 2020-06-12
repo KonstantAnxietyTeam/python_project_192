@@ -1,3 +1,7 @@
+"""
+Модуль запуска приложения
+"""
+
 from GUI_main import MainWindow
 import tkinter as tk
 
