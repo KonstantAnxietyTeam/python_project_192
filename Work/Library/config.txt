@@ -1,0 +1,17 @@
+###### paths
+def_db=../Data/db.pickle
+def_graph_dir=../Graphics/
+def_output_dir=../Output/
+
+###### geometry
+def_window_width=1000
+def_window_height=600
+fullscreen=0
+maximize=0
+
+###### colors
+def_bg_color=white
+def_frame_color=red
+def_btn_color=blue
+def_frame_fg_color=yellow
+def_btn_fg_color=cyan

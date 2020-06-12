@@ -40,7 +40,22 @@ def createEmptyDatabase(db, modified, currentFile):
     return db, modified, currentFile
 
 
-def configureGUI(scr, top):
+def configureGUI(scr, top, bgcolor="whitesmoke"):
+    winW = scr.root.winfo_screenwidth()
+    winH = scr.root.winfo_screenheight()
+    if int(scr.config["maximize"]):
+        scr.config["def_window_width"] = winW
+        scr.config["def_window_height"] = winH
+    scr.config["def_window_width"] = int(scr.config["def_window_width"])
+    scr.config["def_window_height"] = int(scr.config["def_window_height"])
+    dispX = str(int(winW / 2 - scr.config["def_window_width"] / 2)) # center window
+    dispY = '30'
+    geom = str(scr.config["def_window_width"])+'x'+str(scr.config["def_window_height"])+'+'+dispX+'+'+dispY
+    scr.root.geometry(geom)
+    scr.root.minsize(width=1000, height=600)
+    scr.root.attributes('-fullscreen', scr.config["fullscreen"])
+    scr.root.title("База Данных")
+    scr.root.configure(background=bgcolor)
     configureWidgets(scr, top)
 
     # configure tables
@@ -111,13 +126,11 @@ class MainWindow:
            root is the toplevel containing window."""
         # refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         self.root = root
+        message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
         DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle", DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
 
-        self.root.geometry("1000x600+150+30")
-        self.root.minsize(width=1000, height=600)
-        self.root.title("База Данных")
-
-        configureGUI(self, self.root)
+        self.config = getConfig()
+        configureGUI(self, self.root, bgcolor=self.config["def_bg_color"])
 
     def configAnalysisCombos(self, event=None):
         anId = self.ComboAnalysis.current()
