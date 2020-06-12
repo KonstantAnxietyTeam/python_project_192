@@ -21,7 +21,7 @@ quantParams = [{"Код", "Сумма", "Код работника", "Дата �
                {"Код", "Норма (ч)", "Ставка (ч)"},
                {"Код", "Номер договора"},
                {"Код"}]
-    
+
 
 class DB:
     db = None
@@ -110,7 +110,7 @@ class MainWindow:
     def __init__(self, root=None):
         """This class configures and populates the toplevel window.
            root is the toplevel containing window."""
-        # refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
+        refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         self.root = root
         DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle", DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
 
@@ -205,23 +205,31 @@ class MainWindow:
 
     def updateCombos(self):
         pass
-        #self.ComboQuant.set('')
-        #self.ComboQual.set('')
-        #nb = self.Data.index(self.Data.select())
-        #self.ComboQuant.configure(values = [h for h in DB.db[nb].columns if h in quantParams[nb]])
-        #self.ComboQual.configure(values = [h for h in DB.db[nb].columns if not h in quantParams[nb]])
-        #if len(self.ComboQuant["values"]) == 0:
-        #    self.ComboQuant.configure(state="disabled")
-        #else:
-        #    self.ComboQuant.configure(state="normal")
-        #if len(self.ComboQual["values"]) == 0:
-        #    self.ComboQual.configure(state="disabled")
-        #else:
-        #    self.ComboQual.configure(state="normal")
+        # self.ComboQuant.set('')
+        # self.ComboQual.set('')
+        # nb = self.Data.index(self.Data.select())
+        # self.ComboQuant.configure(values = [h for h in DB.db[nb].columns if h in quantParams[nb]])
+        # self.ComboQual.configure(values = [h for h in DB.db[nb].columns if not h in quantParams[nb]])
+        # if len(self.ComboQuant["values"]) == 0:
+        #     self.ComboQuant.configure(state="disabled")
+        # else:
+        #     self.ComboQuant.configure(state="normal")
+        # if len(self.ComboQual["values"]) == 0:
+        #     self.ComboQual.configure(state="disabled")
+        # else:
+        #     self.ComboQual.configure(state="normal")
 
     def tabChoice(self, event):
         global selected_tab
         selected_tab = event.widget.select()
+        tab = event.widget.index(selected_tab)
+        for i in self.tables[tab].get_children():
+            self.tables[tab].delete(i)
+        for j in DB.db[tab].index:
+            items = []
+            for title in DB.db[tab].columns:
+                items.append(DB.db[tab][title][j])
+            self.tables[tab].add("", values=items)
         if event.widget.index(selected_tab) == 0:
             self.parInsert(0)
             self.insertCheckBoxes(0)
@@ -288,13 +296,15 @@ class MainWindow:
                 items.append(DB.db[tab][title][j])
             self.tables[tab].add("", values=items)
 
+        self.Filter_List1.selection_set(select[0])
+        self.Filter_List1.select_anchor(select[0])
         self.Filter_List2.selection_set(select[0])
         self.Filter_List2.select_anchor(select[0])
 
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')
         self.Filter_List2.delete(0, 'end')
-        cols = list(self.db[tab].columns)
+        cols = list(DB.db[tab].columns)
         for i in range(len(cols)-1):
             self.Filter_List1.insert('end', cols[i+1])
             self.Filter_List2.insert('end', "")
@@ -320,6 +330,15 @@ class MainWindow:
         df = DB.db[tab]
         df.index = np.arange(len(df))
         check = True
+        # refresh
+        for i in self.tables[tab].get_children():
+            self.tables[tab].delete(i)
+        for j in DB.db[tab].index:
+            items = []
+            for title in DB.db[tab].columns:
+                items.append(DB.db[tab][title][j])
+            self.tables[tab].add("", values=items)
+
         for i in range(len(cols)):
             filters.append(self.Filter_List2.get(i))
         for fil in filters:

@@ -43,7 +43,7 @@ def saveAsExcel(tree):
            message(root, "Не удалось сохранить файл!\nВозможно, он открыт\nв другой программе", msgtype="error").fade()
     else:
         pass # pressed cancel
-        
+
 
 def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
     if not filename:
@@ -125,7 +125,7 @@ def getBoxWhisker(root, window, fdf):
             data.append(fdata)
     elif (qual == "Образование" and quant == "Сумма"):
         names = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
-                 "Студент", "Среднее общее"]
+                 "Студент"]
         for i in names:
             fdata = []
             fnums = []
