@@ -21,6 +21,8 @@ colorDict = {"warning": ["yellow", "lightyellow"],
 quantParams = set(["Сумма", "Код работника", "Дата выплаты", "Код должности", \
                    "Отделение","Норма (ч)", "Ставка (ч)", "Номер договора"])
 
+quantComboValues = ["Сумма", "Дата выплаты", "Отделение", "Норма (ч)", "Ставка (ч)"]
+qualComboValues = ["Тип выплаты", "Должность", "Образование", "Отдел"]
 
 def saveAsExcel(tree):
     file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
@@ -168,33 +170,55 @@ def getBoxWhisker(root, window, fdf):
     filename = createUniqueFilename(['БокВис', quant, qual], '.png', '../Graphics/')
     return fig, filename
 
-def getBar(window, df):
-    try:
-        qual = window.ComboQual.get()
-        quant = window.ComboQuant.get()
-        fig, ax1 = plt.subplots(figsize=(8, 4))
-        quals = df[qual].tolist()
-        quants = df[quant].tolist()
-        if (qual == "ФИО"):
-            quals = [cutName(name) for name in quals]
-        quants = [int(item) for item in quants]
-
-        ax1.bar(quals, quants, edgecolor="black", alpha=0.15)
-        ax1.set_title('Диаграмма: $' + str(quant) +'$ от $' + str(qual) + '$')
-        ax1.set_xlabel('$' + str(qual) +'$')
-        ax1.set_ylabel('$' + str(quant) + '$')
-        if len(ax1.get_xticks()) > 30:
-            for tick in ax1.xaxis.get_majorticklabels():
-                tick.set_horizontalalignment("right")
-            plt.xticks(rotation=45, fontsize=6)
-        else:
-            labels_formatted = [str(label) if i%2==0 else '\n'+str(label) for i,label in enumerate(quals)]
-            ax1.set_xticklabels(labels_formatted)
-        plt.tight_layout()
-
-        filename = createUniqueFilename(['столб', quant, qual], '.png', '../Graphics/')
-    except:
+def getBar(root, window, df):
+    qual = window.ComboQual.get()
+    quant = window.ComboQuant.get()
+    quals = []
+    xlabels = set()
+    data = None
+    if qual == "Должность" and quant == "Образование":
+        xlabels = set(df[3]["Образование"].tolist()) # degrees
+        quals = df[2]["Название"].tolist()
+        data = [None] * len(quals)
+        profs = df[2]["Код"].tolist()
+        for i in range(len(profs)):
+            workerIDs = df[1].loc[df[1]["Код должности"] == int(profs[i])]["Код"].tolist()
+            edus = []
+            for worker in workerIDs:
+                found = df[3].loc[df[3]["Код"] == worker]["Образование"].tolist()
+                if len(found):
+                    edus.append(str(found[0]))
+            data[i] = [edus.count(edu) for edu in xlabels]
+    elif qual == "Образование" and quant == "Должность":
+        quals = list(set(df[3]["Образование"].tolist()))
+        xlabels = df[2]["Название"].tolist() # profs
+        data = [None] * len(quals)
+        print(data)
+        for i in range(len(quals)):
+            data[i] = [0] * len(xlabels)
+            workerIDs = df[3].loc[df[3]["Образование"] == quals[i]]["Код"].tolist()
+            for j in range(len(workerIDs)):
+                profs = df[1].loc[df[1]["Код"] == workerIDs[j]]["Код должности"].tolist()
+                if len(profs):
+                    data[i][profs[0]-1] += 1
+            print("data[", i, "]: ", data[i], sep="")
+        print('\n\n\n')
+        print(data)
+    else:
         return None, None
+    fig, ax1 = plt.subplots(figsize=(8, 4))
+    ax1.set_xlabel('$' + str(quant) +'$')
+    ax1.set_ylabel('$Частота$')
+    colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta']
+    for i in range(len(data)):
+        ax1.bar(list(xlabels), data[i], width=.8-.1*i, color=colors[i], label=quals, edgecolor='black', alpha=1)
+    ax1.legend(quals, prop={'size': 8})
+    ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
+    for tick in ax1.xaxis.get_majorticklabels():
+        tick.set_horizontalalignment("right")
+    plt.xticks(rotation=45, fontsize=6)
+    plt.tight_layout()
+    filename = createUniqueFilename(['гист', quant, qual], '.png', '../Graphics/')
     return fig, filename
 
 
@@ -317,7 +341,7 @@ def configureWidgets(scr, top):
     scr.ComboQual = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQual.place(relx=.05, rely=.3, height=20, relwidth=.9,
                           bordermode='ignore')
-    scr.ComboQual.configure(values = ["Тип выплаты", "Должность", "Образование", "Отдел"])
+    scr.ComboQual.configure(values = qualComboValues)
 
     scr.LabelQuant = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w")
     scr.LabelQuant.place(relx=.05, rely=.4, height=25, width=127,
@@ -326,7 +350,7 @@ def configureWidgets(scr, top):
     scr.ComboQuant = ttk.Combobox(scr.Analysis_Frame)
     scr.ComboQuant.place(relx=.05, rely=.5, height=20, relwidth=.9,
                          bordermode='ignore')
-    scr.ComboQuant.configure(values = ["Сумма", "Дата выплаты", "Отделение", "Норма (ч)", "Ставка (ч)"])
+    scr.ComboQuant.configure(values = quantComboValues)
 
     scr.Filter_Frame = tk.LabelFrame(top, text="Фильтры")
     scr.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.33,

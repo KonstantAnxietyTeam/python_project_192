@@ -103,7 +103,6 @@ def configureGUI(scr, top):
 
     scr.ComboAnalysis.current(2)
     scr.configAnalysisCombos()
-    scr.updateCombos()
 
 
 class MainWindow:
@@ -132,9 +131,14 @@ class MainWindow:
             self.ComboQuant.configure(state="normal")
             self.ComboQual.configure(state="normal")
         if anId == 5:
-            self.LabelQual.configure(text="Количественный")
+            self.LabelQuant.configure(text="Качественный")
+        elif anId == 2:
+            self.LabelQuant.configure(text="Качественный")
+            self.ComboQuant.configure(values=qualComboValues)
         else:
             self.LabelQual.configure(text="Качественный")
+            self.LabelQuant.configure(text="Количественный")
+            self.ComboQuant["values"]=(quantComboValues)
 
     def paramsValid(self):
         return (self.ComboAnalysis.current() == -1 or \
@@ -148,7 +152,7 @@ class MainWindow:
         nb = self.Data.index(self.Data.select())
         df = DB.db[nb]
         if self.ComboAnalysis.current() == 2:
-            plot, file = getBar(self, df)
+            plot, file = getBar(self.root, self, DB.db)
         elif self.ComboAnalysis.current() == 3: # add analysis here
             plot, file = getHist(self.root, self, DB.db)
         elif self.ComboAnalysis.current() == 4:
@@ -205,19 +209,16 @@ class MainWindow:
 
     def updateCombos(self):
         pass
-        #self.ComboQuant.set('')
-        #self.ComboQual.set('')
-        #nb = self.Data.index(self.Data.select())
-        #self.ComboQuant.configure(values = [h for h in DB.db[nb].columns if h in quantParams[nb]])
-        #self.ComboQual.configure(values = [h for h in DB.db[nb].columns if not h in quantParams[nb]])
-        #if len(self.ComboQuant["values"]) == 0:
-        #    self.ComboQuant.configure(state="disabled")
-        #else:
-        #    self.ComboQuant.configure(state="normal")
-        #if len(self.ComboQual["values"]) == 0:
-        #    self.ComboQual.configure(state="disabled")
-        #else:
-        #    self.ComboQual.configure(state="normal")
+#        self.ComboQuant.set('')
+#        self.ComboQual.set('')
+#        if len(self.ComboQuant["values"]) == 0:
+#            self.ComboQuant.configure(state="disabled")
+#        else:
+#            self.ComboQuant.configure(state="normal")
+#        if len(self.ComboQual["values"]) == 0:
+#            self.ComboQual.configure(state="disabled")
+#        else:
+#            self.ComboQual.configure(state="normal")
 
     def tabChoice(self, event):
         global selected_tab
