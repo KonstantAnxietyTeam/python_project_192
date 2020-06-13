@@ -155,6 +155,8 @@ class MainWindow:
 
     def configAnalysisCombos(self, event=None):
         anId = self.ComboAnalysis.current()
+        self.ComboQuant.set('')
+        self.ComboQual.set('')
         if anId == 0:
             self.ComboQuant.configure(state="disabled")
             self.ComboQual.configure(state="normal")
