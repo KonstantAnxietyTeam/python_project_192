@@ -147,10 +147,22 @@ class MainWindow:
         refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         self.root = root
         message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
+        self.root.focus_force()
         DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle", DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
-
         self.config = getConfig()
         configureGUI(self, self.root, bgcolor=self.config["def_bg_color"])
+        self.updateTitle()
+
+    def updateTitle(self):
+        title = "База данных"
+        if DB.currentFile != '' or DB.modified:
+            title += ' - '
+            if DB.currentFile != '':
+                filename = DB.currentFile[DB.currentFile.rfind('/')+1:]
+                title += filename
+            if DB.modified:
+                title += '*'
+        self.root.title(title)
 
     def configAnalysisCombos(self, event=None):
         anId = self.ComboAnalysis.current()
@@ -408,15 +420,19 @@ class MainWindow:
 
     def modRecord(self, event=None):
         self.tables[self.Data.index("current")].modRecord()
+        self.updateTitle()
 
     def addRecord(self, event=None):
         self.tables[self.Data.index("current")].addRecord()
+        self.updateTitle()
 
     def deleteRecords(self, event=None):
         self.tables[self.Data.index("current")].deleteRecords()
+        self.updateTitle()
 
     def newDatabase(self):
         createEmptyDatabase()
+        self.updateTitle()
         self.loadTables()
 
     def loadTables(self):
@@ -449,6 +465,7 @@ class MainWindow:
                 return
         file = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
         DB.db, DB.modified, DB.currentFile = openFromFile(file, DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
+        self.updateTitle()
         self.loadTables()
 
     def save(self):
@@ -456,11 +473,13 @@ class MainWindow:
             saveToPickle(DB.currentFile, DB.db)
         else:
             self.saveas()
+        self.updateTitle()
 
     def saveas(self):
         filename = filedialog.asksaveasfilename(filetypes=[], defaultextension=".pickle")
         DB.currentFile = filename
         DB.modified = False
+        self.updateTitle()
         saveToPickle(filename, DB.db)
 
     def statusUpdate(self, event=None):
@@ -556,7 +575,7 @@ class TreeViewWithPopup(ttk.Treeview):
             values = [item.get() for item in values]
             values[0] = str(self.genUID())
             DB.modified = True
-
+            
             DB.db[nb] = DB.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                      columns=keys),

@@ -778,6 +778,7 @@ class askValuesDialog(tk.Toplevel):
         self.parent = parent
         x = str(parent.winfo_screenwidth() // 2 - 150)
         y = str(parent.winfo_screenheight() // 2 - 200)
+        self.title("Введите значения")
         self.geometry("300x400+" + x + "+" + y)
         self.resizable(0, 0)
         self.grab_set()  # make modal
@@ -833,6 +834,7 @@ class CustomizeGUIDialog(tk.Toplevel):
         x = str(parent.winfo_screenwidth() // 2 - 150)
         y = str(parent.winfo_screenheight() // 2 - 200)
         self.geometry("500x500+" + x + "+" + y)
+        self.title("Настройки")
         self.resizable(0, 0)
         self.grab_set()  # make modal
         self.focus()
