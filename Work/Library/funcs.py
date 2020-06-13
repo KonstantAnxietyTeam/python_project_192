@@ -51,6 +51,10 @@ def getDefaultConfig():
 def getConfig(configFile="../Library/config.txt"):
     f = open(configFile, 'r')
     config = dict()
+    config = getDefaultConfig()
+    if not f:
+        writeConfig(config)
+        return config
     for line in f:
         line = line.strip()
         if len(line) and line[0] != '#':
