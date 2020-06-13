@@ -190,16 +190,18 @@ def getBoxWhisker(root, window, fdf):
     if (qual == "Должность" and quant == "Сумма"):
         lprof = len(fdf[2].index)
         names = fdf[2]["Название"].tolist()
-        for i in range(lprof - 1):
+        for i in range(lprof):
             fdata = []
             fnums = []
             for j in range(size - 1):
-                if fdf[1].loc[j + 1, "Код должности"] == fdf[2].loc[i + 1, "Код"]:
+                if fdf[1].loc[j + 1, "Код должности"] == fdf[2].loc[i, "Код"]:
                     fnums.append(fdf[1].loc[j + 1, "Код"])
             for j in range(csize - 1):
                 if fdf[0].loc[j + 1, "Код работника"] in fnums:
+                    print(fdf[0].loc[j + 1, "Сумма"])
                     fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
             data.append(fdata)
+            print(fdata)
     elif (qual == "Образование" and quant == "Сумма"):
         names = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
                  "Студент"]
@@ -216,11 +218,11 @@ def getBoxWhisker(root, window, fdf):
     elif (qual == "Отдел" and quant == "Сумма"):
         ldep = len(fdf[4].index)
         names = fdf[4]["Название"].tolist()
-        for i in range(ldep - 1):
+        for i in range(ldep):
             fdata = []
             fnums = []
             for j in range(size - 1):
-                if fdf[1].loc[j + 1, "Отделение"] == fdf[4].loc[i + 1, "Код"]:
+                if fdf[1].loc[j + 1, "Отделение"] == fdf[4].loc[i, "Код"]:
                     fnums.append(fdf[1].loc[j + 1, "Код"])
             for j in range(csize - 1):
                 if fdf[0].loc[j + 1, "Код работника"] in fnums:
