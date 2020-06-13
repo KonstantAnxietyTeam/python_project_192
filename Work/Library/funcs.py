@@ -268,7 +268,6 @@ def getBar(root, window, df):
         quals = list(set(df[3]["Образование"].tolist()))
         xlabels = df[2]["Название"].tolist() # profs
         data = [None] * len(quals)
-        print(data)
         for i in range(len(quals)):
             data[i] = [0] * len(xlabels)
             workerIDs = df[3].loc[df[3]["Образование"] == quals[i]]["Код"].tolist()
@@ -276,17 +275,14 @@ def getBar(root, window, df):
                 profs = df[1].loc[df[1]["Код"] == workerIDs[j]]["Код должности"].tolist()
                 if len(profs):
                     data[i][profs[0]-1] += 1
-            print("data[", i, "]: ", data[i], sep="")
-        print('\n\n\n')
-        print(data)
     else:
         return None, None
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.set_xlabel('$' + str(quant) +'$')
     ax1.set_ylabel('$Частота$')
-    colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta']
+    colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta', 'whitesmoke', 'yellow']
     for i in range(len(data)):
-        ax1.bar(list(xlabels), data[i], width=.8-.1*i, color=colors[i], label=quals, edgecolor='black', alpha=1)
+        ax1.bar(list(xlabels), data[i], width=.95-.1*i, color=colors[i], label=quals, edgecolor='black', alpha=1)
     ax1.legend(quals, prop={'size': 8})
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
     for tick in ax1.xaxis.get_majorticklabels():
@@ -340,23 +336,12 @@ def getHist(root, window, df):
                 if not found.empty:
                     sals.append(float(found))
             data[i] = sals
-    elif qual == "Тип выплаты" and quant == "Сумма":
-        quals = set(df[0]["Тип выплаты"].tolist())
-        data = [None] * len(quals)
-        i = 0
-        for stype in quals:
-            workerIDs = df[0].loc[df[0]["Тип выплаты"] == stype]["Код"].tolist()
-            sals = []
-            for worker in workerIDs:
-                sals.append(float(df[0].loc[df[0]["Код работника"] == worker]["Сумма"]))
-            data[i] = sals
-            i += 1
     else:
         return None, None
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.set_xlabel('$' + str(quant) +'$')
     ax1.set_ylabel('$Частота$')
-    colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta']
+    colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta', 'whitesmoke', 'yellow']
     ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)], label=quals, edgecolor='black')
     ax1.legend(prop={'size': 10})
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
