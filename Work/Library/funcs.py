@@ -24,10 +24,10 @@ colorDict = {"warning": ["yellow", "lightyellow"],
 
 
 quantParams = set(["Сумма", "Код работника", "Дата выплаты", "Код должности", \
-                   "Отделение","Норма (ч)", "Ставка (ч)", "Номер договора"])
+                   "Отделение","Норма (ч/мес)", "Ставка (ч)", "Номер договора", "Отработано (ч)"])
 
-quantComboValues = ["Сумма", "Дата выплаты", "Отделение", "Норма (ч)", "Ставка (ч)"]
-qualComboValues = ["Тип выплаты", "Должность", "Образование", "Отдел"]
+quantComboValues = ["Сумма", "Дата выплаты", "Норма (ч/мес)", "Ставка (ч)", "Отработано (ч)"]
+qualComboValues = ["Должность", "Образование", "Отдел"]
 
 
 def getDefaultConfig():
@@ -81,7 +81,7 @@ def writeConfig(config=None, path="../Library/config.txt"):
     f.close()
 
 
-def saveAsExcel(tree):
+def saveAsExcel(root, tree):
     file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
     if file:
         ids=tree.get_children()
@@ -181,10 +181,81 @@ def createUniqueFilename(specs, extension, directory):
     return filename
 
 
+def getScatterplot(root, window, fdf, directory):
+    qual = window.ComboQual.get()
+    quant1 = window.ComboQuant.get()
+    quant2 = window.ComboQuant2.get()
+    fig, ax1 = plt.subplots(figsize=(8, 4))
+    size = len(fdf[1].index)
+    csize = len(fdf[0].index)
+    if qual == "Должность" and ((quant1 == "Сумма" and quant2 == "Отработано (ч)") or (quant2 == "Сумма" and quant1 == "Отработано (ч)")):
+        profs = fdf[2]["Название"].tolist()
+        for i in range(len(profs)):
+            fdata1 = []
+            fdata2 = []
+            fnums = []
+            for j in range(size):
+                if fdf[1].loc[j, "Код должности"] == fdf[2].loc[i, "Код"]:
+                    fnums.append(fdf[1].loc[j, "Код"])
+            for j in range(csize):
+                if fdf[0].loc[j, "Код работника"] in fnums:
+                    fdata1.append(int(fdf[0].loc[j, "Сумма"]))
+                    fdata2.append(int(fdf[0].loc[j, "Отработано (ч)"]))
+            ax1.scatter(fdata1, fdata2, label=profs[i])
+    elif qual == "Образование" and ((quant1 == "Сумма" and quant2 == "Отработано (ч)") or (quant2 == "Сумма" and quant1 == "Отработано (ч)")):
+        degrees = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
+                   "Студент"]
+        for degree in degrees:
+            fdata1 = []
+            fdata2 = []
+            fnums = []
+            for i in range(size):
+                if fdf[3].loc[i, "Образование"] == degree:
+                    fnums.append(fdf[3].loc[i, "Код"])
+            for i in range(csize):
+                if fdf[0].loc[i, "Код работника"] in fnums:
+                    fdata1.append(int(fdf[0].loc[i, "Сумма"]))
+                    fdata2.append(int(fdf[0].loc[i, "Отработано (ч)"]))
+            ax1.scatter(fdata1, fdata2, label=degree)
+    elif qual == "Отдел" and ((quant1 == "Сумма" and quant2 == "Отработано (ч)") or (quant2 == "Сумма" and quant1 == "Отработано (ч)")):
+        deps = fdf[4]["Название"].tolist()
+        for i in range(len(deps)):
+            fdata1 = []
+            fdata2 = []
+            fnums = []
+            for j in range(size):
+                if fdf[1].loc[j, "Отделение"] == fdf[4].loc[i, "Код"]:
+                    fnums.append(fdf[1].loc[j, "Код"])
+            for j in range(csize):
+                if fdf[0].loc[j, "Код работника"] in fnums:
+                    fdata1.append(int(fdf[0].loc[j, "Сумма"]))
+                    fdata2.append(int(fdf[0].loc[j, "Отработано (ч)"]))
+            ax1.scatter(fdata1, fdata2, label=deps[i])
+    else:
+        return None, None
+    print(quant1, quant2)
+    if quant1 == "Сумма" and quant2 == "Отработано (ч)":
+        ax1.set_title('Диаграмма: $' + str(quant1) + '$ от $' + str(quant2) + '$')
+        ax1.set_xlabel('$' + str(quant1) + '$')
+        ax1.set_ylabel('$' + str(quant2) + '$')
+    else:
+        ax1.set_title('Диаграмма: $' + str(quant2) + '$ от $' + str(quant1) + '$')
+        ax1.set_xlabel('$' + str(quant2) + '$')
+        ax1.set_ylabel('$' + str(quant1) + '$')
+    ax1.legend(loc='upper left', bbox_to_anchor=(1, 0.9))
+    plt.tight_layout()
+
+    filename = createUniqueFilename(['Расс', quant1, quant2], '.png', directory)
+    return fig, filename
+
+
+
 def getBoxWhisker(root, window, fdf, directory):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     fig, ax1 = plt.subplots(figsize=(8, 4))
+    for i in range(5):
+        fdf[i].index = np.arange(len(fdf[i]))
     data = []
     names = []
     for i in range(5):
@@ -197,27 +268,25 @@ def getBoxWhisker(root, window, fdf, directory):
         for i in range(lprof):
             fdata = []
             fnums = []
-            for j in range(size - 1):
-                if fdf[1].loc[j + 1, "Код должности"] == fdf[2].loc[i, "Код"]:
-                    fnums.append(fdf[1].loc[j + 1, "Код"])
-            for j in range(csize - 1):
-                if fdf[0].loc[j + 1, "Код работника"] in fnums:
-                    print(fdf[0].loc[j + 1, "Сумма"])
-                    fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
-            data.append(fdata)
-            print(fdata)
+            for j in range(size):
+                if fdf[1].loc[j, "Код должности"] == fdf[2].loc[i, "Код"]:
+                    fnums.append(fdf[1].loc[j, "Код"])
+            for j in range(csize):
+                if fdf[0].loc[j, "Код работника"] in fnums:
+                    print(fdf[0].loc[j, "Сумма"])
+                    fdata.append(int(fdf[0].loc[j, "Сумма"]))
     elif (qual == "Образование" and quant == "Сумма"):
         names = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
                  "Студент"]
         for i in names:
             fdata = []
             fnums = []
-            for j in range(size - 1):
-                if fdf[3].loc[j + 1, "Образование"] == i:
-                    fnums.append(fdf[3].loc[j + 1, "Код"])
-            for j in range(csize - 1):
-                if fdf[0].loc[j + 1, "Код работника"] in fnums:
-                    fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
+            for j in range(size):
+                if fdf[3].loc[j, "Образование"] == i:
+                    fnums.append(fdf[3].loc[j, "Код"])
+            for j in range(csize):
+                if fdf[0].loc[j, "Код работника"] in fnums:
+                    fdata.append(float(fdf[0].loc[j, "Сумма"]))
             data.append(fdata)
     elif (qual == "Отдел" and quant == "Сумма"):
         ldep = len(fdf[4].index)
@@ -225,12 +294,12 @@ def getBoxWhisker(root, window, fdf, directory):
         for i in range(ldep):
             fdata = []
             fnums = []
-            for j in range(size - 1):
-                if fdf[1].loc[j + 1, "Отделение"] == fdf[4].loc[i, "Код"]:
-                    fnums.append(fdf[1].loc[j + 1, "Код"])
-            for j in range(csize - 1):
-                if fdf[0].loc[j + 1, "Код работника"] in fnums:
-                    fdata.append(float(fdf[0].loc[j + 1, "Сумма"]))
+            for j in range(size):
+                if fdf[1].loc[j, "Отделение"] == fdf[4].loc[i, "Код"]:
+                    fnums.append(fdf[1].loc[j, "Код"])
+            for j in range(csize):
+                if fdf[0].loc[j, "Код работника"] in fnums:
+                    fdata.append(float(fdf[0].loc[j, "Сумма"]))
             data.append(fdata)
     else:
         return None, None

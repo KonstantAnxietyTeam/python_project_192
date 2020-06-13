@@ -22,7 +22,7 @@ selected_tab = 0
 
 quantParams = [{"Код", "Сумма", "Код работника", "Дата выплаты"},
                {"Код", "Код должности", "Отделение"},
-               {"Код", "Норма (ч)", "Ставка (ч)"},
+               {"Код", "Норма (ч/мес)", "Ставка (ч)"},
                {"Код", "Номер договора"},
                {"Код"}]
 
@@ -182,6 +182,7 @@ class MainWindow:
             self.ComboQuant.configure(values=quantComboValues)
         elif anId == 2:
             self.ComboQuant.configure(values=qualComboValues)
+            self.LabelQuant.configure(text="Качественный")
         else:
             self.ComboQuant2.configure(state="disabled")
             self.LabelQual.configure(text="Качественный")
@@ -205,6 +206,8 @@ class MainWindow:
             plot, file = getHist(self.root, self, DB.db, self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
             plot, file = getBoxWhisker(self.root, self, DB.db, self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 5:
+            plot, file = getScatterplot(self.root, self, DB.db, self.config["def_graph_dir"])
         if file and plot:
             plot.show()
         else:
@@ -231,7 +234,7 @@ class MainWindow:
                     "другие данные", msgtype="error").fade()
 
     def saveAsExcel(self):
-        saveAsExcel(self.tables[self.Data.index("current")])
+        saveAsExcel(self.root, self.tables[self.Data.index("current")])
 
     def moveSelection1(self, event):
         global select
