@@ -30,7 +30,7 @@ quantParams = [{"Код", "Сумма", "Код работника", "Дата �
 class DB:
     """
     Данные об используемой базе данных
-    
+
     :Автор(ы): Константинов
     """
     db = None
@@ -41,14 +41,14 @@ class DB:
 def createEmptyDatabase():
     """
     Создание пустой базы данных
-    
+
     :return: Объект базы данных
     :rtype: :class:`pandas.DataFrame`
     :return: Состояние базы данных (изменена)
     :rtype: :class:`boolean`
     :return: Путь к текущему файлу для сохранения
     :rtype: :class:`string`
-    
+
     :Автор(ы): Константинов
     """
     db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты', 'Сумма', 'Код работника']),
@@ -146,11 +146,11 @@ class MainWindow:
            root is the toplevel containing window."""
         refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         self.root = root
-        message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
         self.root.focus_force()
         DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle", DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
         self.config = getConfig()
         configureGUI(self, self.root, bgcolor=self.config["def_bg_color"])
+        message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
         self.updateTitle()
 
     def updateTitle(self):
@@ -521,7 +521,7 @@ class MainWindow:
                 return True
             except ValueError:
                 return False
-            
+
     def customizeGUI(self, event=None):
         CustomizeGUIDialog(self.root).show()
 
@@ -575,7 +575,7 @@ class TreeViewWithPopup(ttk.Treeview):
             values = [item.get() for item in values]
             values[0] = str(self.genUID())
             DB.modified = True
-            
+
             DB.db[nb] = DB.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                      columns=keys),

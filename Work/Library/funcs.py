@@ -135,7 +135,7 @@ def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
 def getUID(s):
     """
     Изъятие UID из строки формата `info1_info2_UID.png`
-    
+
     :param s: Имя файла
     :type s: string
     :return: UID
@@ -158,7 +158,7 @@ def getUID(s):
 def createUniqueFilename(specs, extension, directory):
     """
     Создание уникального для директории имени файла в формате `spec_spec_spec_UID.ext`
-    
+
     :param specs: Список для формирования информационной части названия
     :type specs: list
     :param extension: Расширение файла
@@ -251,6 +251,7 @@ def getBoxWhisker(root, window, fdf, directory):
     filename = createUniqueFilename(['БокВис', quant, qual], '.png', directory)
     return fig, filename
 
+
 def getBar(root, window, df, directory):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
@@ -284,7 +285,7 @@ def getBar(root, window, df, directory):
     else:
         return None, None
     fig, ax1 = plt.subplots(figsize=(8, 4))
-    ax1.set_xlabel('$' + str(quant) +'$')
+    ax1.set_xlabel('$' + str(quant) + '$')
     ax1.set_ylabel('$Частота$')
     colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta', 'whitesmoke', 'yellow']
     for i in range(len(data)):
@@ -455,7 +456,7 @@ def configureWidgets(scr, top):
     scr.Filter_List2.place(relx=0.338, rely=0.268, relheight=0.46,
                            relwidth=0.301, bordermode='ignore')
 
-    scr.Filter_List1.insert('end', "Тип выплаты")
+    scr.Filter_List1.insert('end', "Отработано (ч)")
     scr.Filter_List1.insert('end', "Дата выплаты")
     scr.Filter_List1.insert('end', "Сумма")
     scr.Filter_List1.insert('end', "Код работника")
@@ -534,7 +535,7 @@ def configureWidgets(scr, top):
     scr.Cbox0 = tk.Checkbutton(scr.Boxes_Frame, command=scr.removeColumns, bg=scr.config["def_frame_color"], fg=scr.config["def_frame_fg_color"])
     scr.Cbox0.grid(row=0, column=0, sticky='W')
     scr.Cbox0.configure(justify='left')
-    scr.Cbox0.configure(text="Тип выплаты", variable=scr.Cvars0[0])
+    scr.Cbox0.configure(text="Отработано (ч)", variable=scr.Cvars0[0])
     scr.names.append(scr.Cbox0.cget("text"))
     scr.Cboxes0.append(scr.Cbox0)
 
@@ -672,7 +673,7 @@ def configureWidgets(scr, top):
     helpmenu.add_command(label="Удалить", command=scr.deleteRecords)
     helpmenu.add_command(label="Изменить", command=scr.modRecord)
     menubar.add_cascade(label="Правка", menu=helpmenu)
-    
+
     viewmenu = tk.Menu(menubar, tearoff=0)
     viewmenu.add_command(label="Пути и интерфейс", command=scr.customizeGUI)
     menubar.add_cascade(label="Настройки", menu=viewmenu)
@@ -735,7 +736,7 @@ class ChangeDialog(tk.Toplevel):
         self.entry.focus_force()
         self.wait_window()
         return self.var.get()
-    
+
 
 def testVal(inStr,acttyp):
     if acttyp == '1': #insert
@@ -841,41 +842,41 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.retDict = dict()
         self.config = getConfig()
         self.configure(bg=self.config["def_bg_color"])
-        
+
         self.Frame = tk.LabelFrame(self)
         self.Frame.place(relx=.6, rely=.1, relheight=0.33, relwidth=.5, anchor='n')
         self.Frame.configure(text="Предпросмотр", cursor="arrow")
-        
+
         self.Label = tk.Label(self.Frame, text="Надпись")
         self.Label.place(relx=.5, rely=.2, anchor='c')
         self.Label.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
-        
+
         self.ButtonTextSample = tk.Button(self.Frame, text="Кнопочка раз")
         self.ButtonTextSample.place(relx=.048, rely=.4, height=32, relwidth=.9,
                                   bordermode='ignore')
         self.ButtonTextSample.configure(cursor="hand2")
-    
+
         self.ButtonBgSample = tk.Button(self.Frame, text="Кнопочка два")
         self.ButtonBgSample.place(relx=.048, rely=.7, height=32, relwidth=.9,
                                     bordermode='ignore')
         self.ButtonBgSample.configure(cursor="hand2")
-        
+
         self.BtnBg = tk.Button(self, text="Приложение")
         self.BtnBg.place(relx=.04, rely=.1, height=30, width=130, bordermode='ignore')
         self.BtnBg.configure(cursor="hand2", command=lambda: self.pickColor(event="Bg"))
-        
+
         self.BtnFrame = tk.Button(self, text="Раздел")
         self.BtnFrame.place(relx=.04, rely=.18, height=30, width=130, bordermode='ignore')
         self.BtnFrame.configure(cursor="hand2", command=lambda: self.pickColor(event="Frame"))
-        
+
         self.BtnText = tk.Button(self, text="Текст")
         self.BtnText.place(relx=.04, rely=.26, height=30, width=130, bordermode='ignore')
         self.BtnText.configure(cursor="hand2", command=lambda: self.pickColor(event="Text"))
-        
+
         self.BtnBgBtn = tk.Button(self, text="Фон кнопки")
         self.BtnBgBtn.place(relx=.04, rely=.34, height=30, width=130, bordermode='ignore')
         self.BtnBgBtn.configure(cursor="hand2", command=lambda: self.pickColor(event="BtnBg"))
-        
+
         self.BtnTextBtn = tk.Button(self, text="Текст кнопки")
         self.BtnTextBtn.place(relx=.04, rely=.42, height=30, width=130, bordermode='ignore')
         self.BtnTextBtn.configure(cursor="hand2", command=lambda: self.pickColor(event="BtnText"))
@@ -883,41 +884,41 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.BtnDBPath = tk.Button(self, text="База по умолчанию")
         self.BtnDBPath.place(relx=.04, rely=.5, height=30, width=130, bordermode='ignore')
         self.BtnDBPath.configure(cursor="hand2", command=lambda: self.pickDir(event="db"))
-        
+
         self.BtnGraphPath = tk.Button(self, text="Папка для диаграмм")
         self.BtnGraphPath.place(relx=.04, rely=.58, height=30, width=130, bordermode='ignore')
         self.BtnGraphPath.configure(cursor="hand2", command=lambda: self.pickDir(event="graph"))
-        
+
         self.BtnOutPath = tk.Button(self, text="Папка для отчетов")
         self.BtnOutPath.place(relx=.04, rely=.66, height=30, width=130, bordermode='ignore')
         self.BtnOutPath.configure(cursor="hand2", command=lambda: self.pickDir(event="out"))
-        
+
         self.fsvar = tk.IntVar()
         self.Boxfs = tk.Checkbutton(self, command=self.switchFs, text="Запускать в полноэкранном режиме", variable=self.fsvar)
         self.Boxfs.place(relx=.35, rely=.5, anchor='w')
-        
+
         self.maxvar = tk.IntVar()
         self.Boxmax = tk.Checkbutton(self, command=self.switchMax, text="Запускать в режиме растянутого окна", variable=self.maxvar)
         self.Boxmax.place(relx=.35, rely=.6, anchor='w')
-        
+
         self.BtnRestore = tk.Button(self, text="По умолчанию")
         self.BtnRestore.place(relx=.48, rely=.9, relwidth=.32, height=32, bordermode='ignore', anchor='e')
         self.BtnRestore.configure(cursor="hand2", command=lambda: self.pickColor(event="RestoreDefaults"))
-        
+
         self.ok_button = tk.Button(self, text="Сохранить изменения", command=self.on_ok)
         self.ok_button.place(relx=.52, rely=.9, relwidth=.32, height=32, anchor="w")
         self.ok_button.configure(cursor="hand2")
-        
+
         self.updateAll()
         self.bind("<Return>", self.on_ok)
         self.protocol("WM_DELETE_WINDOW", self.exit)
 
     def switchFs(self):
         self.config["fullscreen"] = str(int(self.fsvar.get()))
-        
+
     def switchMax(self):
         self.config["maximize"] = str(int(self.maxvar.get()))
-        
+
     def updateAll(self):
         self.configure(bg=self.config["def_bg_color"])
         self.Frame.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
@@ -936,10 +937,10 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.BtnDBPath.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
         self.BtnGraphPath.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
         self.BtnOutPath.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
-        
+
         self.fsvar.set(self.config["fullscreen"])
         self.maxvar.set(self.config["maximize"])
-        
+
     def pickDir(self, event=None):
         if event == "db":
             path = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
@@ -970,7 +971,7 @@ class CustomizeGUIDialog(tk.Toplevel):
         elif event == "RestoreDefaults":
             self.config = getDefaultConfig()
         self.updateAll()
-        
+
     def exit(self):
         self.retDict.clear()
         self.destroy()
