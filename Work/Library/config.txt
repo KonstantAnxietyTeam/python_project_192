@@ -10,8 +10,9 @@ fullscreen=0
 maximize=0
 
 ###### colors
-def_bg_color=white
-def_frame_color=red
-def_btn_color=blue
-def_frame_fg_color=yellow
-def_btn_fg_color=cyan
+def_bg_color=whitesmoke
+def_frame_color=whitesmoke
+def_btn_color=whitesmoke
+def_frame_fg_color=black
+def_btn_fg_color=black
+

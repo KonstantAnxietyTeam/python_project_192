@@ -484,6 +484,9 @@ class MainWindow:
                 return True
             except ValueError:
                 return False
+            
+    def customizeGUI(self, event=None):
+        CustomizeGUIDialog(self.root).show()
 
 
 class TreeViewWithPopup(ttk.Treeview):

@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import filedialog
 from tkinter import messagebox as mb
+from tkinter import colorchooser
 import matplotlib
 from os import listdir
 from os.path import isfile, join
@@ -29,6 +30,24 @@ quantComboValues = ["Сумма", "Дата выплаты", "Отделение
 qualComboValues = ["Тип выплаты", "Должность", "Образование", "Отдел"]
 
 
+def getDefaultConfig():
+    config = {
+        "def_db":"../Data/db.pickle",
+        "def_graph_dir":"../Graphics/",
+        "def_output_dir":"../Output/",
+        "def_window_width":"1000",
+        "def_window_height":"600",
+        "fullscreen":"0",
+        "maximize":"0",
+        "def_bg_color":"whitesmoke",
+        "def_frame_color":"whitesmoke",
+        "def_btn_color":"whitesmoke",
+        "def_frame_fg_color":"black",
+        "def_btn_fg_color":"black",
+    }
+    return config
+
+
 def getConfig(configFile="../Library/config.txt"):
     f = open(configFile, 'r')
     config = dict()
@@ -39,6 +58,23 @@ def getConfig(configFile="../Library/config.txt"):
             config[line[:eq]] = line[eq+1:]
     f.close()
     return config
+
+
+def writeConfig(config=None, path="../Library/config.txt"):
+    f = open(path, 'w')
+    f.write("###### paths\n")
+    for key in ["def_db", "def_graph_dir", "def_output_dir"]:
+        f.write(key + '=' + config[key] + '\n')
+    f.write('\n')
+    f.write("###### geometry\n")
+    for key in ["def_window_width", "def_window_height", "fullscreen", "maximize"]:
+        f.write(key + '=' + config[key] + '\n')
+    f.write('\n')
+    f.write("###### colors\n")
+    for key in ["def_bg_color", "def_frame_color", "def_btn_color", "def_frame_fg_color", "def_btn_fg_color"]:
+        f.write(key + '=' + config[key] + '\n')
+    f.write('\n')
+    f.close()
 
 
 def saveAsExcel(tree):
@@ -646,9 +682,9 @@ def configureWidgets(scr, top):
     helpmenu.add_command(label="Изменить", command=scr.modRecord)
     menubar.add_cascade(label="Правка", menu=helpmenu)
     
-    helpmenu = tk.Menu(menubar, tearoff=0)
-    helpmenu.add_command(label="Настройка интерфейса", command=scr.addRecord)
-    menubar.add_cascade(label="Вид", menu=helpmenu)
+    viewmenu = tk.Menu(menubar, tearoff=0)
+    viewmenu.add_command(label="Пути и интерфейс", command=scr.customizeGUI)
+    menubar.add_cascade(label="Настройки", menu=viewmenu)
 
     top.config(menu=menubar)
 
@@ -793,6 +829,119 @@ class askValuesDialog(tk.Toplevel):
             if edit.get().strip() == '':
                 message(self.parent, "Поля не могут быть пустыми.", msgtype="warning").fade()
                 return
+        self.destroy()
+
+    def show(self):
+        self.wm_deiconify()
+        self.wait_window()
+        return self.retDict
+
+
+class CustomizeGUIDialog(tk.Toplevel):
+    def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.parent = parent
+        x = str(parent.winfo_screenwidth() // 2 - 150)
+        y = str(parent.winfo_screenheight() // 2 - 200)
+        self.geometry("500x400+" + x + "+" + y)
+        self.resizable(0, 0)
+        self.grab_set()  # make modal
+        self.focus()
+        self.retDict = dict()
+        self.config = getConfig()
+        self.configure(bg=self.config["def_bg_color"])
+        
+        self.Frame = tk.LabelFrame(self)
+        self.Frame.place(relx=.6, rely=.1, relheight=0.33, relwidth=.5, anchor='n')
+        self.Frame.configure(text="Заголовок", cursor="arrow")
+        
+        self.Label = tk.Label(self.Frame, text="Надпись")
+        self.Label.place(relx=.5, rely=.2, anchor='c')
+        self.Label.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
+        
+        self.ButtonTextSample = tk.Button(self.Frame, text="Кнопочка раз")
+        self.ButtonTextSample.place(relx=.048, rely=.4, height=32, relwidth=.9,
+                                  bordermode='ignore')
+        self.ButtonTextSample.configure(cursor="hand2")
+    
+        self.ButtonBgSample = tk.Button(self.Frame, text="Кнопочка два")
+        self.ButtonBgSample.place(relx=.048, rely=.7, height=32, relwidth=.9,
+                                    bordermode='ignore')
+        self.ButtonBgSample.configure(cursor="hand2")
+        
+        self.BtnBg = tk.Button(self, text="Приложение")
+        self.BtnBg.place(relx=.04, rely=.1, height=32, width=100, bordermode='ignore')
+        self.BtnBg.configure(cursor="hand2", command=lambda: self.pickColor(event="Bg"))
+        
+        self.BtnFrame = tk.Button(self, text="Раздел")
+        self.BtnFrame.place(relx=.04, rely=.2, height=32, width=100, bordermode='ignore')
+        self.BtnFrame.configure(cursor="hand2", command=lambda: self.pickColor(event="Frame"))
+        
+        self.BtnText = tk.Button(self, text="Текст")
+        self.BtnText.place(relx=.04, rely=.3, height=32, width=100, bordermode='ignore')
+        self.BtnText.configure(cursor="hand2", command=lambda: self.pickColor(event="Text"))
+        
+        self.BtnBgBtn = tk.Button(self, text="Фон кнопки")
+        self.BtnBgBtn.place(relx=.04, rely=.4, height=32, width=100, bordermode='ignore')
+        self.BtnBgBtn.configure(cursor="hand2", command=lambda: self.pickColor(event="BtnBg"))
+        
+        self.BtnTextBtn = tk.Button(self, text="Текст кнопки")
+        self.BtnTextBtn.place(relx=.04, rely=.5, height=32, width=100, bordermode='ignore')
+        self.BtnTextBtn.configure(cursor="hand2", command=lambda: self.pickColor(event="BtnText"))
+        
+        self.BtnRestore = tk.Button(self, text="По умолчанию")
+        self.BtnRestore.place(relx=.04, rely=.7, height=32, width=100, bordermode='ignore')
+        self.BtnRestore.configure(cursor="hand2", command=lambda: self.pickColor(event="RestoreDefaults"))
+        
+        self.ok_button = tk.Button(self, text="Сохранить изменения", command=self.on_ok)
+        self.ok_button.place(relx=.5, rely=.9, relwidth=.4, height=30, anchor="c")
+        self.ok_button.configure(cursor="hand2")
+        
+        self.updateColors()
+        self.bind("<Return>", self.on_ok)
+        self.protocol("WM_DELETE_WINDOW", self.exit)
+
+    def updateColors(self):
+        self.configure(bg=self.config["def_bg_color"])
+        self.Frame.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
+        self.Label.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
+        self.ButtonTextSample.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.ButtonBgSample.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnBg.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnFrame.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnText.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnBgBtn.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnTextBtn.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnRestore.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.ok_button.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+
+    def pickColor(self, event=None):
+        if event == "BtnText":
+            trash, color = colorchooser.askcolor(color=self.BtnText.cget('fg'))
+            self.config["def_btn_fg_color"] = color
+        elif event == "BtnBg":
+            trash, color = colorchooser.askcolor(color=self.BtnText.cget('bg'))
+            self.config["def_btn_color"] = color
+        elif event == "Text":# and not event.parent id self.Frame:
+            trash, color = colorchooser.askcolor(color=self.Label.cget('fg'))
+            self.config["def_frame_fg_color"] = color
+        elif event == "Frame":
+            trash, color = colorchooser.askcolor(color=self.Frame.cget('bg'))
+            self.config["def_frame_color"] = color
+        elif event == "Bg":
+            trash, color = colorchooser.askcolor(color=self.cget('bg'))
+            self.config["def_bg_color"] = color
+        elif event == "RestoreDefaults":
+            self.config = getDefaultConfig()
+        self.updateColors()
+        
+    def exit(self):
+        self.retDict.clear()
+        self.destroy()
+
+    def on_ok(self, event=None):
+        writeConfig(self.config)
+        message(self.parent, "Сохранено\nИзменения будут применены\nпри следующем запуске\nприложения", msgtype="success").fade()
         self.destroy()
 
     def show(self):
