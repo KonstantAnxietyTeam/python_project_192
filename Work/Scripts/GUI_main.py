@@ -178,11 +178,12 @@ class MainWindow:
             self.ComboQuant.configure(state="normal")
             self.ComboQual.configure(state="normal")
         if anId == 5:
-            self.LabelQuant.configure(text="Качественный")
+            self.ComboQuant2.configure(state="normal")
+            self.ComboQuant.configure(values=quantComboValues)
         elif anId == 2:
-            self.LabelQuant.configure(text="Качественный")
             self.ComboQuant.configure(values=qualComboValues)
         else:
+            self.ComboQuant2.configure(state="disabled")
             self.LabelQual.configure(text="Качественный")
             self.LabelQuant.configure(text="Количественный")
             self.ComboQuant["values"]=(quantComboValues)
@@ -341,11 +342,11 @@ class MainWindow:
             for title in DB.db[tab].columns:
                 items.append(DB.db[tab][title][j])
             self.tables[tab].add("", values=items)
-
-        self.Filter_List1.selection_set(select[0])
-        self.Filter_List1.select_anchor(select[0])
-        self.Filter_List2.selection_set(select[0])
-        self.Filter_List2.select_anchor(select[0])
+        if select != []:
+            self.Filter_List1.selection_set(select[0])
+            self.Filter_List1.select_anchor(select[0])
+            self.Filter_List2.selection_set(select[0])
+            self.Filter_List2.select_anchor(select[0])
 
     def parInsert(self, tab):
         self.Filter_List1.delete(0, 'end')

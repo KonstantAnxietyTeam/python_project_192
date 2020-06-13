@@ -419,6 +419,16 @@ def configureWidgets(scr, top):
                          bordermode='ignore')
     scr.ComboQuant.configure(values = quantComboValues)
 
+    scr.LabelQuant2 = tk.Label(scr.Analysis_Frame, text="Количественный: ", anchor="w", bg=scr.config["def_frame_color"], fg=scr.config["def_frame_fg_color"])
+    scr.LabelQuant2.place(relx=.05, rely=.6, height=25, width=127,
+                            bordermode='ignore')
+
+    scr.ComboQuant2 = ttk.Combobox(scr.Analysis_Frame)
+    scr.ComboQuant2.place(relx=.05, rely=.7, height=20, relwidth=.9,
+                         bordermode='ignore')
+    scr.ComboQuant2.configure(values = quantComboValues)
+    scr.ComboQuant2.configure(state="disabled")
+
     scr.Filter_Frame = tk.LabelFrame(top, text="Фильтры", bg=scr.config["def_frame_color"], fg=scr.config["def_frame_fg_color"])
     scr.Filter_Frame.place(relx=0.45, rely=0.017, relheight=0.33,
                            relwidth=0.532)
@@ -587,7 +597,7 @@ def configureWidgets(scr, top):
     scr.Cbox7 = tk.Checkbutton(scr.Boxes_Frame, command=scr.removeColumns, bg=scr.config["def_frame_color"], fg=scr.config["def_frame_fg_color"])
     scr.Cbox7.grid(row=1, column=0, sticky='W')
     scr.Cbox7.configure(justify='left')
-    scr.Cbox7.configure(text="Норма (ч)", variable=scr.Cvars2[1])
+    scr.Cbox7.configure(text="Норма (ч/мес)", variable=scr.Cvars2[1])
     scr.Cbox7.grid_forget()
     scr.names.append(scr.Cbox7.cget("text"))
     scr.Cboxes2.append(scr.Cbox7)
