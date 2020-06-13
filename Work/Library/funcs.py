@@ -181,7 +181,7 @@ def createUniqueFilename(specs, extension, directory):
     return filename
 
 
-def getBoxWhisker(root, window, fdf):
+def getBoxWhisker(root, window, fdf, directory):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     fig, ax1 = plt.subplots(figsize=(8, 4))
@@ -248,10 +248,10 @@ def getBoxWhisker(root, window, fdf):
         ax1.set_xticklabels(labels_formatted)
     plt.tight_layout()
 
-    filename = createUniqueFilename(['БокВис', quant, qual], '.png', '../Graphics/')
+    filename = createUniqueFilename(['БокВис', quant, qual], '.png', directory)
     return fig, filename
 
-def getBar(root, window, df):
+def getBar(root, window, df, directory):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     quals = []
@@ -295,11 +295,11 @@ def getBar(root, window, df):
         tick.set_horizontalalignment("right")
     plt.xticks(rotation=45, fontsize=6)
     plt.tight_layout()
-    filename = createUniqueFilename(['гист', quant, qual], '.png', '../Graphics/')
+    filename = createUniqueFilename(['столб', quant, qual], '.png', directory)
     return fig, filename
 
 
-def getHist(root, window, df):
+def getHist(root, window, df, directory):
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     quals = []
@@ -352,7 +352,7 @@ def getHist(root, window, df):
     ax1.legend(prop={'size': 10})
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
 
-    filename = createUniqueFilename(['гист', quant, qual], '.png', '../Graphics/')
+    filename = createUniqueFilename(['гист', quant, qual], '.png', directory)
     return fig, filename
 
 
@@ -701,9 +701,8 @@ def saveToPickle(filename, obj):
 
 
 class ChangeDialog(tk.Toplevel):
-    def __init__(self, parent, prompt):
+    def __init__(self, parent, config, prompt):
         tk.Toplevel.__init__(self, parent)
-        config = getConfig()
         self.geometry("200x90+550+230")
         self.resizable(0, 0)
         self.title("")
@@ -774,7 +773,7 @@ class message(tk.Toplevel):
 
 
 class askValuesDialog(tk.Toplevel):
-    def __init__(self, parent, labelTexts, currValues=None):
+    def __init__(self, parent, config, labelTexts, currValues=None):
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
         x = str(parent.winfo_screenwidth() // 2 - 150)
@@ -786,7 +785,6 @@ class askValuesDialog(tk.Toplevel):
         self.Labels = [None] * len(labelTexts)
         self.Edits = [None] * len(labelTexts)
         self.retDict = dict()
-        config = getConfig()
         self.configure(background=config["def_bg_color"])
         for i in range(len(labelTexts)):
             self.retDict[labelTexts[i]] = tk.StringVar()
@@ -834,7 +832,7 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.parent = parent
         x = str(parent.winfo_screenwidth() // 2 - 150)
         y = str(parent.winfo_screenheight() // 2 - 200)
-        self.geometry("500x400+" + x + "+" + y)
+        self.geometry("500x500+" + x + "+" + y)
         self.resizable(0, 0)
         self.grab_set()  # make modal
         self.focus()
@@ -844,7 +842,7 @@ class CustomizeGUIDialog(tk.Toplevel):
         
         self.Frame = tk.LabelFrame(self)
         self.Frame.place(relx=.6, rely=.1, relheight=0.33, relwidth=.5, anchor='n')
-        self.Frame.configure(text="Заголовок", cursor="arrow")
+        self.Frame.configure(text="Предпросмотр", cursor="arrow")
         
         self.Label = tk.Label(self.Frame, text="Надпись")
         self.Label.place(relx=.5, rely=.2, anchor='c')
@@ -861,38 +859,64 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.ButtonBgSample.configure(cursor="hand2")
         
         self.BtnBg = tk.Button(self, text="Приложение")
-        self.BtnBg.place(relx=.04, rely=.1, height=32, width=100, bordermode='ignore')
+        self.BtnBg.place(relx=.04, rely=.1, height=30, width=130, bordermode='ignore')
         self.BtnBg.configure(cursor="hand2", command=lambda: self.pickColor(event="Bg"))
         
         self.BtnFrame = tk.Button(self, text="Раздел")
-        self.BtnFrame.place(relx=.04, rely=.2, height=32, width=100, bordermode='ignore')
+        self.BtnFrame.place(relx=.04, rely=.18, height=30, width=130, bordermode='ignore')
         self.BtnFrame.configure(cursor="hand2", command=lambda: self.pickColor(event="Frame"))
         
         self.BtnText = tk.Button(self, text="Текст")
-        self.BtnText.place(relx=.04, rely=.3, height=32, width=100, bordermode='ignore')
+        self.BtnText.place(relx=.04, rely=.26, height=30, width=130, bordermode='ignore')
         self.BtnText.configure(cursor="hand2", command=lambda: self.pickColor(event="Text"))
         
         self.BtnBgBtn = tk.Button(self, text="Фон кнопки")
-        self.BtnBgBtn.place(relx=.04, rely=.4, height=32, width=100, bordermode='ignore')
+        self.BtnBgBtn.place(relx=.04, rely=.34, height=30, width=130, bordermode='ignore')
         self.BtnBgBtn.configure(cursor="hand2", command=lambda: self.pickColor(event="BtnBg"))
         
         self.BtnTextBtn = tk.Button(self, text="Текст кнопки")
-        self.BtnTextBtn.place(relx=.04, rely=.5, height=32, width=100, bordermode='ignore')
+        self.BtnTextBtn.place(relx=.04, rely=.42, height=30, width=130, bordermode='ignore')
         self.BtnTextBtn.configure(cursor="hand2", command=lambda: self.pickColor(event="BtnText"))
+
+        self.BtnDBPath = tk.Button(self, text="База по умолчанию")
+        self.BtnDBPath.place(relx=.04, rely=.5, height=30, width=130, bordermode='ignore')
+        self.BtnDBPath.configure(cursor="hand2", command=lambda: self.pickDir(event="db"))
+        
+        self.BtnGraphPath = tk.Button(self, text="Папка для диаграмм")
+        self.BtnGraphPath.place(relx=.04, rely=.58, height=30, width=130, bordermode='ignore')
+        self.BtnGraphPath.configure(cursor="hand2", command=lambda: self.pickDir(event="graph"))
+        
+        self.BtnOutPath = tk.Button(self, text="Папка для отчетов")
+        self.BtnOutPath.place(relx=.04, rely=.66, height=30, width=130, bordermode='ignore')
+        self.BtnOutPath.configure(cursor="hand2", command=lambda: self.pickDir(event="out"))
+        
+        self.fsvar = tk.IntVar()
+        self.Boxfs = tk.Checkbutton(self, command=self.switchFs, text="Запускать в полноэкранном режиме", variable=self.fsvar)
+        self.Boxfs.place(relx=.35, rely=.5, anchor='w')
+        
+        self.maxvar = tk.IntVar()
+        self.Boxmax = tk.Checkbutton(self, command=self.switchMax, text="Запускать в режиме растянутого окна", variable=self.maxvar)
+        self.Boxmax.place(relx=.35, rely=.6, anchor='w')
         
         self.BtnRestore = tk.Button(self, text="По умолчанию")
-        self.BtnRestore.place(relx=.04, rely=.7, height=32, width=100, bordermode='ignore')
+        self.BtnRestore.place(relx=.48, rely=.9, relwidth=.32, height=32, bordermode='ignore', anchor='e')
         self.BtnRestore.configure(cursor="hand2", command=lambda: self.pickColor(event="RestoreDefaults"))
         
         self.ok_button = tk.Button(self, text="Сохранить изменения", command=self.on_ok)
-        self.ok_button.place(relx=.5, rely=.9, relwidth=.4, height=30, anchor="c")
+        self.ok_button.place(relx=.52, rely=.9, relwidth=.32, height=32, anchor="w")
         self.ok_button.configure(cursor="hand2")
         
-        self.updateColors()
+        self.updateAll()
         self.bind("<Return>", self.on_ok)
         self.protocol("WM_DELETE_WINDOW", self.exit)
 
-    def updateColors(self):
+    def switchFs(self):
+        self.config["fullscreen"] = str(int(self.fsvar.get()))
+        
+    def switchMax(self):
+        self.config["maximize"] = str(int(self.maxvar.get()))
+        
+    def updateAll(self):
         self.configure(bg=self.config["def_bg_color"])
         self.Frame.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
         self.Label.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
@@ -905,6 +929,25 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.BtnTextBtn.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
         self.BtnRestore.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
         self.ok_button.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.Boxfs.config(bg=self.config["def_bg_color"], fg=self.config["def_frame_fg_color"])
+        self.Boxmax.config(bg=self.config["def_bg_color"], fg=self.config["def_frame_fg_color"])
+        self.BtnDBPath.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnGraphPath.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        self.BtnOutPath.configure(bg=self.config["def_btn_color"], fg=self.config["def_btn_fg_color"])
+        
+        self.fsvar.set(self.config["fullscreen"])
+        self.maxvar.set(self.config["maximize"])
+        
+    def pickDir(self, event=None):
+        if event == "db":
+            path = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
+            self.config["def_db"] = path + '/'
+        elif event == "graph":
+            path = filedialog.askdirectory()
+            self.config["def_graph_dir"] = path + '/'
+        elif event == "out":
+            path = filedialog.askdirectory()
+            self.config["def_output_dir"] = path + '/'
 
     def pickColor(self, event=None):
         if event == "BtnText":
@@ -913,7 +956,7 @@ class CustomizeGUIDialog(tk.Toplevel):
         elif event == "BtnBg":
             trash, color = colorchooser.askcolor(color=self.BtnText.cget('bg'))
             self.config["def_btn_color"] = color
-        elif event == "Text":# and not event.parent id self.Frame:
+        elif event == "Text":
             trash, color = colorchooser.askcolor(color=self.Label.cget('fg'))
             self.config["def_frame_fg_color"] = color
         elif event == "Frame":
@@ -924,7 +967,7 @@ class CustomizeGUIDialog(tk.Toplevel):
             self.config["def_bg_color"] = color
         elif event == "RestoreDefaults":
             self.config = getDefaultConfig()
-        self.updateColors()
+        self.updateAll()
         
     def exit(self):
         self.retDict.clear()

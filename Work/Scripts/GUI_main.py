@@ -64,9 +64,6 @@ def createEmptyDatabase():
 def configureGUI(scr, top, bgcolor="whitesmoke"):
     winW = scr.root.winfo_screenwidth()
     winH = scr.root.winfo_screenheight()
-    if int(scr.config["maximize"]):
-        scr.config["def_window_width"] = winW
-        scr.config["def_window_height"] = winH
     scr.config["def_window_width"] = int(scr.config["def_window_width"])
     scr.config["def_window_height"] = int(scr.config["def_window_height"])
     dispX = str(int(winW / 2 - scr.config["def_window_width"] / 2)) # center window
@@ -74,6 +71,8 @@ def configureGUI(scr, top, bgcolor="whitesmoke"):
     geom = str(scr.config["def_window_width"])+'x'+str(scr.config["def_window_height"])+'+'+dispX+'+'+dispY
     scr.root.geometry(geom)
     scr.root.minsize(width=1000, height=600)
+    if int(scr.config["maximize"]):
+        scr.root.state('zoomed')
     scr.root.attributes('-fullscreen', scr.config["fullscreen"])
     scr.root.title("База Данных")
     scr.root.configure(background=bgcolor)
@@ -85,7 +84,7 @@ def configureGUI(scr, top, bgcolor="whitesmoke"):
 
     scr.tables = [None] * 5
     for i in range(len(DB.db)):
-        scr.tables[i] = TreeViewWithPopup(scr.tabs[i])
+        scr.tables[i] = TreeViewWithPopup(scr.tabs[i], scr.config)
         scr.tables[i].place(relwidth=1.0, relheight=1.0)
         scr.tables[i]["columns"] = list(DB.db[i].columns)
         scr.tables[i]['show'] = 'headings'
@@ -113,11 +112,11 @@ def configureGUI(scr, top, bgcolor="whitesmoke"):
     for i in range(len(scr.tabs)):
         scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient="vertical",
                                         command=scr.tables[i].yview)
-        scr.tables[i].config(yscrollcommand=scr.scrolls[i].set)
+        scr.tables[i].configure(yscrollcommand=scr.scrolls[i].set)
         scr.scrolls[i].pack(fill="y", side='right')
         scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient="horizontal",
                                         command=scr.tables[i].xview)
-        scr.tables[i].config(xscrollcommand=scr.scrolls[i].set)
+        scr.tables[i].configure(xscrollcommand=scr.scrolls[i].set)
         scr.scrolls[i].pack(fill="x", side='bottom')
 
     # binds
@@ -188,11 +187,11 @@ class MainWindow:
         nb = self.Data.index(self.Data.select())
         df = DB.db[nb]
         if self.ComboAnalysis.current() == 2:
-            plot, file = getBar(self.root, self, DB.db)
+            plot, file = getBar(self.root, self, DB.db, self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(self.root, self, DB.db)
+            plot, file = getHist(self.root, self, DB.db, self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(self.root, self, DB.db)
+            plot, file = getBoxWhisker(self.root, self, DB.db, self.config["def_graph_dir"])
         if file and plot:
             plot.show()
         else:
@@ -204,14 +203,12 @@ class MainWindow:
             message(self.root, "Не выбран элемент", msgtype="warning").fade()
             return
         nb = self.Data.index(self.Data.select())
-        df = DB.db[nb]
-        pltType = 'plot'
         if self.ComboAnalysis.current() == 2:
-            plot, file = getBar(self, df)
+             plot, file = getBar(self.root, self, DB.db, self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(self.root, self, DB.db)
+            plot, file = getHist(self.root, self, DB.db, self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(self.root, self, DB.db)
+            plot, file = getBoxWhisker(self.root, self, DB.db, self.config["def_graph_dir"])
         if file and plot:
             plot.savefig(file)
             message(self.root, "Файл сохранён", msgtype="success").fade() # TODO show path
@@ -349,7 +346,7 @@ class MainWindow:
     def open_dialog(self):
         global newPar, select
         if len(select) != 0:
-            newPar = ChangeDialog(self.root, "Введите новое значение:").show()
+            newPar = ChangeDialog(self.root, self.config, "Введите новое значение:").show()
             self.Filter_List2.delete(select[0])
             self.Filter_List2.insert(select[0], newPar)
             self.Filter_List2.selection_set(select[0])
@@ -511,8 +508,9 @@ class MainWindow:
 
 
 class TreeViewWithPopup(ttk.Treeview):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, config, *args, **kwargs):
         ttk.Treeview.__init__(self, parent, *args, **kwargs)
+        self.config = config
         self.popup_menu = tk.Menu(self, tearoff=0)
         self.popup_menu.add_command(label="Удалить",
                                     command=self.deleteRecords)
@@ -551,7 +549,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def addRecord(self):
         nb = self.master.master
         nb = nb.index(nb.select())
-        dic = askValuesDialog(self.root, DB.db[nb].columns).show()
+        dic = askValuesDialog(self.root, self.config, DB.db[nb].columns).show()
         values = list(dic.values())
         keys = list(dic.keys())
         if (len(values)):
@@ -588,7 +586,7 @@ class TreeViewWithPopup(ttk.Treeview):
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])
             itemValues = DB.db[nb][DB.db[nb]['Код'] == itemId].values[0].tolist()
-            dic = askValuesDialog(self.root, DB.db[nb].columns, currValues=itemValues).show()
+            dic = askValuesDialog(self.root, self.config, DB.db[nb].columns, currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())
             if (len(values)):
