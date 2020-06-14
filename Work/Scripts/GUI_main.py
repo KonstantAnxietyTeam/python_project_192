@@ -3,26 +3,25 @@
 """
 
 import sys
+sys.path.insert(1, '../Library')
+import funcs
 import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import filedialog
-sys.path.insert(1, '../Library')
-import funcs
 
-
-newPar = ""
+newPar = ''
 select = []
 selected_tab = 0
 
 
-quantParams = [{"Код", "Сумма", "Код работника", "Дата выплаты"},
-               {"Код", "Код должности", "Отделение"},
-               {"Код", "Норма (ч/мес)", "Ставка (ч)"},
-               {"Код", "Номер договора"},
-               {"Код"}]
+quantParams = [{'Код', 'Сумма', 'Код работника', 'Дата выплаты'},
+               {'Код', 'Код должности', 'Отделение'},
+               {'Код', 'Норма (ч/мес)', 'Ставка (ч)'},
+               {'Код', 'Номер договора'},
+               {'Код'}]
 
 
 class DB:
@@ -75,18 +74,19 @@ def configureGUI(scr, top):
     :Автор(ы): Константинов, Сидоров
     """
     winW = scr.root.winfo_screenwidth()
-    scr.config["def_window_width"] = int(scr.config["def_window_width"])
-    scr.config["def_window_height"] = int(scr.config["def_window_height"])
-    dispX = str(int(winW / 2 - scr.config["def_window_width"] / 2)) # center window
+    scr.config['def_window_width'] = int(scr.config['def_window_width'])
+    scr.config['def_window_height'] = int(scr.config['def_window_height'])
+    dispX = str(int(winW / 2 - scr.config['def_window_width'] / 2)) # center window
     dispY = '30'
-    geom = str(scr.config["def_window_width"])+'x'+str(scr.config["def_window_height"])+'+'+dispX+'+'+dispY
+    geom = str(scr.config['def_window_width'])+'x'+\
+        str(scr.config['def_window_height'])+'+'+dispX+'+'+dispY
     scr.root.geometry(geom)
     scr.root.minsize(width=1000, height=600)
-    if int(scr.config["maximize"]):
+    if int(scr.config['maximize']):
         scr.root.state('zoomed')
-    scr.root.attributes('-fullscreen', scr.config["fullscreen"])
-    scr.root.title("База Данных")
-    scr.root.configure(background=scr.config["def_bg_color"])
+    scr.root.attributes('-fullscreen', scr.config['fullscreen'])
+    scr.root.title('База Данных')
+    scr.root.configure(background=scr.config['def_bg_color'])
     funcs.configureWidgets(scr, top)
 
     # configure tables
@@ -97,11 +97,11 @@ def configureGUI(scr, top):
     for i in range(len(DB.db)):
         scr.tables[i] = TreeViewWithPopup(scr.tabs[i], scr.config)
         scr.tables[i].place(relwidth=1.0, relheight=1.0)
-        scr.tables[i]["columns"] = list(DB.db[i].columns)
+        scr.tables[i]['columns'] = list(DB.db[i].columns)
         scr.tables[i]['show'] = 'headings'
         columns = list(DB.db[i].columns)
-        scr.tables[i].column("#0", minwidth=5, width=5, stretch=tk.NO)
-        scr.tables[i].heading("#0", text="")
+        scr.tables[i].column('#0', minwidth=5, width=5, stretch=tk.NO)
+        scr.tables[i].heading('#0', text='')
 
         for j in range(len(columns)):
             scr.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',
@@ -118,43 +118,43 @@ def configureGUI(scr, top):
             items = []
             for title in DB.db[i].columns:
                 items.append(DB.db[i][title][j])
-            scr.tables[i].add("", values=items)
+            scr.tables[i].add('', values=items)
 
     # configure scrolls
     scr.scrolls = [None] * 5
     for i in range(len(scr.tabs)):
-        scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient="vertical",
+        scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient='vertical',
                                        command=scr.tables[i].yview)
         scr.tables[i].configure(yscrollcommand=scr.scrolls[i].set)
-        scr.scrolls[i].pack(fill="y", side='right')
-        scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient="horizontal",
+        scr.scrolls[i].pack(fill='y', side='right')
+        scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient='horizontal',
                                        command=scr.tables[i].xview)
         scr.tables[i].configure(xscrollcommand=scr.scrolls[i].set)
-        scr.scrolls[i].pack(fill="x", side='bottom')
+        scr.scrolls[i].pack(fill='x', side='bottom')
 
     # binds
-    scr.Data.bind("<<NotebookTabChanged>>", scr.tabChoice)
+    scr.Data.bind('<<NotebookTabChanged>>', scr.tabChoice)
 
-    scr.Filter_List1.bind("<<ListboxSelect>>", scr.moveSelection2)
-    scr.Filter_List2.bind("<<ListboxSelect>>", scr.moveSelection1)
+    scr.Filter_List1.bind('<<ListboxSelect>>', scr.moveSelection2)
+    scr.Filter_List2.bind('<<ListboxSelect>>', scr.moveSelection1)
 
-    top.protocol("WM_DELETE_WINDOW", scr.exit)
-    top.bind("<Control-Shift-N>", scr.addRecord)
-    top.bind("<Control-n>", scr.newDatabase)
-    top.bind("<Control-o>", scr.open)
-    top.bind("<Control-s>", scr.save)
-    top.bind("<Control-Shift-S>", scr.saveas)
-    top.bind("<Control-e>", scr.saveAsExcel)
-    top.bind("<Control-a>", scr.selectAll)
-    top.bind("<Control-Shift-A>", scr.addRecord)
-    top.bind("<Control-o>", scr.open)
-    top.bind("<Control-q>", scr.exit)
-    top.bind("<Control-r>", scr.modRecord)
-    top.bind("<Delete>", scr.deleteRecords)
-    top.bind("<Control-p>", scr.customizeGUI)
-    top.bind("<Button-1>", scr.statusUpdate)
+    top.protocol('WM_DELETE_WINDOW', scr.exit)
+    top.bind('<Control-Shift-N>', scr.addRecord)
+    top.bind('<Control-n>', scr.newDatabase)
+    top.bind('<Control-o>', scr.open)
+    top.bind('<Control-s>', scr.save)
+    top.bind('<Control-Shift-S>', scr.saveas)
+    top.bind('<Control-e>', scr.saveAsExcel)
+    top.bind('<Control-a>', scr.selectAll)
+    top.bind('<Control-Shift-A>', scr.addRecord)
+    top.bind('<Control-o>', scr.open)
+    top.bind('<Control-q>', scr.exit)
+    top.bind('<Control-r>', scr.modRecord)
+    top.bind('<Delete>', scr.deleteRecords)
+    top.bind('<Control-p>', scr.customizeGUI)
+    top.bind('<Button-1>', scr.statusUpdate)
 
-    scr.ComboAnalysis.bind("<<ComboboxSelected>>", scr.configAnalysisCombos)
+    scr.ComboAnalysis.bind('<<ComboboxSelected>>', scr.configAnalysisCombos)
 
     # start status bar
     scr.statusUpdate()
@@ -179,14 +179,14 @@ class MainWindow:
         """
         self.root = root
         self.root.focus_force()
-        DB.db, DB.modified, DB.currentFile = funcs.openFromFile("../Data/db.pickle",
+        DB.db, DB.modified, DB.currentFile = funcs.openFromFile('../Data/db.pickle',
                                                           DB.db, DB.modified,
                                                           DB.currentFile,
                                                           createEmptyDatabase)
         self.config = funcs.getConfig()
         configureGUI(self, self.root)
-        funcs.message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
-        
+        funcs.message(self.root, 'Документацию и руководство\nпользователя'+ 
+                      'можно найти\nв каталоге Notes', msgtype='info').fade()
         self.updateTitle()
 
     def updateTitle(self):
@@ -195,7 +195,7 @@ class MainWindow:
 
         :Автор(ы): Константинов
         """
-        title = "База данных"
+        title = 'База данных'
         if DB.currentFile != '' or DB.modified:
             title += ' - '
             if DB.currentFile != '':
@@ -216,25 +216,25 @@ class MainWindow:
         self.ComboQuant.set('')
         self.ComboQual.set('')
         if anId == 0:
-            self.ComboQuant.configure(state="disabled")
-            self.ComboQual.configure(state="normal")
+            self.ComboQuant.configure(state='disabled')
+            self.ComboQual.configure(state='normal')
         elif anId == 1:
-            self.ComboQuant.configure(state="disabled")
-            self.ComboQual.configure(state="disabled")
+            self.ComboQuant.configure(state='disabled')
+            self.ComboQual.configure(state='disabled')
         else:
-            self.ComboQuant.configure(state="normal")
-            self.ComboQual.configure(state="normal")
+            self.ComboQuant.configure(state='normal')
+            self.ComboQual.configure(state='normal')
         if anId == 5:
-            self.ComboQuant2.configure(state="normal")
+            self.ComboQuant2.configure(state='normal')
             self.ComboQuant.configure(values=funcs.quantComboValues)
         elif anId == 2:
             self.ComboQuant.configure(values=funcs.qualComboValues)
-            self.LabelQuant.configure(text="Качественный")
+            self.LabelQuant.configure(text='Качественный')
         else:
-            self.ComboQuant2.configure(state="disabled")
-            self.LabelQual.configure(text="Качественный")
-            self.LabelQuant.configure(text="Количественный")
-            self.ComboQuant["values"] = (funcs.quantComboValues)
+            self.ComboQuant2.configure(state='disabled')
+            self.LabelQual.configure(text='Качественный')
+            self.LabelQuant.configure(text='Количественный')
+            self.ComboQuant['values'] = (funcs.quantComboValues)
 
     def paramsValid(self):
         """
@@ -246,8 +246,8 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         return (self.ComboAnalysis.current() == -1) or \
-                (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == "normal") \
-                or (self.ComboQual.current() == -1 and self.ComboQual['state'].string == "normal")
+                (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == 'normal') \
+                or (self.ComboQual.current() == -1 and self.ComboQual['state'].string == 'normal')
 
     def showReport(self):
         """
@@ -256,35 +256,35 @@ class MainWindow:
         :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
-            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, 'Не выбран элемент', msgtype='warning').fade()
             return
         if self.ComboAnalysis.current() == 0:
             plot, file = funcs.getQualityStatistics(self.root, self, DB.db,
-                                self.config["def_graph_dir"])
+                                self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 1:
             plot, file = funcs.getQuantStatistics(self.root, self, DB.db,
-                                self.config["def_graph_dir"])
+                                self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 2:
             plot, file = funcs.getBar(self.root, self, DB.db,
-                                self.config["def_graph_dir"])
+                                self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 3:  # add analysis here
             plot, file = funcs.getHist(self.root, self, DB.db,
-                                 self.config["def_graph_dir"])
+                                 self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 4:
             plot, file = funcs.getBoxWhisker(self.root, self, DB.db,
-                                       self.config["def_graph_dir"])
+                                       self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 5:
             plot, file = funcs.getScatterplot(self.root, self, DB.db,
-                                        self.config["def_graph_dir"])
+                                        self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 6:
             plot, file = funcs.getPivotStatistics(self.root, self, DB.db,
-                                        self.config["def_graph_dir"])
+                                        self.config['def_graph_dir'])
         if file and plot:
             plt.show(plot)
         else:
             funcs.message(self.root,
-                    "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
-                    "другие данные", msgtype="error").fade()
+                    'Не удалось построить диаграмму,\nпопробуйте выбрать\n' +
+                    'другие данные', msgtype='error').fade()
 
     def exportReport(self):
         """
@@ -293,37 +293,37 @@ class MainWindow:
         :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
-            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, 'Не выбран элемент', msgtype='warning').fade()
             return
         if self.ComboAnalysis.current() == 0:
             plot, file = funcs.getQualityStatistics(self.root, self, DB.db,
-                                self.config["def_graph_dir"])
+                                self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 1:
             plot, file = funcs.getQuantStatistics(self.root, self, DB.db,
-                                self.config["def_graph_dir"])
+                                self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 2:
             plot, file = funcs.getBar(self.root, self, DB.db,
-                                self.config["def_graph_dir"])
+                                self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 3:  # add analysis here
             plot, file = funcs.getHist(self.root, self, DB.db,
-                                 self.config["def_graph_dir"])
+                                 self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 4:
             plot, file = funcs.getBoxWhisker(self.root, self, DB.db,
-                                       self.config["def_graph_dir"])
+                                       self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 5:
             plot, file = funcs.getScatterplot(self.root, self, DB.db,
-                                        self.config["def_graph_dir"])
+                                        self.config['def_graph_dir'])
         elif self.ComboAnalysis.current() == 6:
             plot, file = funcs.getPivotStatistics(self.root, self, DB.db,
-                                        self.config["def_graph_dir"])
+                                        self.config['def_graph_dir'])
         if file and plot:
             plot.savefig(file)
-            funcs.message(self.root, "Файл сохранён", msgtype="success").fade()  # TODO show path
+            funcs.message(self.root, 'Файл сохранён', msgtype='success').fade()  # TODO show path
             # need to change label to text in message
         else:
             funcs.message(self.root,
-                    "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
-                    "другие данные", msgtype="error").fade()
+                    'Не удалось построить диаграмму,\nпопробуйте выбрать\n' +
+                    'другие данные', msgtype='error').fade()
 
     def saveAsExcel(self, event=None):
         """
@@ -332,7 +332,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        funcs.saveAsExcel(self.root, self.tables[self.Data.index("current")])
+        funcs.saveAsExcel(self.root, self.tables[self.Data.index('current')])
 
     def moveSelection1(self, event):
         """
@@ -364,7 +364,7 @@ class MainWindow:
 
         :Автор(ы): Сидоров
         """
-        self.Filter_List1.yview_scroll(int(-4*(event.delta/120)), "units")
+        self.Filter_List1.yview_scroll(int(-4*(event.delta/120)), 'units')
 
     def scrollList2(self, event):
         """
@@ -372,7 +372,7 @@ class MainWindow:
 
         :Автор(ы): Сидоров
         """
-        self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), "units")
+        self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), 'units')
 
     def updateCombos(self):
         """
@@ -407,7 +407,7 @@ class MainWindow:
             items = []
             for title in DB.db[tab].columns:
                 items.append(DB.db[tab][title][j])
-            self.tables[tab].add("", values=items)
+            self.tables[tab].add('', values=items)
         if event.widget.index(selected_tab) == 0:
             self.parInsert(0)
             self.insertCheckBoxes(0)
@@ -464,10 +464,10 @@ class MainWindow:
             if self.Cvars[tab][i].get() is False:
                 exclude.append(self.names[ind])
         display = []
-        for col in self.tables[tab]["columns"]:
+        for col in self.tables[tab]['columns']:
             if col not in exclude:
                 display.append(col)
-        self.tables[tab]["displaycolumns"] = (display)
+        self.tables[tab]['displaycolumns'] = (display)
 
     def reset(self):
         """
@@ -481,21 +481,21 @@ class MainWindow:
             box.select()
         exclude = []
         display = []
-        for col in self.tables[tab]["columns"]:
+        for col in self.tables[tab]['columns']:
             if col not in exclude:
                 display.append(col)
-        self.tables[tab]["displaycolumns"] = (display)
+        self.tables[tab]['displaycolumns'] = (display)
 
         self.Filter_List2.delete(0, 'end')
         for i in range(4):
-            self.Filter_List2.insert('end', "")
+            self.Filter_List2.insert('end', '')
         for i in self.tables[tab].get_children():
             self.tables[tab].delete(i)
         for j in DB.db[tab].index:
             items = []
             for title in DB.db[tab].columns:
                 items.append(DB.db[tab][title][j])
-            self.tables[tab].add("", values=items)
+            self.tables[tab].add('', values=items)
         if select != []:
             self.Filter_List1.selection_set(select[0])
             self.Filter_List1.select_anchor(select[0])
@@ -516,7 +516,7 @@ class MainWindow:
         cols = list(DB.db[tab].columns)
         for i in range(len(cols)-1):
             self.Filter_List1.insert('end', cols[i+1])
-            self.Filter_List2.insert('end', "")
+            self.Filter_List2.insert('end', '')
 
     def openDialog(self):
         """
@@ -529,14 +529,14 @@ class MainWindow:
         global newPar, select
         if len(select) != 0:
             newPar = funcs.ChangeDialog(self.root, self.config,
-                                  "Введите новое значение:").show()
+                                  'Введите новое значение:').show()
             self.Filter_List2.delete(select[0])
             self.Filter_List2.insert(select[0], newPar)
             self.Filter_List2.selection_set(select[0])
             self.Filter_List2.select_anchor(select[0])
             self.filterTable()
         else:
-            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, 'Не выбран элемент', msgtype='warning').fade()
 
     def filterTable(self):
         """
@@ -559,12 +559,12 @@ class MainWindow:
             items = []
             for title in DB.db[tab].columns:
                 items.append(DB.db[tab][title][j])
-            self.tables[tab].add("", values=items)
+            self.tables[tab].add('', values=items)
 
         for i in range(len(cols)):
             filters.append(self.Filter_List2.get(i))
         for fil in filters:
-            if fil != "":
+            if fil != '':
                 check = False
         if check:
             for i in self.tables[tab].get_children():
@@ -573,10 +573,10 @@ class MainWindow:
                 items = []
                 for title in DB.db[tab].columns:
                     items.append(DB.db[tab][title][j])
-                self.tables[tab].add("", values=items)
+                self.tables[tab].add('', values=items)
         else:
             for i in range(len(filters)):
-                if filters[i] != "":
+                if filters[i] != '':
                     name = df.columns[i+1]
                     if (filters[i].isdigit()):
                         df = df.drop(np.where(df[name] != int(filters[i]))[0])
@@ -589,7 +589,7 @@ class MainWindow:
                 items = []
                 for title in df.columns:
                     items.append(df[title][j])
-                self.tables[tab].add("", values=items)
+                self.tables[tab].add('', values=items)
 
     def selectAll(self, event=None):
         """
@@ -598,7 +598,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        self.tables[self.Data.index("current")].selectAll()
+        self.tables[self.Data.index('current')].selectAll()
 
     def modRecord(self, event=None):
         """
@@ -607,7 +607,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        self.tables[self.Data.index("current")].modRecord()
+        self.tables[self.Data.index('current')].modRecord()
         self.updateTitle()
 
     def addRecord(self, event=None):
@@ -617,7 +617,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        self.tables[self.Data.index("current")].addRecord()
+        self.tables[self.Data.index('current')].addRecord()
         self.updateTitle()
 
     def deleteRecords(self, event=None):
@@ -627,7 +627,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        self.tables[self.Data.index("current")].deleteRecords()
+        self.tables[self.Data.index('current')].deleteRecords()
         self.updateTitle()
 
     def newDatabase(self, event=None):
@@ -638,8 +638,8 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         if DB.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
-                                               "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel('Несохраненные изменения',
+                                               'Хотите сохранить изменения перед закрытием?')
             if ans:
                 self.save()
             elif ans is None:
@@ -662,7 +662,7 @@ class MainWindow:
                 items = []
                 for title in DB.db[i].columns:
                     items.append(DB.db[i][title][j])
-                self.tables[i].add("", values=items)
+                self.tables[i].add('', values=items)
 
     def exit(self, event=None):
         """
@@ -672,14 +672,14 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         if DB.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
-                                               "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel('Несохраненные изменения',
+                                               'Хотите сохранить изменения перед закрытием?')
             if ans:
                 self.save()
             elif ans is None:
                 return
         self.root.destroy()
-        exit()
+        sys.exit()
 
     def open(self, event=None):
         """
@@ -689,16 +689,16 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         if DB.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
-                                               "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel('Несохраненные изменения',
+                                               'Хотите сохранить изменения перед закрытием?')
             if ans:
                 self.save()
             elif ans is None:
                 return
-        file = filedialog.askopenfilename(filetypes=[("pickle files",
-                                                      "*.pickle"),
-                                                     ("Excel files",
-                                                      "*.xls *.xlsx")])
+        file = filedialog.askopenfilename(filetypes=[('pickle files',
+                                                      '*.pickle'),
+                                                     ('Excel files',
+                                                      '*.xls *.xlsx')])
         DB.db, DB.modified, DB.currentFile = funcs.openFromFile(file, DB.db,
                                                           DB.modified,
                                                           DB.currentFile,
@@ -713,7 +713,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        if (DB.currentFile != ''):
+        if DB.currentFile != '':
             funcs.saveToPickle(DB.currentFile, DB.db)
         else:
             self.saveas()
@@ -727,8 +727,9 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         filename = filedialog.asksaveasfilename(filetypes=[],
-                                                defaultextension=".pickle")
-        DB.currentFile = filename
+                                                defaultextension='.pickle')
+        if filename != '':
+            DB.currentFile = filename
         DB.modified = False
         self.updateTitle()
         funcs.saveToPickle(filename, DB.db)
@@ -741,12 +742,12 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         curTable = self.tables[self.Data.index(self.Data.select())]
-        status = "Elements: "
+        status = 'Elements: '
         selected = len(curTable.selection())
         if selected == 0:
             status += str(len(curTable.get_children()))
         else:
-            status += ("%d out of %d" % (selected,
+            status += ('%d out of %d' % (selected,
                                          len(curTable.get_children())))
         self.statusbar.config(text=status)
         self.statusbar.update_idletasks()
@@ -811,15 +812,15 @@ class TreeViewWithPopup(ttk.Treeview):
         ttk.Treeview.__init__(self, parent, *args, **kwargs)
         self.config = config
         self.popup_menu = tk.Menu(self, tearoff=0)
-        self.popup_menu.add_command(label="Удалить",
+        self.popup_menu.add_command(label='Удалить',
                                     command=self.deleteRecords)
-        self.popup_menu.add_command(label="Выбрать все",
+        self.popup_menu.add_command(label='Выбрать все',
                                     command=self.selectAll)
-        self.popup_menu.add_command(label="Изменить",
+        self.popup_menu.add_command(label='Изменить',
                                     command=self.modRecord)
-        self.popup_menu.add_command(label="Добавить",
+        self.popup_menu.add_command(label='Добавить',
                                     command=self.addRecord)
-        self.bind("<Button-3>", self.popup)
+        self.bind('<Button-3>', self.popup)
         self.root = parent
         self.globalCounter = 0
 
@@ -832,7 +833,7 @@ class TreeViewWithPopup(ttk.Treeview):
         :type values: list
         :Автор(ы): Константинов
         """
-        self.insert("", "end", iid=self.globalCounter, values=values)
+        self.insert('', 'end', iid=self.globalCounter, values=values)
         self.globalCounter += 1
 
     def popup(self, event):
@@ -866,7 +867,7 @@ class TreeViewWithPopup(ttk.Treeview):
         """
         uid = 1
         ids = self.get_children()
-        ids = set([int(self.item(item)["values"][0]) for item in ids])
+        ids = set([int(self.item(item)['values'][0]) for item in ids])
         while uid in ids:
             uid += 1
         return uid
@@ -883,7 +884,7 @@ class TreeViewWithPopup(ttk.Treeview):
         dic = funcs.askValuesDialog(self.root, self.config, DB.db[nb].columns).show()
         values = list(dic.values())
         keys = list(dic.keys())
-        if (len(values)):
+        if len(values):
             values = [item.get() for item in values]
             values[0] = str(self.genUID())
             DB.modified = True
@@ -891,7 +892,7 @@ class TreeViewWithPopup(ttk.Treeview):
             DB.db[nb] = DB.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
                                  columns=keys), ignore_index=True)
-            self.add("", values=values)
+            self.add('', values=values)
 
     def deleteRecords(self, event=None):
         """
@@ -904,7 +905,7 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = [int(i) for i in self.selection()]
         if not len(selected):
-            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, 'Не выбран элемент', msgtype='warning').fade()
         else:
             DB.modified = True
             for item in selected:
@@ -925,7 +926,7 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = self.selection()
         if not selected:
-            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, 'Не выбран элемент', msgtype='warning').fade()
         else:
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])
@@ -934,7 +935,7 @@ class TreeViewWithPopup(ttk.Treeview):
                                   currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())
-            if (len(values)):
+            if len(values):
                 values = [item.get() for item in values]
                 values[0] = itemId
                 DB.modified = True
