@@ -74,7 +74,7 @@ def configureGUI(scr, top):
     :type scr: MainWindow
     :param top: Корневой объект
     :type top: tk.Tk
-    :Автор((ы): Константинов, Сидоров
+    :Автор(ы): Константинов, Сидоров
     """
     winW = scr.root.winfo_screenwidth()
     scr.config["def_window_width"] = int(scr.config["def_window_width"])
@@ -158,7 +158,8 @@ def configureGUI(scr, top):
 class MainWindow:
     """
     Класс главного окна приложения
-    :Автор((ы): Константинов, Сидоров, Березуцкий
+    
+    :Автор(ы): Константинов, Сидоров, Березуцкий
     """
     def __init__(self, root=None):
         """
@@ -166,7 +167,7 @@ class MainWindow:
         
         :param root: Корневой объект
         :type root: tk.Tk
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.root = root
         self.root.focus_force()
@@ -183,7 +184,7 @@ class MainWindow:
         """
         Обновление заголовка окна (состояние текущего файла)
 
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         title = "База данных"
         if DB.currentFile != '' or DB.modified:
@@ -201,7 +202,7 @@ class MainWindow:
         
         :param root: корневой объект
         :type root: tk.Tk
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         anId = self.ComboAnalysis.current()
         self.ComboQuant.set('')
@@ -234,7 +235,7 @@ class MainWindow:
         
         :return: во всех трех меню выбран один из вариантов
         :rtype: bool
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         return (self.ComboAnalysis.current() == -1 or
                 self.ComboQual.current() == -1 or
@@ -244,7 +245,7 @@ class MainWindow:
         """
         Отображение выбранного отчета
 
-        :Автор((ы): Константинов, Сидоров, Березуцкий
+        :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
             message(self.root, "Не выбран элемент", msgtype="warning").fade()
@@ -274,7 +275,7 @@ class MainWindow:
         """
         Сохранение выбранного отчета в файл
         
-        :Автор((ы): Константинов, Сидоров, Березуцкий
+        :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
             message(self.root, "Не выбран элемент", msgtype="warning").fade()
@@ -305,7 +306,7 @@ class MainWindow:
         """
         Сохранение текущей таблицы в файл .xlsx
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         saveAsExcel(self.root, self.tables[self.Data.index("current")])
 
@@ -333,7 +334,7 @@ class MainWindow:
         """
         Вроде как бесполезная, надо не забыть удалить перед релизом
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         pass
 #        self.ComboQuant.set('')
@@ -503,7 +504,7 @@ class MainWindow:
         Выбор всех строк в текущей таблице
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.tables[self.Data.index("current")].selectAll()
 
@@ -512,7 +513,7 @@ class MainWindow:
         Изменение выбранной записи в текущей таблице
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.tables[self.Data.index("current")].modRecord()
         self.updateTitle()
@@ -522,7 +523,7 @@ class MainWindow:
         Добавление записи в текущую таблицу
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.tables[self.Data.index("current")].addRecord()
         self.updateTitle()
@@ -532,7 +533,7 @@ class MainWindow:
         Удаление выбранных строк текущей таблицы
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.tables[self.Data.index("current")].deleteRecords()
         self.updateTitle()
@@ -541,7 +542,7 @@ class MainWindow:
         """
         Создание пустой базы данных
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         createEmptyDatabase()
         self.updateTitle()
@@ -551,7 +552,7 @@ class MainWindow:
         """
         Загрузка строк в таблицу из объекта pandas.DataFrame
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         for tree in self.tables:
             for item in tree.get_children():
@@ -567,7 +568,7 @@ class MainWindow:
         """
         Выход из приложения
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         if DB.modified:
             ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
@@ -583,7 +584,7 @@ class MainWindow:
         """
         Открытие базы данных из файла .xlsx или бинарного файла pickle
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         if DB.modified:
             ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
@@ -607,7 +608,7 @@ class MainWindow:
         """
         Сохранение базы данных в бинарный файл pickle
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         if (DB.currentFile != ''):
             saveToPickle(DB.currentFile, DB.db)
@@ -619,7 +620,7 @@ class MainWindow:
         """
         Сохранение базы данных в новый бинарный файл pickle
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         filename = filedialog.asksaveasfilename(filetypes=[],
                                                 defaultextension=".pickle")
@@ -632,7 +633,7 @@ class MainWindow:
         """
         Обновление строки состояния
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         curTable = self.tables[self.Data.index(self.Data.select())]
         status = "Elements: "
@@ -680,7 +681,7 @@ class MainWindow:
         Вызов диалога настройки приложения
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         CustomizeGUIDialog(self.root).show()
 
@@ -689,7 +690,7 @@ class TreeViewWithPopup(ttk.Treeview):
     """
     Класс виджета ttk.Treeview с добавленным к нему контекстным меню
     
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     def __init__(self, parent, config, *args, **kwargs):
         """
@@ -700,7 +701,7 @@ class TreeViewWithPopup(ttk.Treeview):
         :type config: dict
         :param *args: список неименованных документов 
         :param **kwargs: список именованных документов
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         ttk.Treeview.__init__(self, parent, *args, **kwargs)
         self.config = config
@@ -724,7 +725,7 @@ class TreeViewWithPopup(ttk.Treeview):
         :param parent: родительский виджет
         :param values: список значений столбцов
         :type values: list
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.insert("", "end", iid=self.globalCounter, values=values)
         self.globalCounter += 1
@@ -734,7 +735,7 @@ class TreeViewWithPopup(ttk.Treeview):
         Отображение контекстного меню
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         try:
             self.popup_menu.tk_popup(event.x_root, event.y_root)
@@ -745,7 +746,7 @@ class TreeViewWithPopup(ttk.Treeview):
         """
         Выделение всех строк
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         self.selection_set(tuple(self.get_children()))
 
@@ -755,7 +756,7 @@ class TreeViewWithPopup(ttk.Treeview):
         
         :return: UID
         :rtype: integer
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         uid = 1
         ids = self.get_children()
@@ -769,7 +770,7 @@ class TreeViewWithPopup(ttk.Treeview):
         """
         Добавление новой строки
         
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         nb = self.master.master
         nb = nb.index(nb.select())
@@ -791,7 +792,7 @@ class TreeViewWithPopup(ttk.Treeview):
         Удаление выделенных строк
         
         :param event: объект события
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         nb = self.master.master
         nb = nb.index(nb.select())
@@ -812,7 +813,7 @@ class TreeViewWithPopup(ttk.Treeview):
         :param parent: родительский виджет
         :param values: список значений столбцов
         :type values: list
-        :Автор((ы): Константинов
+        :Автор(ы): Константинов
         """
         nb = self.master.master
         nb = nb.index(nb.select())
