@@ -69,7 +69,7 @@ def createEmptyDatabase():
 def configureGUI(scr, top):
     """
     Создание уникального для директории имени файла в формате `spec_spec_spec_UID.ext`
-    
+
     :param scr: Объект окна
     :type scr: MainWindow
     :param top: Корневой объект
@@ -158,13 +158,13 @@ def configureGUI(scr, top):
 class MainWindow:
     """
     Класс главного окна приложения
-    
+
     :Автор(ы): Константинов, Сидоров, Березуцкий
     """
     def __init__(self, root=None):
         """
         Инициализация
-        
+
         :param root: Корневой объект
         :type root: tk.Tk
         :Автор(ы): Константинов
@@ -199,10 +199,10 @@ class MainWindow:
     def configAnalysisCombos(self, event=None):
         """
         Настройка меню выбора атрибутов в зависимости от выбранного вида отчета
-        
+
         :param root: корневой объект
         :type root: tk.Tk
-        :Автор(ы): Константинов
+        :Автор(ы): Константинов, Сидоров
         """
         anId = self.ComboAnalysis.current()
         self.ComboQuant.set('')
@@ -232,7 +232,7 @@ class MainWindow:
         """
         Проверка факта выбора в трех выпадающих меню одновременно: выбор вида
         отчета и двух параметров
-        
+
         :return: во всех трех меню выбран один из вариантов
         :rtype: bool
         :Автор(ы): Константинов
@@ -274,7 +274,7 @@ class MainWindow:
     def exportReport(self):
         """
         Сохранение выбранного отчета в файл
-        
+
         :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
@@ -305,12 +305,17 @@ class MainWindow:
     def saveAsExcel(self):
         """
         Сохранение текущей таблицы в файл .xlsx
-        
+
         :Автор(ы): Константинов
         """
         saveAsExcel(self.root, self.tables[self.Data.index("current")])
 
     def moveSelection1(self, event):
+        """
+        Синхронное передвижение выделения в Filter_List1
+
+        :Автор(ы): Сидоров
+        """
         global select
         select = list(self.Filter_List2.curselection())
         self.Filter_List1.select_clear(0, 'end')
@@ -318,6 +323,11 @@ class MainWindow:
         self.Filter_List1.select_anchor(select[0])
 
     def moveSelection2(self, event):
+        """
+        Синхронное передвижение выделения в Filter_List2
+
+        :Автор(ы): Сидоров
+        """
         global select
         select = list(self.Filter_List1.curselection())
         self.Filter_List2.select_clear(0, 'end')
@@ -325,15 +335,25 @@ class MainWindow:
         self.Filter_List2.select_anchor(select[0])
 
     def scrollList1(self, event):
+        """
+        Синхронное передвижение скроллбара в Filter_List1
+
+        :Автор(ы): Сидоров
+        """
         self.Filter_List1.yview_scroll(int(-4*(event.delta/120)), "units")
 
     def scrollList2(self, event):
+        """
+        Синхронное передвижение скроллбара в Filter_List2
+
+        :Автор(ы): Сидоров
+        """
         self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), "units")
 
     def updateCombos(self):
         """
         Вроде как бесполезная, надо не забыть удалить перед релизом
-        
+
         :Автор(ы): Константинов
         """
         pass
@@ -349,6 +369,11 @@ class MainWindow:
 #            self.ComboQual.configure(state="normal")
 
     def tabChoice(self, event):
+        """
+        Отображение checkbox'ов и фильтров в зависимости от таблицы
+
+        :Автор(ы): Сидоров
+        """
         global selected_tab
         selected_tab = event.widget.select()
         tab = event.widget.index(selected_tab)
@@ -376,16 +401,34 @@ class MainWindow:
             self.insertCheckBoxes(4)
 
     def hideAll(self):
+        """
+        Скрывает ненужные checbox'ы
+
+        :Автор(ы): Сидоров
+        """
         for i in self.Cboxes:
             for j in i:
                 j.grid_forget()
 
     def insertCheckBoxes(self, tab):
+        """
+        Вставляет нужные checbox'ы
+
+        :param tab: номер таблицы
+        :type df: int
+
+        :Автор(ы): Сидоров
+        """
         self.hideAll()
         for i in range(len(self.Cboxes[tab])):
             self.Cboxes[tab][i].grid(row=i, column=0, sticky='W')
 
     def removeColumns(self):
+        """
+        Скрывает столбцы, выбранные в фильтрах
+
+        :Автор(ы): Сидоров
+        """
         global selected_tab
         tab = self.Data.index(selected_tab)
         indTab = 0
@@ -403,6 +446,11 @@ class MainWindow:
         self.tables[tab]["displaycolumns"] = (display)
 
     def reset(self):
+        """
+        Сбрасывает все фильры
+
+        :Автор(ы): Сидоров
+        """
         global selected_tab
         tab = self.Data.index(selected_tab)
         for box in self.Cboxes[tab]:
@@ -431,6 +479,14 @@ class MainWindow:
             self.Filter_List2.select_anchor(select[0])
 
     def parInsert(self, tab):
+        """
+        Удаление старых параметров из listbox и вставка новых
+
+        :param tab: номер таблицы
+        :type df: int
+
+        :Автор(ы): Сидоров
+        """
         self.Filter_List1.delete(0, 'end')
         self.Filter_List2.delete(0, 'end')
         cols = list(DB.db[tab].columns)
@@ -438,7 +494,14 @@ class MainWindow:
             self.Filter_List1.insert('end', cols[i+1])
             self.Filter_List2.insert('end', "")
 
-    def open_dialog(self):
+    def openDialog(self):
+        """
+        Открывает окно изменения парметра,
+        получает значение из этого окна и запускает фильтрацию
+        Или выводит сообщение об ошибке.
+
+        :Автор(ы): Сидоров
+        """
         global newPar, select
         if len(select) != 0:
             newPar = ChangeDialog(self.root, self.config,
@@ -452,6 +515,11 @@ class MainWindow:
             message(self.root, "Не выбран элемент", msgtype="warning").fade()
 
     def filterTable(self):
+        """
+        Выполняет фильтрацию по заданным значениям параметров
+
+        :Автор(ы): Сидоров
+        """
         global selcted_tab
         filters = []
         tab = self.Data.index(selected_tab)
@@ -502,7 +570,7 @@ class MainWindow:
     def selectAll(self, event=None):
         """
         Выбор всех строк в текущей таблице
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -511,7 +579,7 @@ class MainWindow:
     def modRecord(self, event=None):
         """
         Изменение выбранной записи в текущей таблице
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -521,7 +589,7 @@ class MainWindow:
     def addRecord(self, event=None):
         """
         Добавление записи в текущую таблицу
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -531,7 +599,7 @@ class MainWindow:
     def deleteRecords(self, event=None):
         """
         Удаление выбранных строк текущей таблицы
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -541,7 +609,7 @@ class MainWindow:
     def newDatabase(self):
         """
         Создание пустой базы данных
-        
+
         :Автор(ы): Константинов
         """
         DB.db, DB.modified, DB.currentFile = createEmptyDatabase()
@@ -551,7 +619,7 @@ class MainWindow:
     def loadTables(self):
         """
         Загрузка строк в таблицу из объекта pandas.DataFrame
-        
+
         :Автор(ы): Константинов
         """
         for tree in self.tables:
@@ -567,7 +635,7 @@ class MainWindow:
     def exit(self):
         """
         Выход из приложения
-        
+
         :Автор(ы): Константинов
         """
         if DB.modified:
@@ -583,7 +651,7 @@ class MainWindow:
     def open(self):
         """
         Открытие базы данных из файла .xlsx или бинарного файла pickle
-        
+
         :Автор(ы): Константинов
         """
         if DB.modified:
@@ -607,7 +675,7 @@ class MainWindow:
     def save(self):
         """
         Сохранение базы данных в бинарный файл pickle
-        
+
         :Автор(ы): Константинов
         """
         if (DB.currentFile != ''):
@@ -619,7 +687,7 @@ class MainWindow:
     def saveas(self):
         """
         Сохранение базы данных в новый бинарный файл pickle
-        
+
         :Автор(ы): Константинов
         """
         filename = filedialog.asksaveasfilename(filetypes=[],
@@ -632,7 +700,7 @@ class MainWindow:
     def statusUpdate(self, event=None):
         """
         Обновление строки состояния
-        
+
         :Автор(ы): Константинов
         """
         curTable = self.tables[self.Data.index(self.Data.select())]
@@ -679,7 +747,7 @@ class MainWindow:
     def customizeGUI(self, event=None):
         """
         Вызов диалога настройки приложения
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -689,17 +757,17 @@ class MainWindow:
 class TreeViewWithPopup(ttk.Treeview):
     """
     Класс виджета ttk.Treeview с добавленным к нему контекстным меню
-    
+
     :Автор(ы): Константинов
     """
     def __init__(self, parent, config, *args, **kwargs):
         """
         Инициализация виджета
-        
+
         :param parent: родительский виджет
         :param config: словарь настроек
         :type config: dict
-        :param *args: список неименованных документов 
+        :param *args: список неименованных документов
         :param **kwargs: список именованных документов
         :Автор(ы): Константинов
         """
@@ -721,7 +789,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def add(self, parent, values):
         """
         Добавление строки
-        
+
         :param parent: родительский виджет
         :param values: список значений столбцов
         :type values: list
@@ -733,7 +801,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def popup(self, event):
         """
         Отображение контекстного меню
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -745,7 +813,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def selectAll(self, event=None):
         """
         Выделение всех строк
-        
+
         :Автор(ы): Константинов
         """
         self.selection_set(tuple(self.get_children()))
@@ -753,7 +821,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def genUID(self):
         """
         Генерация UID для новой строки строки
-        
+
         :return: UID
         :rtype: integer
         :Автор(ы): Константинов
@@ -769,7 +837,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def addRecord(self):
         """
         Добавление новой строки
-        
+
         :Автор(ы): Константинов
         """
         nb = self.master.master
@@ -790,7 +858,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def deleteRecords(self, event=None):
         """
         Удаление выделенных строк
-        
+
         :param event: объект события
         :Автор(ы): Константинов
         """
@@ -809,7 +877,7 @@ class TreeViewWithPopup(ttk.Treeview):
     def modRecord(self):
         """
         Редактирование записи
-        
+
         :param parent: родительский виджет
         :param values: список значений столбцов
         :type values: list
