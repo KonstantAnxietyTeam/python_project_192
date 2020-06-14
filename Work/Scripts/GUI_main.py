@@ -186,8 +186,9 @@ class MainWindow:
                                                           DB.currentFile,
                                                           createEmptyDatabase)
         self.config = getConfig()
-        message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
         configureGUI(self, self.root)
+        message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
+        
         self.updateTitle()
 
     def updateTitle(self):
