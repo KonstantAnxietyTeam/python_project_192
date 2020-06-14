@@ -6,13 +6,11 @@ import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
-import pickle as pk
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import filedialog
-from tkinter import messagebox as mb
 sys.path.insert(1, '../Library')
-from funcs import *
+import funcs
 
 
 newPar = ""
@@ -89,7 +87,7 @@ def configureGUI(scr, top):
     scr.root.attributes('-fullscreen', scr.config["fullscreen"])
     scr.root.title("База Данных")
     scr.root.configure(background=scr.config["def_bg_color"])
-    configureWidgets(scr, top)
+    funcs.configureWidgets(scr, top)
 
     # configure tables
     scr.tabs = [scr.Data_t1, scr.Data_t2, scr.Data_t3,
@@ -181,13 +179,13 @@ class MainWindow:
         """
         self.root = root
         self.root.focus_force()
-        DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle",
+        DB.db, DB.modified, DB.currentFile = funcs.openFromFile("../Data/db.pickle",
                                                           DB.db, DB.modified,
                                                           DB.currentFile,
                                                           createEmptyDatabase)
-        self.config = getConfig()
+        self.config = funcs.getConfig()
         configureGUI(self, self.root)
-        message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
+        funcs.message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
         
         self.updateTitle()
 
@@ -228,15 +226,15 @@ class MainWindow:
             self.ComboQual.configure(state="normal")
         if anId == 5:
             self.ComboQuant2.configure(state="normal")
-            self.ComboQuant.configure(values=quantComboValues)
+            self.ComboQuant.configure(values=funcs.quantComboValues)
         elif anId == 2:
-            self.ComboQuant.configure(values=qualComboValues)
+            self.ComboQuant.configure(values=funcs.qualComboValues)
             self.LabelQuant.configure(text="Качественный")
         else:
             self.ComboQuant2.configure(state="disabled")
             self.LabelQual.configure(text="Качественный")
             self.LabelQuant.configure(text="Количественный")
-            self.ComboQuant["values"] = (quantComboValues)
+            self.ComboQuant["values"] = (funcs.quantComboValues)
 
     def paramsValid(self):
         """
@@ -258,35 +256,33 @@ class MainWindow:
         :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
-            message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
             return
-        nb = self.Data.index(self.Data.select())
-        df = DB.db[nb]
         if self.ComboAnalysis.current() == 0:
-            plot, file = getQualityStatistics(self.root, self, DB.db,
+            plot, file = funcs.getQualityStatistics(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 1:
-            plot, file = getQuantStatistics(self.root, self, DB.db,
+            plot, file = funcs.getQuantStatistics(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 2:
-            plot, file = getBar(self.root, self, DB.db,
+            plot, file = funcs.getBar(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 3:  # add analysis here
-            plot, file = getHist(self.root, self, DB.db,
+            plot, file = funcs.getHist(self.root, self, DB.db,
                                  self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(self.root, self, DB.db,
+            plot, file = funcs.getBoxWhisker(self.root, self, DB.db,
                                        self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 5:
-            plot, file = getScatterplot(self.root, self, DB.db,
+            plot, file = funcs.getScatterplot(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 6:
-            plot, file = getPivotStatistics(self.root, self, DB.db,
+            plot, file = funcs.getPivotStatistics(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         if file and plot:
             plt.show(plot)
         else:
-            message(self.root,
+            funcs.message(self.root,
                     "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
                     "другие данные", msgtype="error").fade()
 
@@ -297,36 +293,35 @@ class MainWindow:
         :Автор(ы): Константинов, Сидоров, Березуцкий
         """
         if self.paramsValid():
-            message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
             return
-        nb = self.Data.index(self.Data.select())
         if self.ComboAnalysis.current() == 0:
-            plot, file = getQualityStatistics(self.root, self, DB.db,
+            plot, file = funcs.getQualityStatistics(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 1:
-            plot, file = getQuantStatistics(self.root, self, DB.db,
+            plot, file = funcs.getQuantStatistics(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 2:
-            plot, file = getBar(self.root, self, DB.db,
+            plot, file = funcs.getBar(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 3:  # add analysis here
-            plot, file = getHist(self.root, self, DB.db,
+            plot, file = funcs.getHist(self.root, self, DB.db,
                                  self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(self.root, self, DB.db,
+            plot, file = funcs.getBoxWhisker(self.root, self, DB.db,
                                        self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 5:
-            plot, file = getScatterplot(self.root, self, DB.db,
+            plot, file = funcs.getScatterplot(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 6:
-            plot, file = getPivotStatistics(self.root, self, DB.db,
+            plot, file = funcs.getPivotStatistics(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         if file and plot:
             plot.savefig(file)
-            message(self.root, "Файл сохранён", msgtype="success").fade()  # TODO show path
+            funcs.message(self.root, "Файл сохранён", msgtype="success").fade()  # TODO show path
             # need to change label to text in message
         else:
-            message(self.root,
+            funcs.message(self.root,
                     "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
                     "другие данные", msgtype="error").fade()
 
@@ -337,7 +332,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        saveAsExcel(self.root, self.tables[self.Data.index("current")])
+        funcs.saveAsExcel(self.root, self.tables[self.Data.index("current")])
 
     def moveSelection1(self, event):
         """
@@ -533,7 +528,7 @@ class MainWindow:
         """
         global newPar, select
         if len(select) != 0:
-            newPar = ChangeDialog(self.root, self.config,
+            newPar = funcs.ChangeDialog(self.root, self.config,
                                   "Введите новое значение:").show()
             self.Filter_List2.delete(select[0])
             self.Filter_List2.insert(select[0], newPar)
@@ -541,7 +536,7 @@ class MainWindow:
             self.Filter_List2.select_anchor(select[0])
             self.filterTable()
         else:
-            message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
 
     def filterTable(self):
         """
@@ -704,7 +699,7 @@ class MainWindow:
                                                       "*.pickle"),
                                                      ("Excel files",
                                                       "*.xls *.xlsx")])
-        DB.db, DB.modified, DB.currentFile = openFromFile(file, DB.db,
+        DB.db, DB.modified, DB.currentFile = funcs.openFromFile(file, DB.db,
                                                           DB.modified,
                                                           DB.currentFile,
                                                           self.newDatabase)
@@ -719,7 +714,7 @@ class MainWindow:
         :Автор(ы): Константинов
         """
         if (DB.currentFile != ''):
-            saveToPickle(DB.currentFile, DB.db)
+            funcs.saveToPickle(DB.currentFile, DB.db)
         else:
             self.saveas()
         self.updateTitle()
@@ -736,7 +731,7 @@ class MainWindow:
         DB.currentFile = filename
         DB.modified = False
         self.updateTitle()
-        saveToPickle(filename, DB.db)
+        funcs.saveToPickle(filename, DB.db)
 
     def statusUpdate(self, event=None):
         """
@@ -793,7 +788,7 @@ class MainWindow:
         :param event: объект события
         :Автор(ы): Константинов
         """
-        CustomizeGUIDialog(self.root).show()
+        funcs.CustomizeGUIDialog(self.root).show()
 
 
 class TreeViewWithPopup(ttk.Treeview):
@@ -885,7 +880,7 @@ class TreeViewWithPopup(ttk.Treeview):
         """
         nb = self.master.master
         nb = nb.index(nb.select())
-        dic = askValuesDialog(self.root, self.config, DB.db[nb].columns).show()
+        dic = funcs.askValuesDialog(self.root, self.config, DB.db[nb].columns).show()
         values = list(dic.values())
         keys = list(dic.keys())
         if (len(values)):
@@ -909,7 +904,7 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = [int(i) for i in self.selection()]
         if not len(selected):
-            message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
         else:
             DB.modified = True
             for item in selected:
@@ -930,12 +925,12 @@ class TreeViewWithPopup(ttk.Treeview):
         nb = nb.index(nb.select())
         selected = self.selection()
         if not selected:
-            message(self.root, "Не выбран элемент", msgtype="warning").fade()
+            funcs.message(self.root, "Не выбран элемент", msgtype="warning").fade()
         else:
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])
             itemValues = DB.db[nb][DB.db[nb]['Код'] == itemId].values[0].tolist()
-            dic = askValuesDialog(self.root, self.config, DB.db[nb].columns,
+            dic = funcs.askValuesDialog(self.root, self.config, DB.db[nb].columns,
                                   currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())

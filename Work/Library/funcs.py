@@ -3,7 +3,6 @@
 для применение в других проектах
 """
 
-import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
@@ -13,7 +12,6 @@ import matplotlib.pyplot as plt
 from tkinter import filedialog
 from tkinter import messagebox as mb
 from tkinter import colorchooser
-import matplotlib
 from os import listdir
 from os.path import isfile, join
 from collections import Counter
