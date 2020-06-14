@@ -51,11 +51,11 @@ def createEmptyDatabase():
 
     :Автор(ы): Константинов
     """
-    db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты',
+    db = [pd.DataFrame(columns=['Код', 'Отработано (ч)', 'Дата выплаты',
                                 'Сумма', 'Код работника']),
           pd.DataFrame(columns=['Код', 'Код должности',
                                 'Отделение']),
-          pd.DataFrame(columns=['Код', 'Название', 'Норма (ч)',
+          pd.DataFrame(columns=['Код', 'Название', 'Норма (ч/мес)',
                                 'Ставка (ч)']),
           pd.DataFrame(columns=['Код', 'ФИО', 'Номер договора',
                                 'Телефон', 'Образование', 'Адрес']),
@@ -141,9 +141,19 @@ def configureGUI(scr, top):
     scr.Filter_List2.bind("<<ListboxSelect>>", scr.moveSelection1)
 
     top.protocol("WM_DELETE_WINDOW", scr.exit)
+    top.bind("<Control-Shift-N>", scr.addRecord)
+    top.bind("<Control-n>", scr.newDatabase)
+    top.bind("<Control-o>", scr.open)
+    top.bind("<Control-s>", scr.save)
+    top.bind("<Control-Shift-S>", scr.saveas)
+    top.bind("<Control-e>", scr.saveAsExcel)
     top.bind("<Control-a>", scr.selectAll)
-    top.bind("<Control-n>", scr.addRecord)
+    top.bind("<Control-Shift-A>", scr.addRecord)
+    top.bind("<Control-o>", scr.open)
+    top.bind("<Control-q>", scr.exit)
+    top.bind("<Control-r>", scr.modRecord)
     top.bind("<Delete>", scr.deleteRecords)
+    top.bind("<Control-p>", scr.customizeGUI)
     top.bind("<Button-1>", scr.statusUpdate)
 
     scr.ComboAnalysis.bind("<<ComboboxSelected>>", scr.configAnalysisCombos)
@@ -302,7 +312,7 @@ class MainWindow:
                     "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
                     "другие данные", msgtype="error").fade()
 
-    def saveAsExcel(self):
+    def saveAsExcel(self, event=None):
         """
         Сохранение текущей таблицы в файл .xlsx
         
@@ -538,12 +548,19 @@ class MainWindow:
         self.tables[self.Data.index("current")].deleteRecords()
         self.updateTitle()
 
-    def newDatabase(self):
+    def newDatabase(self, event=None):
         """
         Создание пустой базы данных
         
         :Автор(ы): Константинов
         """
+        if DB.modified:
+            ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
+                                               "Хотите сохранить изменения перед закрытием?")
+            if ans:
+                self.save()
+            elif ans is None:
+                return
         DB.db, DB.modified, DB.currentFile = createEmptyDatabase()
         self.updateTitle()
         self.loadTables()
@@ -564,7 +581,7 @@ class MainWindow:
                     items.append(DB.db[i][title][j])
                 self.tables[i].add("", values=items)
 
-    def exit(self):
+    def exit(self, event=None):
         """
         Выход из приложения
         
@@ -580,7 +597,7 @@ class MainWindow:
         self.root.destroy()
         exit()
 
-    def open(self):
+    def open(self, event=None):
         """
         Открытие базы данных из файла .xlsx или бинарного файла pickle
         
@@ -600,11 +617,11 @@ class MainWindow:
         DB.db, DB.modified, DB.currentFile = openFromFile(file, DB.db,
                                                           DB.modified,
                                                           DB.currentFile,
-                                                          createEmptyDatabase)
+                                                          self.newDatabase)
         self.updateTitle()
         self.loadTables()
 
-    def save(self):
+    def save(self, event=None):
         """
         Сохранение базы данных в бинарный файл pickle
         
@@ -616,7 +633,7 @@ class MainWindow:
             self.saveas()
         self.updateTitle()
 
-    def saveas(self):
+    def saveas(self, event=None):
         """
         Сохранение базы данных в новый бинарный файл pickle
         
