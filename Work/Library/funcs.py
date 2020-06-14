@@ -146,7 +146,7 @@ def saveAsExcel(root, tree):
         pass  # pressed cancel
 
 
-def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
+def openFromFile(filename, db, modified, currentFile, createEmptyDatabase=None):
     """
     Открытик базы данных из файла .xslx или из бинарного файла pickle
     
@@ -169,7 +169,7 @@ def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
             dbf = open(filename, "rb")
         except FileNotFoundError:
             mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
-            createEmptyDatabase()
+            return createEmptyDatabase()
         else:
             currentFile = filename
             db = pk.load(dbf)
@@ -181,7 +181,7 @@ def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
             xls = pd.ExcelFile(filename)  # your repository
         except FileNotFoundError:
             mb.showerror(title="Файл не найден!", message="По указанному пути не удалось открыть файл. Будет создана пустая база данных.")
-            createEmptyDatabase()
+            return createEmptyDatabase()
         else:
             db = pd.read_excel(xls, list(range(5)))
             currentFile = ''
@@ -451,7 +451,7 @@ def getBar(root, window, df, directory):
     colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta',
               'whitesmoke', 'yellow']
     for i in range(len(data)):
-        ax1.bar(list(xlabels), data[i], width=.95-.1*i, color=colors[i],
+        ax1.bar(list(xlabels), data[i%10], width=.95-.1*i, color=colors[i],
                 label=quals, edgecolor='black', alpha=1)
     # ax1.legend(quals, prop={'size': 8})
     ax1.legend(quals, loc='upper left', bbox_to_anchor=(1, 1))
@@ -532,8 +532,12 @@ def getHist(root, window, df, directory):
     ax1.set_ylabel('$Частота$')
     colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta',
               'whitesmoke', 'yellow']
-    ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)],
-             label=quals, edgecolor='black')
+    try:
+        ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)],
+                 label=quals, edgecolor='black')
+    except:
+        message(root, "Слишком много значений.\nМаксимум: 10", msgtype="warning").fade()
+        return None, None
     # ax1.legend(prop={'size': 10})
     ax1.legend(loc='upper left', bbox_to_anchor=(1, 0.9))
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
@@ -1039,23 +1043,23 @@ def configureWidgets(scr, top):
     # menu
     menubar = tk.Menu(top)
     filemenu = tk.Menu(menubar, tearoff=0)
-    filemenu.add_command(label="Новый", command=scr.newDatabase)
-    filemenu.add_command(label="Открыть", command=scr.open)
-    filemenu.add_command(label="Сохранить", command=scr.save)
-    filemenu.add_command(label="Сохранить как...", command=scr.saveas)
-    filemenu.add_command(label="Экспорт в xlsx", command=scr.saveAsExcel)
+    filemenu.add_command(label="Новый", command=scr.newDatabase, accelerator="Ctrl+N")
+    filemenu.add_command(label="Открыть", command=scr.open, accelerator="Ctrl+O")
+    filemenu.add_command(label="Сохранить", command=scr.save, accelerator="Ctrl+S")
+    filemenu.add_command(label="Сохранить как...", command=scr.saveas, accelerator="Ctrl+Shift+S")
+    filemenu.add_command(label="Экспорт в xlsx", command=scr.saveAsExcel, accelerator="Ctrl+Q")
     filemenu.add_separator()
-    filemenu.add_command(label="Выход", command=scr.exit)
+    filemenu.add_command(label="Выход", command=scr.exit, accelerator="Ctrl+Esc")
     menubar.add_cascade(label="Файл", menu=filemenu)
 
     helpmenu = tk.Menu(menubar, tearoff=0)
-    helpmenu.add_command(label="Добавить", command=scr.addRecord)
-    helpmenu.add_command(label="Удалить", command=scr.deleteRecords)
-    helpmenu.add_command(label="Изменить", command=scr.modRecord)
+    helpmenu.add_command(label="Добавить", command=scr.addRecord, accelerator="Ctrl+Shift+A")
+    helpmenu.add_command(label="Удалить", command=scr.deleteRecords, accelerator="Delete")
+    helpmenu.add_command(label="Изменить", command=scr.modRecord, accelerator="Ctrl+R")
     menubar.add_cascade(label="Правка", menu=helpmenu)
 
     viewmenu = tk.Menu(menubar, tearoff=0)
-    viewmenu.add_command(label="Пути и интерфейс", command=scr.customizeGUI)
+    viewmenu.add_command(label="Пути и интерфейс", command=scr.customizeGUI, accelerator="Ctrl+P")
     menubar.add_cascade(label="Настройки", menu=viewmenu)
 
     top.config(menu=menubar)
