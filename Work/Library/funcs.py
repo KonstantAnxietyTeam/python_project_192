@@ -493,7 +493,8 @@ def getBar(root, window, df, directory):
     for i in range(len(data)):
         ax1.bar(list(xlabels), data[i%10], width=.95-.1*i, color=colors[i],
                 label=quals, edgecolor='black', alpha=1)
-    ax1.legend(quals)# loc='upper left', bbox_to_anchor=(1, 1))
+    # ax1.legend(quals, prop={'size': 8})
+    ax1.legend(quals, loc='upper left', bbox_to_anchor=(1, 1))
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
     for tick in ax1.xaxis.get_majorticklabels():
         tick.set_horizontalalignment('right')
@@ -577,7 +578,9 @@ def getHist(root, window, df, directory):
     except:
         message(root, 'Слишком много значений.\nМаксимум: 10', msgtype='warning').fade()
         return None, None
-    ax1.legend()
+    # ax1.legend(prop={'size': 10})
+    ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    plt.tight_layout()
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
 
     filename = createUniqueFilename(['гист', quant, qual], '.png', directory)
