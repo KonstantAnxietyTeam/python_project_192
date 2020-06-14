@@ -236,6 +236,17 @@ def createUniqueFilename(specs, extension, directory):
     return filename
 
 def getSummaryDf(df):
+    """
+    Создание общей таблицы
+
+    :param df: База данных
+    :type df: pandas.DataFrame
+    :return: Общая таблица
+    :rtype: pandas.DataFrame
+    :Автор(ы): Березуцкий
+    """
+
+
     totalDf = df[0].merge(df[1], how='left', left_on='Код работника', right_on='Код')
     totalDf = totalDf.merge(df[2], how='left', left_on='Код должности', right_on='Код').drop(['Код'], axis='columns')
     totalDf = totalDf.merge(df[3], how='left', left_on='Код_y', right_on='Код').drop(['Код_y', 'Код'], axis='columns')
@@ -576,6 +587,22 @@ def getHist(root, window, df, directory):
 
 
 def getQualityStatistics(root, window, df, directory):
+    """
+    Создание качественного отчета
+
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param df: База данных
+    :type df: pandas.DataFrame
+    :param directory: путь к папке для сохранение
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор(ы): Березуцкий
+    """
+
     sumDf = getSummaryDf(df)
     qual = window.ComboQual.get()
     quals = sumDf[qual].tolist()
@@ -609,6 +636,21 @@ def getQualityStatistics(root, window, df, directory):
 
 
 def getQuantStatistics(root, window, df, directory):
+    """
+    Создание количественного отчета
+
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param df: База данных
+    :type df: pandas.DataFrame
+    :param directory: путь к папке для сохранение
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор(ы): Березуцкий
+    """
     sumDf = getSummaryDf(df)
     
     quant = []
@@ -651,6 +693,21 @@ def getQuantStatistics(root, window, df, directory):
 
 
 def getPivotStatistics(root, window, df, directory):
+    """
+    Создание сводной таблицы
+
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param df: База данных
+    :type df: pandas.DataFrame
+    :param directory: путь к папке для сохранение
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор(ы): Березуцкий
+    """
     sumDf = getSummaryDf(df)
 
     qual = window.ComboQual.get()

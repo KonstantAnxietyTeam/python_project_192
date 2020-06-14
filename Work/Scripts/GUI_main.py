@@ -243,7 +243,7 @@ class MainWindow:
 
         :return: во всех трех меню выбран один из вариантов
         :rtype: bool
-        :Автор(ы): Константинов
+        :Автор(ы): Константинов, Березуцкий
         """
         return (self.ComboAnalysis.current() == -1) or \
                 (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == "normal") \
@@ -752,6 +752,15 @@ class MainWindow:
         self.statusbar.update_idletasks()
 
     def treeSort(self, treeview, col, reverse):
+        """
+        Сортировка таблиц по вазврастанию/убыванию при нажатии на заголовок вкладки
+
+        :param treeview: таблица для сортировки
+        :param col: колонка по которой происходит сортировка
+        :param reverse: показатель прямой или обратной сортировки
+        :Автор(ы): Березуцкий
+        """
+
         firstElement = treeview.set(treeview.get_children('')[0], col)
         if self.treeCheckForDigit(firstElement):
             l = [(float(treeview.set(k, col)), k) for k in treeview.get_children('')]
@@ -771,6 +780,14 @@ class MainWindow:
                                                        not reverse))
 
     def treeCheckForDigit(self, string):
+        """
+        Проверка строки на число
+
+        :param string: строка для проверки
+        :return: Возвращает True, если string число, иначе False
+        :rtype: boolean
+        :Автор(ы): Березуцкий
+        """
         # print(string, type(string))
         if string.isdigit():
             return True
