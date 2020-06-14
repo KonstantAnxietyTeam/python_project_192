@@ -51,11 +51,16 @@ def createEmptyDatabase():
 
     :Автор(ы): Константинов
     """
-    db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты', 'Сумма', 'Код работника']),
-                     pd.DataFrame(columns=['Код', 'Код должности', 'Отделение']),
-                     pd.DataFrame(columns=['Код', 'Название', 'Норма (ч)', 'Ставка (ч)']),
-                     pd.DataFrame(columns=['Код', 'ФИО', 'Номер договора', 'Телефон', 'Образование', 'Адрес']),
-                     pd.DataFrame(columns=['Код', 'Название', 'Телефон'])]
+    db = [pd.DataFrame(columns=['Код', 'Тип выплаты', 'Дата выплаты',
+                                'Сумма', 'Код работника']),
+          pd.DataFrame(columns=['Код', 'Код должности',
+                                'Отделение']),
+          pd.DataFrame(columns=['Код', 'Название', 'Норма (ч)',
+                                'Ставка (ч)']),
+          pd.DataFrame(columns=['Код', 'ФИО', 'Номер договора',
+                                'Телефон', 'Образование', 'Адрес']),
+          pd.DataFrame(columns=['Код', 'Название',
+                                'Телефон'])]
     modified = False
     currentFile = ''
     return db, modified, currentFile
@@ -80,7 +85,7 @@ def configureGUI(scr, top, bgcolor="whitesmoke"):
 
     # configure tables
     scr.tabs = [scr.Data_t1, scr.Data_t2, scr.Data_t3,
-            scr.Data_t4, scr.Data_t5]
+                scr.Data_t4, scr.Data_t5]
 
     scr.tables = [None] * 5
     for i in range(len(DB.db)):
@@ -93,8 +98,10 @@ def configureGUI(scr, top, bgcolor="whitesmoke"):
         scr.tables[i].heading("#0", text="")
 
         for j in range(len(columns)):
-            scr.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',\
-                       command= lambda _treeview = scr.tables[i], _col=columns[j]:scr.treeSort(_treeview, _col, False))
+            scr.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',
+                                  command=lambda _treeview=scr.tables[i],
+                                  col=columns[j]: scr.treeSort(_treeview, _col,
+                                                               False))
             scr.Data.update()
             width = int((scr.Data.winfo_width()-30)/(len(columns)-1))
             scr.tables[i].column(columns[j], width=width, stretch=tk.NO)
@@ -111,11 +118,11 @@ def configureGUI(scr, top, bgcolor="whitesmoke"):
     scr.scrolls = [None] * 5
     for i in range(len(scr.tabs)):
         scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient="vertical",
-                                        command=scr.tables[i].yview)
+                                       command=scr.tables[i].yview)
         scr.tables[i].configure(yscrollcommand=scr.scrolls[i].set)
         scr.scrolls[i].pack(fill="y", side='right')
         scr.scrolls[i] = ttk.Scrollbar(scr.tables[i], orient="horizontal",
-                                        command=scr.tables[i].xview)
+                                       command=scr.tables[i].xview)
         scr.tables[i].configure(xscrollcommand=scr.scrolls[i].set)
         scr.scrolls[i].pack(fill="x", side='bottom')
 
@@ -147,7 +154,10 @@ class MainWindow:
         refreshFromExcel("../Data/db.xlsx")  # use once for db.pickle
         self.root = root
         self.root.focus_force()
-        DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle", DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
+        DB.db, DB.modified, DB.currentFile = openFromFile("../Data/db.pickle",
+                                                          DB.db, DB.modified,
+                                                          DB.currentFile,
+                                                          createEmptyDatabase)
         self.config = getConfig()
         configureGUI(self, self.root, bgcolor=self.config["def_bg_color"])
         message(self.root, "Документацию и руководство\nпользователя можно найти\nв каталоге Notes", msgtype="info").fade()
@@ -187,12 +197,12 @@ class MainWindow:
             self.ComboQuant2.configure(state="disabled")
             self.LabelQual.configure(text="Качественный")
             self.LabelQuant.configure(text="Количественный")
-            self.ComboQuant["values"]=(quantComboValues)
+            self.ComboQuant["values"] = (quantComboValues)
 
     def paramsValid(self):
-        return (self.ComboAnalysis.current() == -1 or \
-            self.ComboQual.current() == -1 or \
-            self.ComboQuant.current() == -1)
+        return (self.ComboAnalysis.current() == -1 or
+                self.ComboQual.current() == -1 or
+                self.ComboQuant.current() == -1)
 
     def showReport(self):
         if self.paramsValid():
@@ -201,17 +211,22 @@ class MainWindow:
         nb = self.Data.index(self.Data.select())
         df = DB.db[nb]
         if self.ComboAnalysis.current() == 2:
-            plot, file = getBar(self.root, self, DB.db, self.config["def_graph_dir"])
-        elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(self.root, self, DB.db, self.config["def_graph_dir"])
+            plot, file = getBar(self.root, self, DB.db,
+                                self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 3:  # add analysis here
+            plot, file = getHist(self.root, self, DB.db,
+                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(self.root, self, DB.db, self.config["def_graph_dir"])
+            plot, file = getBoxWhisker(self.root, self, DB.db,
+                                       self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 5:
-            plot, file = getScatterplot(self.root, self, DB.db, self.config["def_graph_dir"])
+            plot, file = getScatterplot(self.root, self, DB.db,
+                                        self.config["def_graph_dir"])
         if file and plot:
             plot.show()
         else:
-            message(self.root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
+            message(self.root,
+                    "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
                     "другие данные", msgtype="error").fade()
 
     def exportReport(self):
@@ -220,17 +235,24 @@ class MainWindow:
             return
         nb = self.Data.index(self.Data.select())
         if self.ComboAnalysis.current() == 2:
-             plot, file = getBar(self.root, self, DB.db, self.config["def_graph_dir"])
-        elif self.ComboAnalysis.current() == 3: # add analysis here
-            plot, file = getHist(self.root, self, DB.db, self.config["def_graph_dir"])
+            plot, file = getBar(self.root, self, DB.db,
+                                self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 3:  # add analysis here
+            plot, file = getHist(self.root, self, DB.db,
+                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 4:
-            plot, file = getBoxWhisker(self.root, self, DB.db, self.config["def_graph_dir"])
+            plot, file = getBoxWhisker(self.root, self, DB.db,
+                                       self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 5:
+            plot, file = getScatterplot(self.root, self, DB.db,
+                                        self.config["def_graph_dir"])
         if file and plot:
             plot.savefig(file)
-            message(self.root, "Файл сохранён", msgtype="success").fade() # TODO show path
+            message(self.root, "Файл сохранён", msgtype="success").fade()  # TODO show path
             # need to change label to text in message
         else:
-            message(self.root, "Не удалось построить диаграмму,\nпопробуйте выбрать\n"+
+            message(self.root,
+                    "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
                     "другие данные", msgtype="error").fade()
 
     def saveAsExcel(self):
@@ -362,7 +384,8 @@ class MainWindow:
     def open_dialog(self):
         global newPar, select
         if len(select) != 0:
-            newPar = ChangeDialog(self.root, self.config, "Введите новое значение:").show()
+            newPar = ChangeDialog(self.root, self.config,
+                                  "Введите новое значение:").show()
             self.Filter_List2.delete(select[0])
             self.Filter_List2.insert(select[0], newPar)
             self.Filter_List2.selection_set(select[0])
@@ -452,7 +475,8 @@ class MainWindow:
 
     def exit(self):
         if DB.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
+                                               "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
             elif ans is None:
@@ -462,13 +486,20 @@ class MainWindow:
 
     def open(self):
         if DB.modified:
-            ans = tk.messagebox.askyesnocancel("Несохраненные изменения", "Хотите сохранить изменения перед закрытием?")
+            ans = tk.messagebox.askyesnocancel("Несохраненные изменения",
+                                               "Хотите сохранить изменения перед закрытием?")
             if ans:
                 self.save()
             elif ans is None:
                 return
-        file = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
-        DB.db, DB.modified, DB.currentFile = openFromFile(file, DB.db, DB.modified, DB.currentFile, createEmptyDatabase)
+        file = filedialog.askopenfilename(filetypes=[("pickle files",
+                                                      "*.pickle"),
+                                                     ("Excel files",
+                                                      "*.xls *.xlsx")])
+        DB.db, DB.modified, DB.currentFile = openFromFile(file, DB.db,
+                                                          DB.modified,
+                                                          DB.currentFile,
+                                                          createEmptyDatabase)
         self.updateTitle()
         self.loadTables()
 
@@ -480,7 +511,8 @@ class MainWindow:
         self.updateTitle()
 
     def saveas(self):
-        filename = filedialog.asksaveasfilename(filetypes=[], defaultextension=".pickle")
+        filename = filedialog.asksaveasfilename(filetypes=[],
+                                                defaultextension=".pickle")
         DB.currentFile = filename
         DB.modified = False
         self.updateTitle()
@@ -493,10 +525,11 @@ class MainWindow:
         if selected == 0:
             status += str(len(curTable.get_children()))
         else:
-            status += ("%d out of %d" % (selected, len(curTable.get_children())))
+            status += ("%d out of %d" % (selected,
+                                         len(curTable.get_children())))
         self.statusbar.config(text=status)
         self.statusbar.update_idletasks()
-        #self.root.after(100, self.statusUpdate)
+        # self.root.after(100, self.statusUpdate)
 
     def treeSort(self, treeview, col, reverse):
         firstElement = treeview.set(treeview.get_children('')[0], col)
@@ -513,7 +546,9 @@ class MainWindow:
         else:
             char = '        ▲'
 
-        treeview.heading(col, text=col+char, command=lambda: self.treeSort(treeview, col, not reverse))
+        treeview.heading(col, text=col+char,
+                         command=lambda: self.treeSort(treeview, col,
+                                                       not reverse))
 
     def treeCheckForDigit(self, string):
         # print(string, type(string))
@@ -582,8 +617,7 @@ class TreeViewWithPopup(ttk.Treeview):
 
             DB.db[nb] = DB.db[nb].append(
                     pd.DataFrame([[np.int64(item) if item.isdigit() else item for item in values]],
-                                     columns=keys),
-                                   ignore_index=True)
+                                 columns=keys), ignore_index=True)
             self.add("", values=values)
 
     def deleteRecords(self, event=None):
@@ -609,7 +643,8 @@ class TreeViewWithPopup(ttk.Treeview):
             selected = int(selected[0])
             itemId = np.int64(self.item(selected)['values'][0])
             itemValues = DB.db[nb][DB.db[nb]['Код'] == itemId].values[0].tolist()
-            dic = askValuesDialog(self.root, self.config, DB.db[nb].columns, currValues=itemValues).show()
+            dic = askValuesDialog(self.root, self.config, DB.db[nb].columns,
+                                  currValues=itemValues).show()
             keys = list(dic.keys())
             values = list(dic.values())
             if (len(values)):
