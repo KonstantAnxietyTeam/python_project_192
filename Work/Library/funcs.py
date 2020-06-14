@@ -39,7 +39,7 @@ def getDefaultConfig():
     
     :return: Словарь настроек по умолчанию
     :rtype: dict
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     config = {
         "def_db": "../Data/db.pickle",
@@ -66,7 +66,7 @@ def getConfig(configFile="../Library/config.txt"):
     :type configFile: string
     :return: словарь настроек
     :rtype: dict
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     f = open(configFile, 'r')
     config = dict()
@@ -91,7 +91,7 @@ def writeConfig(config=None, path="../Library/config.txt"):
     :type config: dict
     :param path: путь к файлу для сохранения
     :type path: string
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     f = open(path, 'w')
     f.write("###### paths\n")
@@ -119,7 +119,7 @@ def saveAsExcel(root, tree):
     :type tree: ttk.TreeView
     :param root: корневой объект для вывода сообщения
     :type root: tkinter widget
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     file = filedialog.asksaveasfilename(title="Select file",
                                         initialdir='../Data/db1.xlsx',
@@ -160,7 +160,7 @@ def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
     :type currentFile: string
     :param createEmptyDatabase: функция для создания пустой базы в случае неудачи
     :type createEmptyDatabase: функция
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     if not filename:
         return db, modified, currentFile
@@ -224,7 +224,7 @@ def createUniqueFilename(specs, extension, directory):
     :type directory: string
     :return: путь к файлу с созданным именем
     :rtype: string
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     newUID = 1
     specs.append(str(newUID))
@@ -399,7 +399,7 @@ def getBar(root, window, df, directory):
     :rtype: matplotlib.pyplot.figure
     :return: путь к файлу с уникальным именем для сохранения
     :rtype: string
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
@@ -469,7 +469,7 @@ def getHist(root, window, df, directory):
     :rtype: matplotlib.pyplot.figure
     :return: путь к файлу с уникальным именем для сохранения
     :rtype: string
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
@@ -540,7 +540,7 @@ def cutName(s):
     :type s: string
     :return: сокращенне имя
     :rtype: string
-    :Автор((ы): Константинов
+    :Автор(ы): Константинов
     """
     words = s.split()
     shortName = words[0]
@@ -559,7 +559,7 @@ def configureWidgets(scr, top):
     :type scr: MainWindow
     :param top: корневой объект
     :type top: tk.Tk
-    :Автор((ы): Константинов, Сидоров, Березуцкий
+    :Автор(ы): Константинов, Сидоров, Березуцкий
     """
     scr.Pick_Analysis = tk.LabelFrame(top, bg=scr.config["def_frame_color"],
                                       fg=scr.config["def_frame_fg_color"])
@@ -961,6 +961,7 @@ def saveToPickle(filename, obj):
     :type filename: string
     :param obj: объект для сохранения
     :type obj: любой объект
+    :Автор(ы): Константинов
     """
     if (filename):
         db = open(filename, "wb")
@@ -1017,6 +1018,7 @@ def testVal(inStr, acttyp):
 class message(tk.Toplevel):
     """
     Класс всплывающего сообщения
+    :Автор(ы): Константинов
     """
     def __init__(self, parent, prompt="Сообщение", msgtype="info"):
         """
@@ -1028,6 +1030,7 @@ class message(tk.Toplevel):
         :type prompt: string
         :param msgtype: тип сообщения [warning, error, success, info]; по умолчанию info
         :type msgtype: string
+        :Автор(ы): Константинов
         """
         self.opacity = 3.0
         tk.Toplevel.__init__(self, parent)
@@ -1048,6 +1051,7 @@ class message(tk.Toplevel):
         
         :param msgtype: тип сообщения [warning, error, success, info]; по умолчанию info
         :type msgtype: string
+        :Автор(ы): Константинов
         """
         self.header.configure(background=colorDict[msgtype][0])
         self.label.configure(background=colorDict[msgtype][1])
@@ -1056,6 +1060,7 @@ class message(tk.Toplevel):
     def fade(self):
         """
         Затухание окна
+        :Автор(ы): Константинов
         """
         self.opacity -= 0.01
         if self.opacity <= 0.05:
@@ -1068,6 +1073,7 @@ class message(tk.Toplevel):
 class askValuesDialog(tk.Toplevel):
     """
     Класс диалога для ввода данных
+        :Автор(ы): Константинов
     """
     def __init__(self, parent, config, labelTexts, currValues=None):
         """
@@ -1081,6 +1087,7 @@ class askValuesDialog(tk.Toplevel):
         :type labelTexts: list
         :param currValues: текущие значения параметров
         :type currValues: list
+        :Автор(ы): Константинов
         """
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
@@ -1126,6 +1133,7 @@ class askValuesDialog(tk.Toplevel):
     def exit(self):
         """
         Закрытие окна диалога
+        :Автор(ы): Константинов
         """
         self.retDict.clear()
         self.destroy()
@@ -1133,6 +1141,7 @@ class askValuesDialog(tk.Toplevel):
     def on_ok(self, event=None):
         """
         Закрытие окна диалога с подтверждением данных
+        :Автор(ы): Константинов
         """
         for edit in self.Edits[1:]:
             if edit.get().strip() == '':
@@ -1147,6 +1156,7 @@ class askValuesDialog(tk.Toplevel):
         
         :return: словарь введенных значений параметров
         :rtype: dict
+        :Автор(ы): Константинов
         """
         self.wm_deiconify()
         self.wait_window()
@@ -1156,6 +1166,7 @@ class askValuesDialog(tk.Toplevel):
 class CustomizeGUIDialog(tk.Toplevel):
     """
     Класс диалога настройки приложения
+        :Автор(ы): Константинов
     """
     def __init__(self, parent):
         """
@@ -1163,6 +1174,7 @@ class CustomizeGUIDialog(tk.Toplevel):
         
         :param parent: любой родительский объект
         :type parent: MainWindow или tk.Tk
+        :Автор(ы): Константинов
         """
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
@@ -1272,18 +1284,21 @@ class CustomizeGUIDialog(tk.Toplevel):
     def switchFs(self):
         """
         Запись параметра fullscreen в словарь настроек
+        :Автор(ы): Константинов
         """
         self.config["fullscreen"] = str(int(self.fsvar.get()))
 
     def switchMax(self):
         """
         Запись параметра maximize в словарь настроек
+        :Автор(ы): Константинов
         """
         self.config["maximize"] = str(int(self.maxvar.get()))
 
     def updateAll(self):
         """
         Обновление элементов окна диалога в соответствии с настоящим словарем настроек
+        :Автор(ы): Константинов
         """
         self.configure(bg=self.config["def_bg_color"])
         self.Frame.configure(bg=self.config["def_frame_color"],
@@ -1325,6 +1340,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def pickDir(self, event=None):
         """
         Выбор файлов и папок по нажатию на соответствующие кнопки
+        :Автор(ы): Константинов
         """
         if event == "db":
             path = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
@@ -1339,6 +1355,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def pickColor(self, event=None):
         """
         Выбор цвета по нажатию на соответствующую кнопку
+        :Автор(ы): Константинов
         """
         if event == "BtnText":
             trash, color = colorchooser.askcolor(color=self.BtnText.cget('fg'))
@@ -1362,6 +1379,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def exit(self):
         """
         Закрытие окна диалога
+        :Автор(ы): Константинов
         """
         self.retDict.clear()
         self.destroy()
@@ -1369,6 +1387,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def on_ok(self, event=None):
         """
         Закрытие окна диалога с подтверждением
+        :Автор(ы): Константинов
         """
         writeConfig(self.config)
         message(self.parent, "Сохранено\nИзменения будут применены\nпри следующем запуске\nприложения", msgtype="success").fade()
@@ -1377,6 +1396,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def show(self):
         """
         Отображение окна диалога
+        :Автор(ы): Константинов
         """
         self.wm_deiconify()
         self.wait_window()
