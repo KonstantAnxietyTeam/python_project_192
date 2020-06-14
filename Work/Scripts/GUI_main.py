@@ -543,7 +543,7 @@ class MainWindow:
         
         :Автор((ы): Константинов
         """
-        createEmptyDatabase()
+        DB.db, DB.modified, DB.currentFile = createEmptyDatabase()
         self.updateTitle()
         self.loadTables()
 

@@ -441,7 +441,7 @@ def getBar(root, window, df, directory):
     colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta',
               'whitesmoke', 'yellow']
     for i in range(len(data)):
-        ax1.bar(list(xlabels), data[i], width=.95-.1*i, color=colors[i],
+        ax1.bar(list(xlabels), data[i%10], width=.95-.1*i, color=colors[i],
                 label=quals, edgecolor='black', alpha=1)
     # ax1.legend(quals, prop={'size': 8})
     ax1.legend(quals, loc='upper left', bbox_to_anchor=(1, 1))
@@ -522,8 +522,12 @@ def getHist(root, window, df, directory):
     ax1.set_ylabel('$Частота$')
     colors = ['red', 'tan', 'lime', 'grey', 'black', 'blue', 'cyan', 'magenta',
               'whitesmoke', 'yellow']
-    ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)],
-             label=quals, edgecolor='black')
+    try:
+        ax1.hist(data, 10, density=False, histtype='bar', color=colors[:len(data)],
+                 label=quals, edgecolor='black')
+    except:
+        message(root, "Слишком много значений.\nМаксимум: 10", msgtype="warning").fade()
+        return None, None
     # ax1.legend(prop={'size': 10})
     ax1.legend(loc='upper left', bbox_to_anchor=(1, 0.9))
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
