@@ -258,10 +258,10 @@ def getScatterplot(root, window, fdf, directory):
     qual = window.ComboQual.get()
     quant1 = window.ComboQuant.get()
     quant2 = window.ComboQuant2.get()
-    fig, ax1 = plt.subplots(figsize=(8, 4))
     size = len(fdf[1].index)
     csize = len(fdf[0].index)
     if qual == "Должность" and ((quant1 == "Сумма" and quant2 == "Отработано (ч)") or (quant2 == "Сумма" and quant1 == "Отработано (ч)")):
+        fig, ax1 = plt.subplots(figsize=(8, 4))
         profs = fdf[2]["Название"].tolist()
         for i in range(len(profs)):
             fdata1 = []
@@ -276,6 +276,7 @@ def getScatterplot(root, window, fdf, directory):
                     fdata2.append(int(fdf[0].loc[j, "Отработано (ч)"]))
             ax1.scatter(fdata1, fdata2, label=profs[i])
     elif qual == "Образование" and ((quant1 == "Сумма" and quant2 == "Отработано (ч)") or (quant2 == "Сумма" and quant1 == "Отработано (ч)")):
+        fig, ax1 = plt.subplots(figsize=(8, 4))
         degrees = set(fdf[3]["Образование"].tolist())
         for degree in degrees:
             fdata1 = []
@@ -293,6 +294,7 @@ def getScatterplot(root, window, fdf, directory):
                                quant2 == "Отработано (ч)") or
                               (quant2 == "Сумма" and quant1 ==
                                "Отработано (ч)")):
+        fig, ax1 = plt.subplots(figsize=(8, 4))
         deps = fdf[4]["Название"].tolist()
         for i in range(len(deps)):
             fdata1 = []
@@ -308,7 +310,6 @@ def getScatterplot(root, window, fdf, directory):
             ax1.scatter(fdata1, fdata2, label=deps[i])
     else:
         return None, None
-    print(quant1, quant2)
     if quant1 == "Сумма" and quant2 == "Отработано (ч)":
         ax1.set_title('Диаграмма: $' + str(quant1) +
                       '$ от $' + str(quant2) + '$')
@@ -346,7 +347,6 @@ def getBoxWhisker(root, window, fdf, directory):
     """
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
-    fig, ax1 = plt.subplots(figsize=(8, 4))
     for i in range(5):
         fdf[i].index = np.arange(len(fdf[i]))
     data = []
@@ -395,6 +395,7 @@ def getBoxWhisker(root, window, fdf, directory):
             data.append(fdata)
     else:
         return None, None
+    fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.boxplot(data, 0, '')
     ax1.set_xticklabels(names, rotation=45, fontsize=8)
     ax1.set_title('Диаграмма: $' + str(quant) + '$ от $' + str(qual) + '$')
