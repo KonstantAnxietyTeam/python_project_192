@@ -211,8 +211,7 @@ class MainWindow:
         """
         Настройка меню выбора атрибутов в зависимости от выбранного вида отчета
         
-        :param root: корневой объект
-        :type root: tk.Tk
+        :param event: объект события
         :Автор(ы): Константинов
         """
         anId = self.ComboAnalysis.current()
@@ -317,6 +316,7 @@ class MainWindow:
         """
         Сохранение текущей таблицы в файл .xlsx
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         saveAsExcel(self.root, self.tables[self.Data.index("current")])
@@ -553,6 +553,7 @@ class MainWindow:
         """
         Создание пустой базы данных
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         if DB.modified:
@@ -586,6 +587,7 @@ class MainWindow:
         """
         Выход из приложения
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         if DB.modified:
@@ -602,6 +604,7 @@ class MainWindow:
         """
         Открытие базы данных из файла .xlsx или бинарного файла pickle
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         if DB.modified:
@@ -626,6 +629,7 @@ class MainWindow:
         """
         Сохранение базы данных в бинарный файл pickle
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         if (DB.currentFile != ''):
@@ -638,6 +642,7 @@ class MainWindow:
         """
         Сохранение базы данных в новый бинарный файл pickle
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         filename = filedialog.asksaveasfilename(filetypes=[],
@@ -651,6 +656,7 @@ class MainWindow:
         """
         Обновление строки состояния
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         curTable = self.tables[self.Data.index(self.Data.select())]
@@ -764,6 +770,7 @@ class TreeViewWithPopup(ttk.Treeview):
         """
         Выделение всех строк
         
+        :param event: объект события
         :Автор(ы): Константинов
         """
         self.selection_set(tuple(self.get_children()))
