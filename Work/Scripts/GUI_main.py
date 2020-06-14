@@ -211,7 +211,7 @@ class MainWindow:
             self.ComboQuant.configure(state="disabled")
             self.ComboQual.configure(state="normal")
         elif anId == 1:
-            self.ComboQuant.configure(state="normal")
+            self.ComboQuant.configure(state="disabled")
             self.ComboQual.configure(state="disabled")
         else:
             self.ComboQuant.configure(state="normal")
@@ -255,6 +255,9 @@ class MainWindow:
         if self.ComboAnalysis.current() == 0:
             plot, file = getQualityStatistics(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 1:
+            plot, file = getQuantStatistics(self.root, self, DB.db,
+                                self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
@@ -266,6 +269,9 @@ class MainWindow:
                                        self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 5:
             plot, file = getScatterplot(self.root, self, DB.db,
+                                        self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 6:
+            plot, file = getPivotStatistics(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         if file and plot:
             plt.show(plot)
@@ -284,7 +290,13 @@ class MainWindow:
             message(self.root, "Не выбран элемент", msgtype="warning").fade()
             return
         nb = self.Data.index(self.Data.select())
-        if self.ComboAnalysis.current() == 2:
+        if self.ComboAnalysis.current() == 0:
+            plot, file = getQualityStatistics(self.root, self, DB.db,
+                                self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 1:
+            plot, file = getQuantStatistics(self.root, self, DB.db,
+                                self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 3:  # add analysis here
@@ -295,6 +307,9 @@ class MainWindow:
                                        self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 5:
             plot, file = getScatterplot(self.root, self, DB.db,
+                                        self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 6:
+            plot, file = getPivotStatistics(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         if file and plot:
             plot.savefig(file)

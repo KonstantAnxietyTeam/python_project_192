@@ -237,11 +237,11 @@ def createUniqueFilename(specs, extension, directory):
     filename = directory + '_'.join(specs).replace(' ', '_') + extension
     return filename
 
-def getSummaryDB(df):
-    totalDf = df[0].merge(df[1], how='left', left_on='Код работника', right_on='Код').drop(['Код работника'], axis='columns')
-    totalDf = totalDf.merge(df[2], how='left', left_on='Код должности', right_on='Код').drop(['Код должности', 'Код'], axis='columns')
+def getSummaryDf(df):
+    totalDf = df[0].merge(df[1], how='left', left_on='Код работника', right_on='Код')
+    totalDf = totalDf.merge(df[2], how='left', left_on='Код должности', right_on='Код').drop(['Код'], axis='columns')
     totalDf = totalDf.merge(df[3], how='left', left_on='Код_y', right_on='Код').drop(['Код_y', 'Код'], axis='columns')
-    totalDf = totalDf.merge(df[4], how='left', left_on='Отделение', right_on='Код').drop(['Отделение', 'Код'], axis='columns')
+    totalDf = totalDf.merge(df[4], how='left', left_on='Отделение', right_on='Код').drop(['Код'], axis='columns')
     totalDf = totalDf.rename(columns={'Код_x': 'Код', 'Название_x':'Должность', 'Название_y':'Отдел'})
     totalDf = totalDf.rename(columns={'Код_x': 'Код', 'Название_x':'Должность', 'Название_y':'Отдел'})
 
@@ -543,9 +543,9 @@ def getHist(root, window, df, directory):
 
 
 def getQualityStatistics(root, window, df, directory):
-    sumDB = getSummaryDB(df)
+    sumDf = getSummaryDf(df)
     qual = window.ComboQual.get()
-    quals = sumDB[qual].tolist()
+    quals = sumDf[qual].tolist()
     
     columns = ('Переменная', 'Количество', 'Процент')
 
@@ -574,6 +574,75 @@ def getQualityStatistics(root, window, df, directory):
     filename = createUniqueFilename(['Качественная', qual], '.png', directory)
     return fig, filename
 
+
+def getQuantStatistics(root, window, df, directory):
+    sumDf = getSummaryDf(df)
+    
+    quant = []
+    tab = window.Data.index('current')
+    for i in range(len(window.Cvars[tab])):
+        if(window.Cvars[tab][i].get() == 1):
+            quant.append(window.tables[tab]["columns"][i+1]) #код пропускается
+    
+    columns = ('Переменная', 'Минимум', 'Максимум', 'Среднее', 'Дисперсия', 'Стандартное отклонение')
+    
+    fig, ax = plt.subplots(figsize = (12,12))
+    
+    # hide axes
+    fig.patch.set_visible(False)
+    ax.axis('off')
+    ax.axis('tight')
+    
+    cellTable = []
+    for column in quant: #todo edit
+        quants = sumDf[column].tolist()
+        try:
+            line = []
+            line.append(column)
+            line.append(round(min(quants), 2))  #min
+            line.append(round(max(quants), 2))  #max
+            line.append(round(np.mean(quants), 2))  #avg
+            line.append(round(np.var(quants), 2))   #dispersion
+            #line.append(round(sum((xi - np.mean(quants)) ** 2 for xi in quants)/len(quants)  , 2))
+            line.append(round(np.std(quants), 2))   #stdDeviation
+            cellTable.append(line)
+        except TypeError:
+            return
+
+    ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
+    fig.tight_layout()
+    
+    filename = createUniqueFilename(['Количественная'], '.png', directory)
+    
+    return fig, filename
+
+
+def getPivotStatistics(root, window, df, directory):
+    sumDf = getSummaryDf(df)
+
+    qual = window.ComboQual.get()
+    quant = window.ComboQuant.get()
+    
+    tableDf = sumDf.pivot_table(quant, index=qual)
+    
+    columns = (qual, quant)
+    cellTable = []
+
+    for j in tableDf.index:
+        line = [j]
+        line.append(round(tableDf[tableDf.columns[0]][j], 2))
+        cellTable.append(line)
+
+    fig, ax = plt.subplots()
+
+    fig.patch.set_visible(False)
+    ax.axis('off')
+    ax.axis('tight')
+    
+    ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
+    fig.tight_layout()
+    filename = createUniqueFilename(['Сводная', qual, quant], '.png', directory)
+    return fig, filename
 
 def cutName(s):
     """
@@ -617,7 +686,8 @@ def configureWidgets(scr, top):
                                              'Столбчатая диаграмма',
                                              'Гистограмма',
                                              'Диаграмма Бокса-Вискера',
-                                             'Диаграмма рассеивания'])
+                                             'Диаграмма рассеивания',
+                                             'Сводная таблица'])
     scr.ComboAnalysis.place(relx=.05, rely=.35, height=20, relwidth=.9,
                             bordermode='ignore')
 
