@@ -1,5 +1,6 @@
 """
-Модуль, содержащий универсальные функции
+Модуль, содержащий универсальные функции, либо требующие минимальных модификаций
+для применение в других проектах
 """
 
 import sys
@@ -31,6 +32,13 @@ qualComboValues = ["Тип выплаты", "Должность", "Образо�
 
 
 def getDefaultConfig():
+    """
+    Генерация настроек по умолчанию
+    
+    :return: Словарь настроек по умолчанию
+    :rtype: dict
+    :Автор((ы): Константинов
+    """
     config = {
         "def_db":"../Data/db.pickle",
         "def_graph_dir":"../Graphics/",
@@ -49,6 +57,15 @@ def getDefaultConfig():
 
 
 def getConfig(configFile="../Library/config.txt"):
+    """
+    Загрузка настроек из файла
+    
+    :param configFile: путь к файлу настроек
+    :type configFile: string
+    :return: словарь настроек
+    :rtype: dict
+    :Автор((ы): Константинов
+    """
     f = open(configFile, 'r')
     config = dict()
     config = getDefaultConfig()
@@ -65,6 +82,15 @@ def getConfig(configFile="../Library/config.txt"):
 
 
 def writeConfig(config=None, path="../Library/config.txt"):
+    """
+    Запись настроек в файл
+    
+    :param config: словарь настроек
+    :type config: dict
+    :param path: путь к файлу для сохранения
+    :type path: string
+    :Автор((ы): Константинов
+    """
     f = open(path, 'w')
     f.write("###### paths\n")
     for key in ["def_db", "def_graph_dir", "def_output_dir"]:
@@ -81,7 +107,16 @@ def writeConfig(config=None, path="../Library/config.txt"):
     f.close()
 
 
-def saveAsExcel(tree):
+def saveAsExcel(tree, root):
+    """
+    Сохранение содержимого таблицы treeview в файл .xlsx
+    
+    :param tree: таблица
+    :type tree: ttk.TreeView
+    :param root: корневой объект для вывода сообщения
+    :type root: tkinter widget
+    :Автор((ы): Константинов
+    """
     file = filedialog.asksaveasfilename(title="Select file", initialdir='../Data/db1.xlsx', defaultextension=".xlsx", filetypes=[("Excel file", "*.xlsx")])
     if file:
         ids=tree.get_children()
@@ -105,6 +140,21 @@ def saveAsExcel(tree):
 
 
 def openFromFile(filename, db, modified, currentFile, createEmptyDatabase):
+    """
+    Открытик базы данных из файла .xslx или из бинарного файла pickle
+    
+    :param filename: путь к файлу для сохранения
+    :type filename: string
+    :param db: текущая база для возврата в случае ошибочного параметра имени файла
+    :type db: pandas.DataFrame
+    :modified: настоящее состояние текущей базы данных для возврата в случае ошибочного параметра имени файла
+    :type modified: bool
+    :param currentFile: пусть к файлу текущей базы данных для возврата в случае ошибочного параметра имени файла
+    :type currentFile: string
+    :param createEmptyDatabase: функция для создания пустой базы в случае неудачи
+    :type createEmptyDatabase: функция
+    :Автор((ы): Константинов
+    """
     if not filename:
         return db, modified, currentFile
     if (filename[-6::] == "pickle"):
@@ -136,7 +186,7 @@ def getUID(s):
     """
     Изъятие UID из строки формата `info1_info2_UID.png`
     
-    :param s: Имя файла
+    :param s: имя файла
     :type s: string
     :return: UID
     :rtype: `integer`
@@ -159,13 +209,13 @@ def createUniqueFilename(specs, extension, directory):
     """
     Создание уникального для директории имени файла в формате `spec_spec_spec_UID.ext`
     
-    :param specs: Список для формирования информационной части названия
+    :param specs: список для формирования информационной части названия
     :type specs: list
-    :param extension: Расширение файла
+    :param extension: расширение файла
     :type extension: string
-    :param directory: Директория для сохранения
+    :param directory: директория для сохранения
     :type directory: string
-    :return: Путь к файлу с созданным именем
+    :return: путь к файлу с созданным именем
     :rtype: string
     :Автор((ы): Константинов
     """
@@ -252,6 +302,22 @@ def getBoxWhisker(root, window, fdf, directory):
     return fig, filename
 
 def getBar(root, window, df, directory):
+    """
+    Создание кластеризованной столбчатой диаграммы (доступные комбинации:
+    Должность-Образование, Образование-Должность)
+    
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param df: База данных
+    :type df: pandas.DataFrame
+    :param directory: путь к папке для сохранение
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор((ы): Константинов
+    """
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     quals = []
@@ -300,6 +366,22 @@ def getBar(root, window, df, directory):
 
 
 def getHist(root, window, df, directory):
+    """
+    Создание гатегаризованной гистограммы (доступные комбинации:
+    Должность-Сумма, Образование-Сумма, Отдел-Сумма)
+    
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param df: База данных
+    :type df: pandas.DataFrame
+    :param directory: путь к папке для сохранение
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор((ы): Константинов
+    """
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     quals = []
@@ -357,6 +439,15 @@ def getHist(root, window, df, directory):
 
 
 def cutName(s):
+    """
+    Сокращение полного имени из двух или трех слов до фамилии с инициалами
+    
+    :param s: полное имя
+    :type s: string
+    :return: сокращенне имя
+    :rtype: string
+    :Автор((ы): Константинов
+    """
     words = s.split()
     shortName = words[0]
     if len(words) > 1:
@@ -367,6 +458,15 @@ def cutName(s):
 
 
 def configureWidgets(scr, top):
+    """
+    Создание виджетов приложения
+    
+    :param scr: объект окна
+    :type scr: MainWindow
+    :param top: корневой объект
+    :type top: tk.Tk
+    :Автор((ы): Константинов, Сидоров, Березуцкий
+    """
     scr.Pick_Analysis = tk.LabelFrame(top, bg=scr.config["def_frame_color"], fg=scr.config["def_frame_fg_color"])
     scr.Pick_Analysis.place(relx=0.023, rely=0.017, relheight=0.33,
                             relwidth=0.207)
@@ -662,7 +762,7 @@ def configureWidgets(scr, top):
     filemenu.add_command(label="Открыть", command=scr.open)
     filemenu.add_command(label="Сохранить", command=scr.save)
     filemenu.add_command(label="Сохранить как...", command=scr.saveas)
-    filemenu.add_command(label="Экспорт", command=scr.saveAsExcel)
+    filemenu.add_command(label="Экспорт в xslx", command=scr.saveAsExcel)
     filemenu.add_separator()
     filemenu.add_command(label="Выход", command=scr.exit)
     menubar.add_cascade(label="Файл", menu=filemenu)
@@ -685,15 +785,15 @@ def configureWidgets(scr, top):
     scr.statusbar.pack(side=tk.BOTTOM, fill=tk.X)
 
 
-def refreshFromExcel(filename):
-    xls = pd.ExcelFile(filename)  # your repository
-    p = []
-    for sheet in xls.sheet_names:
-        p.append(pd.read_excel(xls, sheet))
-    saveToPickle("../Data/db.pickle", p)
-
-
 def saveToPickle(filename, obj):
+    """
+    Сохранение объекта в бинарный файл pickle
+    
+    :param filename: путь к файлу для сохранения
+    :type filename: string
+    :param obj: объект для сохранения
+    :type obj: любой объект
+    """
     if (filename):
         db = open(filename, "wb")
         pk.dump(obj, db)
@@ -745,7 +845,20 @@ def testVal(inStr,acttyp):
 
 
 class message(tk.Toplevel):
+    """
+    Класс всплывающего сообщения
+    """
     def __init__(self, parent, prompt="Сообщение", msgtype="info"):
+        """
+        Инициализация окна сообщения
+        
+        :param parent: любой родительский объект
+        :type parent: MainWindow или tk.Tk
+        :param prompt: сообщение
+        :type prompt: string
+        :param msgtype: тип сообщения [warning, error, success, info]; по умолчанию info
+        :type msgtype: string
+        """
         self.opacity = 3.0
         tk.Toplevel.__init__(self, parent)
         self.resizable(0, 0)
@@ -759,11 +872,20 @@ class message(tk.Toplevel):
         self.overrideredirect(True)
 
     def setColor(self, msgtype="info"):
+        """
+        Задача цвета элементам сообщения в соответствии со словарем colorDict
+        
+        :param msgtype: тип сообщения [warning, error, success, info]; по умолчанию info
+        :type msgtype: string
+        """
         self.header.configure(background=colorDict[msgtype][0])
         self.label.configure(background=colorDict[msgtype][1])
         self.configure(background=colorDict[msgtype][1])
 
     def fade(self):
+        """
+        Затухание окна
+        """
         self.opacity -= 0.01
         if self.opacity <= 0.05:
             self.destroy()
@@ -773,7 +895,22 @@ class message(tk.Toplevel):
 
 
 class askValuesDialog(tk.Toplevel):
+    """
+    Класс диалога для ввода данных
+    """
     def __init__(self, parent, config, labelTexts, currValues=None):
+        """
+        Инициализация окна диалога
+        
+        :param parent: любой родительский объект
+        :type parent: MainWindow или tk.Tk
+        :param config: словарь настроек для получения цветов
+        :type config: dict
+        :param labelTexts: имена вводимых параметров
+        :type labelTexts: list
+        :param currValues: текущие значения параметров
+        :type currValues: list
+        """
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
         x = str(parent.winfo_screenwidth() // 2 - 150)
@@ -811,10 +948,16 @@ class askValuesDialog(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.exit)
 
     def exit(self):
+        """
+        Закрытие окна диалога
+        """
         self.retDict.clear()
         self.destroy()
 
     def on_ok(self, event=None):
+        """
+        Закрытие окна диалога с подтверждением данных
+        """
         for edit in self.Edits[1:]:
             if edit.get().strip() == '':
                 message(self.parent, "Поля не могут быть пустыми.", msgtype="warning").fade()
@@ -822,13 +965,28 @@ class askValuesDialog(tk.Toplevel):
         self.destroy()
 
     def show(self):
+        """
+        Получение данных после закрытия окна (вызвать для отображения)
+        
+        :return: словарь введенных значений параметров
+        :rtype: dict
+        """
         self.wm_deiconify()
         self.wait_window()
         return self.retDict
 
 
 class CustomizeGUIDialog(tk.Toplevel):
+    """
+    Класс диалога настройки приложения
+    """
     def __init__(self, parent):
+        """
+        Инициализация окна даилога
+        
+        :param parent: любой родительский объект
+        :type parent: MainWindow или tk.Tk
+        """
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
         x = str(parent.winfo_screenwidth() // 2 - 150)
@@ -913,12 +1071,21 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.exit)
 
     def switchFs(self):
+        """
+        Запись параметра fullscreen в словарь настроек
+        """
         self.config["fullscreen"] = str(int(self.fsvar.get()))
         
     def switchMax(self):
+        """
+        Запись параметра maximize в словарь настроек
+        """
         self.config["maximize"] = str(int(self.maxvar.get()))
         
     def updateAll(self):
+        """
+        Обновление элементов окна диалога в соответствии с настоящим словарем настроек
+        """
         self.configure(bg=self.config["def_bg_color"])
         self.Frame.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
         self.Label.configure(bg=self.config["def_frame_color"], fg=self.config["def_frame_fg_color"])
@@ -941,6 +1108,9 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.maxvar.set(self.config["maximize"])
         
     def pickDir(self, event=None):
+        """
+        Выбор файлов и папок по нажатию на соответствующие кнопки
+        """
         if event == "db":
             path = filedialog.askopenfilename(filetypes=[("pickle files", "*.pickle"), ("Excel files", "*.xls *.xlsx")])
             self.config["def_db"] = path + '/'
@@ -952,6 +1122,9 @@ class CustomizeGUIDialog(tk.Toplevel):
             self.config["def_output_dir"] = path + '/'
 
     def pickColor(self, event=None):
+        """
+        Выбор цвета по нажатию на соответствующую кнопку
+        """
         if event == "BtnText":
             trash, color = colorchooser.askcolor(color=self.BtnText.cget('fg'))
             self.config["def_btn_fg_color"] = color
@@ -972,15 +1145,24 @@ class CustomizeGUIDialog(tk.Toplevel):
         self.updateAll()
         
     def exit(self):
+        """
+        Закрытие окна диалога
+        """
         self.retDict.clear()
         self.destroy()
 
     def on_ok(self, event=None):
+        """
+        Закрытие окна диалога с подтверждением
+        """
         writeConfig(self.config)
         message(self.parent, "Сохранено\nИзменения будут применены\nпри следующем запуске\nприложения", msgtype="success").fade()
         self.destroy()
 
     def show(self):
+        """
+        Отображение окна диалога
+        """
         self.wm_deiconify()
         self.wait_window()
-        return self.retDict
+        return

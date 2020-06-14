@@ -7,7 +7,9 @@ import tkinter as tk
 
 
 def start_gui():
-    """Starting point when module is the main routine."""
+    """
+    Создание окна и запуск приложения
+    """
     root = tk.Tk()
     top = MainWindow(root)
     root.mainloop()
