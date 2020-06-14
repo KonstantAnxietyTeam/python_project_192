@@ -16,7 +16,7 @@ from tkinter import colorchooser
 import matplotlib
 from os import listdir
 from os.path import isfile, join
-
+from collections import Counter
 
 colorDict = {"warning": ["yellow", "lightyellow"],
              "error": ["red", "mistyrose"],
@@ -236,6 +236,16 @@ def createUniqueFilename(specs, extension, directory):
     specs[-1] = str(newUID)
     filename = directory + '_'.join(specs).replace(' ', '_') + extension
     return filename
+
+def getSummaryDB(df):
+    totalDf = df[0].merge(df[1], how='left', left_on='Код работника', right_on='Код').drop(['Код работника'], axis='columns')
+    totalDf = totalDf.merge(df[2], how='left', left_on='Код должности', right_on='Код').drop(['Код должности', 'Код'], axis='columns')
+    totalDf = totalDf.merge(df[3], how='left', left_on='Код_y', right_on='Код').drop(['Код_y', 'Код'], axis='columns')
+    totalDf = totalDf.merge(df[4], how='left', left_on='Отделение', right_on='Код').drop(['Отделение', 'Код'], axis='columns')
+    totalDf = totalDf.rename(columns={'Код_x': 'Код', 'Название_x':'Должность', 'Название_y':'Отдел'})
+    totalDf = totalDf.rename(columns={'Код_x': 'Код', 'Название_x':'Должность', 'Название_y':'Отдел'})
+
+    return totalDf
 
 
 def getScatterplot(root, window, fdf, directory):
@@ -529,6 +539,39 @@ def getHist(root, window, df, directory):
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
 
     filename = createUniqueFilename(['гист', quant, qual], '.png', directory)
+    return fig, filename
+
+
+def getQualityStatistics(root, window, df, directory):
+    sumDB = getSummaryDB(df)
+    qual = window.ComboQual.get()
+    quals = sumDB[qual].tolist()
+    
+    columns = ('Переменная', 'Количество', 'Процент')
+
+    fig, ax = plt.subplots(figsize =(12, 12))
+
+    # hide axes
+    fig.patch.set_visible(False)
+    ax.axis('off')
+    ax.axis('tight')
+    
+    elementCount = Counter(quals).most_common()
+    count = len(quals)
+
+    cellTable = []
+    for i in elementCount:
+        line = []
+        line.append(i[0])
+        line.append(i[1])
+        line.append(i[1]*100/count)
+        cellTable.append(line)
+
+    ax.table(cellText=cellTable, colLabels=columns, cellLoc='center', loc='center')
+    fig.tight_layout()
+
+
+    filename = createUniqueFilename(['Качественная', qual], '.png', directory)
     return fig, filename
 
 

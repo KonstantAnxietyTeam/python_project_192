@@ -108,7 +108,7 @@ def configureGUI(scr, top):
         for j in range(len(columns)):
             scr.tables[i].heading(columns[j], text=columns[j]+'       ▼▲',
                                   command=lambda _treeview=scr.tables[i],
-                                  col=columns[j]: scr.treeSort(_treeview, _col,
+                                  _col=columns[j]: scr.treeSort(_treeview, _col,
                                                                False))
             scr.Data.update()
             width = int((scr.Data.winfo_width()-30)/(len(columns)-1))
@@ -237,9 +237,9 @@ class MainWindow:
         :rtype: bool
         :Автор(ы): Константинов
         """
-        return (self.ComboAnalysis.current() == -1 or
-                self.ComboQual.current() == -1 or
-                self.ComboQuant.current() == -1)
+        return (self.ComboAnalysis.current() == -1) or \
+                (self.ComboQuant.current() == -1 and self.ComboQuant['state'].string == "normal") \
+                or (self.ComboQual.current() == -1 and self.ComboQual['state'].string == "normal")
 
     def showReport(self):
         """
@@ -252,7 +252,10 @@ class MainWindow:
             return
         nb = self.Data.index(self.Data.select())
         df = DB.db[nb]
-        if self.ComboAnalysis.current() == 2:
+        if self.ComboAnalysis.current() == 0:
+            plot, file = getQualityStatistics(self.root, self, DB.db,
+                                self.config["def_graph_dir"])
+        elif self.ComboAnalysis.current() == 2:
             plot, file = getBar(self.root, self, DB.db,
                                 self.config["def_graph_dir"])
         elif self.ComboAnalysis.current() == 3:  # add analysis here
@@ -265,7 +268,7 @@ class MainWindow:
             plot, file = getScatterplot(self.root, self, DB.db,
                                         self.config["def_graph_dir"])
         if file and plot:
-            plot.show()
+            plt.show(plot)
         else:
             message(self.root,
                     "Не удалось построить диаграмму,\nпопробуйте выбрать\n" +
