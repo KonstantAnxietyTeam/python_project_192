@@ -36,7 +36,7 @@ qualComboValues = ["Должность", "Образование", "Отдел"]
 def getDefaultConfig():
     """
     Генерация настроек по умолчанию
-    
+
     :return: Словарь настроек по умолчанию
     :rtype: dict
     :Автор(ы): Константинов
@@ -61,7 +61,7 @@ def getDefaultConfig():
 def getConfig(configFile="../Library/config.txt"):
     """
     Загрузка настроек из файла
-    
+
     :param configFile: путь к файлу настроек
     :type configFile: string
     :return: словарь настроек
@@ -86,7 +86,7 @@ def getConfig(configFile="../Library/config.txt"):
 def writeConfig(config=None, path="../Library/config.txt"):
     """
     Запись настроек в файл
-    
+
     :param config: словарь настроек
     :type config: dict
     :param path: путь к файлу для сохранения
@@ -114,7 +114,7 @@ def writeConfig(config=None, path="../Library/config.txt"):
 def saveAsExcel(root, tree):
     """
     Сохранение содержимого таблицы treeview в файл .xlsx
-    
+
     :param tree: таблица
     :type tree: ttk.TreeView
     :param root: корневой объект для вывода сообщения
@@ -149,7 +149,7 @@ def saveAsExcel(root, tree):
 def openFromFile(filename, db, modified, currentFile, createEmptyDatabase=None):
     """
     Открытик базы данных из файла .xslx или из бинарного файла pickle
-    
+
     :param filename: путь к файлу для сохранения
     :type filename: string
     :param db: текущая база для возврата в случае ошибочного параметра имени файла
@@ -192,7 +192,7 @@ def openFromFile(filename, db, modified, currentFile, createEmptyDatabase=None):
 def getUID(s):
     """
     Изъятие UID из строки формата `info1_info2_UID.png`
-    
+
     :param s: имя файла
     :type s: string
     :return: UID
@@ -215,7 +215,7 @@ def getUID(s):
 def createUniqueFilename(specs, extension, directory):
     """
     Создание уникального для директории имени файла в формате `spec_spec_spec_UID.ext`
-    
+
     :param specs: список для формирования информационной части названия
     :type specs: list
     :param extension: расширение файла
@@ -249,6 +249,22 @@ def getSummaryDf(df):
 
 
 def getScatterplot(root, window, fdf, directory):
+    """
+    Создание категоризированной диаграммы рассеивания (доступные комбинации:
+    Сумма-Отработано(ч) для: Должность, Образование, Отдел))
+
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param fdf: База данных
+    :type fdf: pandas.DataFrame
+    :param directory: путь к папке для сохранения
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор(ы): Сидоров
+    """
     qual = window.ComboQual.get()
     quant1 = window.ComboQuant.get()
     quant2 = window.ComboQuant2.get()
@@ -270,8 +286,7 @@ def getScatterplot(root, window, fdf, directory):
                     fdata2.append(int(fdf[0].loc[j, "Отработано (ч)"]))
             ax1.scatter(fdata1, fdata2, label=profs[i])
     elif qual == "Образование" and ((quant1 == "Сумма" and quant2 == "Отработано (ч)") or (quant2 == "Сумма" and quant1 == "Отработано (ч)")):
-        degrees = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
-                   "Студент"]
+        degrees = set(fdf[3]["Образование"].tolist())
         for degree in degrees:
             fdata1 = []
             fdata2 = []
@@ -323,6 +338,22 @@ def getScatterplot(root, window, fdf, directory):
 
 
 def getBoxWhisker(root, window, fdf, directory):
+    """
+    Создание категоризированной диаграммы Бокса-Вискера (доступные комбинации:
+    Должность-Сумма, Образование-Сумма, Отдел-Сумма))
+
+    :param window: объект окна содержащего меню с параметрами
+    :type window: MainWindow
+    :param fdf: База данных
+    :type fdf: pandas.DataFrame
+    :param directory: путь к папке для сохранения
+    :type directory: string
+    :return: объект построенной диаграммы
+    :rtype: matplotlib.pyplot.figure
+    :return: путь к файлу с уникальным именем для сохранения
+    :rtype: string
+    :Автор(ы): Сидоров
+    """
     qual = window.ComboQual.get()
     quant = window.ComboQuant.get()
     fig, ax1 = plt.subplots(figsize=(8, 4))
@@ -345,11 +376,10 @@ def getBoxWhisker(root, window, fdf, directory):
                     fnums.append(fdf[1].loc[j, "Код"])
             for j in range(csize):
                 if fdf[0].loc[j, "Код работника"] in fnums:
-                    print(fdf[0].loc[j, "Сумма"])
                     fdata.append(int(fdf[0].loc[j, "Сумма"]))
+            data.append(fdata)
     elif (qual == "Образование" and quant == "Сумма"):
-        names = ["Высшее", "Неоконченное высшее", "Среднее профессиональное",
-                 "Студент"]
+        names = set(fdf[3]["Образование"].tolist())
         for i in names:
             fdata = []
             fnums = []
@@ -398,7 +428,7 @@ def getBar(root, window, df, directory):
     """
     Создание кластеризованной столбчатой диаграммы (доступные комбинации:
     Должность-Образование, Образование-Должность)
-    
+
     :param window: объект окна содержащего меню с параметрами
     :type window: MainWindow
     :param df: База данных
@@ -468,7 +498,7 @@ def getHist(root, window, df, directory):
     """
     Создание гатегаризованной гистограммы (доступные комбинации:
     Должность-Сумма, Образование-Сумма, Отдел-Сумма)
-    
+
     :param window: объект окна содержащего меню с параметрами
     :type window: MainWindow
     :param df: База данных
@@ -651,7 +681,7 @@ def getPivotStatistics(root, window, df, directory):
 def cutName(s):
     """
     Сокращение полного имени из двух или трех слов до фамилии с инициалами
-    
+
     :param s: полное имя
     :type s: string
     :return: сокращенне имя
@@ -670,7 +700,7 @@ def cutName(s):
 def configureWidgets(scr, top):
     """
     Создание виджетов приложения
-    
+
     :param scr: объект окна
     :type scr: MainWindow
     :param top: корневой объект
@@ -816,7 +846,7 @@ def configureWidgets(scr, top):
                             bordermode='ignore')
     scr.Change_Button.configure(cursor="hand2")
     scr.Change_Button.configure(text="Изменить значения",
-                                command=scr.open_dialog)
+                                command=scr.openDialog)
 
     scr.Reset_Button = tk.Button(scr.Filter_Frame, text="Сбросить выбор",
                                  command=scr.reset,
@@ -1073,7 +1103,7 @@ def configureWidgets(scr, top):
 def saveToPickle(filename, obj):
     """
     Сохранение объекта в бинарный файл pickle
-    
+
     :param filename: путь к файлу для сохранения
     :type filename: string
     :param obj: объект для сохранения
@@ -1087,7 +1117,22 @@ def saveToPickle(filename, obj):
 
 
 class ChangeDialog(tk.Toplevel):
+    """
+    Класс диалога для изменения параметров фильтров
+        :Автор(ы): Сидоров
+    """
     def __init__(self, parent, config, prompt):
+        """
+        Инициализация диалогового окна
+
+        :param parent: родительский объект
+        :type parent: MainWindow или tk.Tk
+        :param config: словарь настроек для получения цветов
+        :type config: dict
+        :param prompt: текст запроса
+        :type prompt: string
+        :Автор(ы): Сидоров
+        """
         tk.Toplevel.__init__(self, parent)
         self.geometry("200x90+550+230")
         self.resizable(0, 0)
@@ -1099,28 +1144,35 @@ class ChangeDialog(tk.Toplevel):
         self.label = tk.Label(self, text=prompt, bg=config["def_bg_color"],
                               fg=config["def_frame_fg_color"])
         self.entry = tk.Entry(self, textvariable=self.var)
-        self.ok_button = tk.Button(self, text="OK", command=self.on_ok)
+        self.ok_button = tk.Button(self, text="OK", command=self.Close)
         self.ok_button.configure(bg=config["def_btn_color"],
-                                 fg=config["def_btn_fg_color"])
-        self.ok_button.place(relx=0.338, rely=0.55, relheight=0.35,
-                             relwidth=0.3, bordermode='ignore')
+                                 fg=config["def_btn_fg_color"], cursor="hand2")
+        self.ok_button.pack(side="bottom", fill="x", padx=60, pady=10)
 
         self.label.pack(side="top", fill="x")
-        self.entry.pack(side="top", fill="x")
+        self.entry.pack(side="top", fill="x", padx=10)
 
-        self.entry.bind("<Return>", self.on_ok)
+        self.entry.bind("<Return>", self.Close)
 
-    def on_ok(self, event=None):
+    def Close(self, event=None):
+        """
+        Закрытие окна
+
+        :Автор(ы): Сидоров
+        """
         self.destroy()
 
-    # def addPar(self):
-    #     newPar = self.entry.get()
-        # select = list(top.Filter_List2.curselection())
-        # top.Filter_List2.insert(1, newPar)
-
     def show(self):
+        """
+        Отображение окна и получение данных после закрытия окна
+
+        :return: введенное значение
+        :rtype: string
+        :Автор(ы): Сидоров
+        """
         self.wm_deiconify()
         self.entry.focus_force()
+        self.grab_set()
         self.wait_window()
         return self.var.get()
 
@@ -1135,12 +1187,12 @@ def testVal(inStr, acttyp):
 class message(tk.Toplevel):
     """
     Класс всплывающего сообщения
-    :Автор(ы): Константинов
+        :Автор(ы): Константинов
     """
     def __init__(self, parent, prompt="Сообщение", msgtype="info"):
         """
         Инициализация окна сообщения
-        
+
         :param parent: любой родительский объект
         :type parent: MainWindow или tk.Tk
         :param prompt: сообщение
@@ -1165,7 +1217,7 @@ class message(tk.Toplevel):
     def setColor(self, msgtype="info"):
         """
         Задача цвета элементам сообщения в соответствии со словарем colorDict
-        
+
         :param msgtype: тип сообщения [warning, error, success, info]; по умолчанию info
         :type msgtype: string
         :Автор(ы): Константинов
@@ -1195,7 +1247,7 @@ class askValuesDialog(tk.Toplevel):
     def __init__(self, parent, config, labelTexts, currValues=None):
         """
         Инициализация окна диалога
-        
+
         :param parent: любой родительский объект
         :type parent: MainWindow или tk.Tk
         :param config: словарь настроек для получения цветов
@@ -1270,7 +1322,7 @@ class askValuesDialog(tk.Toplevel):
     def show(self):
         """
         Получение данных после закрытия окна (вызвать для отображения)
-        
+
         :return: словарь введенных значений параметров
         :rtype: dict
         :Автор(ы): Константинов
@@ -1288,7 +1340,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def __init__(self, parent):
         """
         Инициализация окна даилога
-        
+
         :param parent: любой родительский объект
         :type parent: MainWindow или tk.Tk
         :Автор(ы): Константинов
