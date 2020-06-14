@@ -246,7 +246,7 @@ def getSummaryDf(df):
     :Автор(ы): Березуцкий
     """
 
-
+    plt.close('all')
     totalDf = df[0].merge(df[1], how='left', left_on='Код работника', right_on='Код')
     totalDf = totalDf.merge(df[2], how='left', left_on='Код должности', right_on='Код').drop(['Код'], axis='columns')
     totalDf = totalDf.merge(df[3], how='left', left_on='Код_y', right_on='Код').drop(['Код_y', 'Код'], axis='columns')
@@ -329,6 +329,7 @@ def getScatterplot(root, window, fdf, directory):
             ax1.scatter(fdata1, fdata2, label=deps[i])
     else:
         return None, None
+    plt.close('all')
     if quant1 == 'Сумма' and quant2 == 'Отработано (ч)':
         ax1.set_title('Диаграмма: $' + str(quant1) +
                       '$ от $' + str(quant2) + '$')
@@ -414,6 +415,7 @@ def getBoxWhisker(root, window, fdf, directory):
             data.append(fdata)
     else:
         return None, None
+    plt.close('all')
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.boxplot(data, 0, '')
     ax1.set_xticklabels(names, rotation=45, fontsize=8)
@@ -485,6 +487,7 @@ def getBar(root, window, df, directory):
                     data[i][profs[0]-1] += 1
     else:
         return None, None
+    plt.close('all')
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.set_xlabel('$' + str(quant) + '$')
     ax1.set_ylabel('$Частота$')
@@ -567,6 +570,7 @@ def getHist(root, window, df, directory):
             data[i] = sals
     else:
         return None, None
+    plt.close('all')
     fig, ax1 = plt.subplots(figsize=(8, 4))
     ax1.set_xlabel('$' + str(quant) + '$')
     ax1.set_ylabel('$Частота$')
@@ -578,11 +582,10 @@ def getHist(root, window, df, directory):
     except:
         message(root, 'Слишком много значений.\nМаксимум: 10', msgtype='warning').fade()
         return None, None
-    # ax1.legend(prop={'size': 10})
     ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    plt.tight_layout()
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
-
+    plt.tight_layout()
+    
     filename = createUniqueFilename(['гист', quant, qual], '.png', directory)
     return fig, filename
 
@@ -652,6 +655,7 @@ def getQuantStatistics(root, window, df, directory):
     :rtype: string
     :Автор(ы): Березуцкий
     """
+    plt.close('all')
     sumDf = getSummaryDf(df)
     
     quant = []
@@ -709,6 +713,7 @@ def getPivotStatistics(root, window, df, directory):
     :rtype: string
     :Автор(ы): Березуцкий
     """
+    plt.close('all')
     sumDf = getSummaryDf(df)
 
     qual = window.ComboQual.get()
