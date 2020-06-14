@@ -493,8 +493,7 @@ def getBar(root, window, df, directory):
     for i in range(len(data)):
         ax1.bar(list(xlabels), data[i%10], width=.95-.1*i, color=colors[i],
                 label=quals, edgecolor='black', alpha=1)
-    # ax1.legend(quals, prop={'size': 8})
-    ax1.legend(quals, loc='upper left', bbox_to_anchor=(1, 1))
+    ax1.legend(quals)# loc='upper left', bbox_to_anchor=(1, 1))
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
     for tick in ax1.xaxis.get_majorticklabels():
         tick.set_horizontalalignment('right')
@@ -578,8 +577,7 @@ def getHist(root, window, df, directory):
     except:
         message(root, 'Слишком много значений.\nМаксимум: 10', msgtype='warning').fade()
         return None, None
-    # ax1.legend(prop={'size': 10})
-    ax1.legend(loc='upper left', bbox_to_anchor=(1, 0.9))
+    ax1.legend()
     ax1.set_title('Диаграмма $' + quant + '$ x $' + qual + '$')
 
     filename = createUniqueFilename(['гист', quant, qual], '.png', directory)
@@ -1298,7 +1296,8 @@ class message(tk.Toplevel):
 class askValuesDialog(tk.Toplevel):
     """
     Класс диалога для ввода данных
-        :Автор(ы): Константинов
+    
+    :Автор(ы): Константинов
     """
     def __init__(self, parent, config, labelTexts, currValues=None):
         """
@@ -1509,6 +1508,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def switchFs(self):
         """
         Запись параметра fullscreen в словарь настроек
+        
         :Автор(ы): Константинов
         """
         self.config['fullscreen'] = str(int(self.fsvar.get()))
@@ -1516,6 +1516,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def switchMax(self):
         """
         Запись параметра maximize в словарь настроек
+        
         :Автор(ы): Константинов
         """
         self.config['maximize'] = str(int(self.maxvar.get()))
@@ -1523,6 +1524,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def updateAll(self):
         """
         Обновление элементов окна диалога в соответствии с настоящим словарем настроек
+        
         :Автор(ы): Константинов
         """
         self.configure(bg=self.config['def_bg_color'])
@@ -1565,6 +1567,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def pickDir(self, event=None):
         """
         Выбор файлов и папок по нажатию на соответствующие кнопки
+        
         :Автор(ы): Константинов
         """
         if event == 'db':
@@ -1580,6 +1583,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def pickColor(self, event=None):
         """
         Выбор цвета по нажатию на соответствующую кнопку
+        
         :Автор(ы): Константинов
         """
         if event == 'BtnText':
@@ -1604,6 +1608,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def exit(self):
         """
         Закрытие окна диалога
+        
         :Автор(ы): Константинов
         """
         self.retDict.clear()
@@ -1612,6 +1617,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def on_ok(self, event=None):
         """
         Закрытие окна диалога с подтверждением
+        
         :Автор(ы): Константинов
         """
         writeConfig(self.config)
@@ -1621,6 +1627,7 @@ class CustomizeGUIDialog(tk.Toplevel):
     def show(self):
         """
         Отображение окна диалога
+        
         :Автор(ы): Константинов
         """
         self.wm_deiconify()

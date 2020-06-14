@@ -179,11 +179,11 @@ class MainWindow:
         """
         self.root = root
         self.root.focus_force()
-        DB.db, DB.modified, DB.currentFile = funcs.openFromFile('../Data/db.pickle',
+        self.config = funcs.getConfig()
+        DB.db, DB.modified, DB.currentFile = funcs.openFromFile(self.config["def_db"],
                                                           DB.db, DB.modified,
                                                           DB.currentFile,
                                                           createEmptyDatabase)
-        self.config = funcs.getConfig()
         configureGUI(self, self.root)
         funcs.message(self.root, 'Документацию и руководство\nпользователя'+ 
                       'можно найти\nв каталоге Notes', msgtype='info').fade()
@@ -374,24 +374,6 @@ class MainWindow:
         """
         self.Filter_List2.yview_scroll(int(-4*(event.delta/120)), 'units')
 
-    def updateCombos(self):
-        """
-        Вроде как бесполезная, надо не забыть удалить перед релизом
-
-        :Автор(ы): Константинов
-        """
-        pass
-#        self.ComboQuant.set('')
-#        self.ComboQual.set('')
-#        if len(self.ComboQuant["values"]) == 0:
-#            self.ComboQuant.configure(state="disabled")
-#        else:
-#            self.ComboQuant.configure(state="normal")
-#        if len(self.ComboQual["values"]) == 0:
-#            self.ComboQual.configure(state="disabled")
-#        else:
-#            self.ComboQual.configure(state="normal")
-
     def tabChoice(self, event):
         """
         Отображение checkbox'ов и фильтров в зависимости от таблицы
@@ -436,7 +418,7 @@ class MainWindow:
 
     def insertCheckBoxes(self, tab):
         """
-        Вставляет нужные checbox'ы
+        Вставляет нужные checkbox'ы
 
         :param tab: номер таблицы
         :type df: int
@@ -520,7 +502,7 @@ class MainWindow:
 
     def openDialog(self):
         """
-        Открывает окно изменения парметра,
+        Открывает окно изменения параметра,
         получает значение из этого окна и запускает фильтрацию
         Или выводит сообщение об ошибке.
 
