@@ -1,0 +1,9 @@
+*.pickle
+*.pyc
+*.png
+*.pdf
+*.bat
+Makefile
+build/make.bat
+source/
+build/
